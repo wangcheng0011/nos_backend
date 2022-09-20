@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.train.mapper.BaseBodyPartMapper">
+    <resultMap id="FilterCourseList" type="com.knd.front.home.dto.FilterCourseListDto">
+        <result property="courseId" column="id"/>
+        <result property="course" column="course"/>
+        <result property="trainingFlag" column="trainingFlag"/>
+        <result property="picAttachUrl" column="images"/>
+        <result property="videoAttachUrl" column="video"/>
+        <result property="videoSize" column="videoSize"/>
+        <result property="sort" column="sort"/>
+        <result property="remark" column="remark"/>
+        <result property="videoDurationMinutes" column="videoDurationMinutes"/>
+        <collection property="typeList" ofType="com.knd.front.home.dto.BaseCourseTypeDto">
+            <result property="id" column="bctid"/>
+            <result property="name" column="type"/>
+        </collection>
+        <collection property="targetList" ofType="com.knd.front.home.dto.BaseTargetDto">
+            <result property="id" column="btid"/>
+            <result property="name" column="target"/>
+        </collection>
+        <collection property="partList" ofType="com.knd.front.home.dto.BaseBodyPartDto">
+            <result property="id" column="bbpid"/>
+            <result property="name" column="part"/>
+        </collection>
+    </resultMap>
+
+    <select id="getFilterCoursePage" resultMap="FilterCourseList">
+        SELECT
+        distinct ch.id
+        FROM
+        course_head ch
+        LEFT JOIN course_type ct ON ch.id = ct.courseId and ct.deleted=0
+        LEFT JOIN base_course_type bct ON ct.courseTypeId = bct.id and bct.deleted = 0
+        LEFT JOIN course_target ctarget ON ctarget.courseId = ch.id and ctarget.deleted=0
+        LEFT JOIN base_target bt ON bt.id = ctarget.targetId and bt.deleted = 0
+        LEFT JOIN course_body_part cbp ON cbp.courseId = ch.id and cbp.deleted=0
+        LEFT JOIN base_body_part bbp ON bbp.id = cbp.partId and bbp.deleted = 0
+        LEFT JOIN attach pic ON pic.id = ch.picAttachId and pic.deleted = 0
+        LEFT JOIN attach video ON video.id = ch.videoAttachId and video.deleted = 0
+
+        WHERE ch.deleted = 0 and ch.releaseFlag = 1
+        <if test="isVip==0">
+            AND ch.userScope = 0
+        </if>
+        <if test="typeList !=null and typeList!='' and typeList.size() &gt; 0">
+            and bct.id IN
+            <foreach collection="typeList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="partList !=null and partList!='' and partList.size() &gt; 0">
+            and bbp.id IN
+            <foreach collection="partList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="targetList !=null and targetList!='' and targetList.size() &gt; 0">
+            and bt.id IN
+            <foreach collection="targetList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+
+        ORDER BY (bct.sort +0) asc,(ch.sort +0) asc,bt.createDate asc,bbp.createDate asc,ch.lastModifiedDate desc
+    </select>
+    <select id="getFilterCourseList" resultMap="FilterCourseList">
+        SELECT
+        distinct ch.id ,
+        ch.sort,
+        ch.course ,
+        ch.remark ,
+        ch.trainingFlag ,
+        ch.videoDurationMinutes ,
+        bct.id as bctid,
+        bct.type ,
+        bt.id  as btid,
+        bt.target,
+        bbp.id as bbpid,
+        bbp.part ,
+        pic.filePath  as images,
+        video.filePath as video
+        FROM
+        course_head ch
+        LEFT JOIN course_type ct ON ch.id = ct.courseId and ct.deleted=0
+        LEFT JOIN base_course_type bct ON ct.courseTypeId = bct.id and bct.deleted = 0
+        LEFT JOIN course_target ctarget ON ctarget.courseId = ch.id and ctarget.deleted=0
+        LEFT JOIN base_target bt ON bt.id = ctarget.targetId and bt.deleted = 0
+        LEFT JOIN course_body_part cbp ON cbp.courseId = ch.id and cbp.deleted=0
+        LEFT JOIN base_body_part bbp ON bbp.id = cbp.partId and bbp.deleted = 0
+        LEFT JOIN attach pic ON pic.id = ch.picAttachId and pic.deleted = 0
+        LEFT JOIN attach video ON video.id = ch.videoAttachId and video.deleted = 0
+        <if test="isPay == 1 and userId !=null and userId !=''">
+            LEFT JOIN user_pay pay ON pay.payId = ch.id and pay.userId = #{userId} and pay.deleted = 0
+        </if>
+        WHERE ch.deleted = 0 and ch.releaseFlag = 1 and ch.appHomeFlag=0
+        <if test="isVip==0">
+            AND ch.userScope = 0
+        </if>
+        <if test="typeList !=null and typeList!='' and typeList.size() &gt; 0">
+            and bct.id IN
+            <foreach collection="typeList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="partList !=null and partList!='' and partList.size() &gt; 0">
+            and bbp.id IN
+            <foreach collection="partList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="targetList !=null and targetList!='' and targetList.size() &gt; 0">
+            and bt.id IN
+            <foreach collection="targetList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="isPay == 1 and userId !=null and userId !=''">
+            and (ch.amount = '0.00' or pay.payStatus = 1 )
+        </if>
+        GROUP BY ch.id ORDER BY (ch.sort+0) asc,(bct.sort+0) asc,str_to_date(ch.lastModifiedDate,'%Y-%m-%d %H:%i:%s')desc ,str_to_date(bt.createDate,'%Y-%m-%d %H:%i:%s') asc,str_to_date(bbp.createDate,'%Y-%m-%d %H:%i:%s') asc
+    </select>
+    <select id="getFilterCourse" resultMap="FilterCourseList">
+SELECT
+        distinct ch.id ,
+        ch.course ,
+        ch.sort,
+        ch.trainingFlag ,
+        bct.id as bctid,
+        bct.type ,
+        bt.id  as btid,
+        bt.target ,
+        bbp.id as bbpid,
+        bbp.part ,
+        pic.filePath  as images,
+        video.filePath as video,
+        video.fileSize as videoSize
+        FROM
+        course_head ch
+        LEFT JOIN course_type ct ON ch.id = ct.courseId and ct.deleted=0
+        LEFT JOIN base_course_type bct ON ct.courseTypeId = bct.id and bct.deleted = 0
+        LEFT JOIN course_target ctarget ON ctarget.courseId = ch.id and ctarget.deleted=0
+        LEFT JOIN base_target bt ON bt.id = ctarget.targetId and bt.deleted = 0
+        LEFT JOIN course_body_part cbp ON cbp.courseId = ch.id and cbp.deleted=0
+        LEFT JOIN base_body_part bbp ON bbp.id = cbp.partId and bbp.deleted = 0
+        LEFT JOIN attach pic ON pic.id = ch.picAttachId and pic.deleted = 0
+        LEFT JOIN attach video ON video.id = ch.videoAttachId and video.deleted = 0
+        WHERE ch.deleted = 0 and ch.releaseFlag = 1 and ch.id = #{id}
+        ORDER BY (bct.sort+0) asc,(ch.sort+0) asc,str_to_date(ch.lastModifiedDate,'%Y-%m-%d %H:%i:%s')desc ,str_to_date(bt.createDate,'%Y-%m-%d %H:%i:%s') asc,str_to_date(bbp.createDate,'%Y-%m-%d %H:%i:%s') asc
+    </select>
+
+    <select id="getBaseEquipment" resultType="com.knd.front.train.dto.BaseEquipmentDto">
+        SELECT `id` as id,equipment as name FROM base_equipment WHERE deleted = 0
+    </select>
+
+    <resultMap id="FilterFreeTrainList" type="com.knd.front.train.dto.FilterFreeTrainListDto">
+        <result property="actionId" column="actionId"/>
+        <result property="action" column="action"/>
+        <result property="picAttachUrl" column="images"/>
+        <result property="videoAttachUrl" column="video"/>
+        <result property="videoSize" column="videoSize"/>
+        <result property="countMode" column="countMode"/>
+        <result property="aimDuration" column="aimDuration"/>
+        <result property="aimTimes" column="aimTimes"/>
+        <result property="basePower" column="basePower"/>
+        <result property="leftRightAngleOfLeft" column="leftRightAngleOfLeft"/>
+        <result property="leftRightAngleOfRight" column="leftRightAngleOfRight"/>
+        <result property="upDownAngleOfLeft" column="upDownAngleOfLeft"/>
+        <result property="upDownAngleOfRight" column="upDownAngleOfRight"/>
+        <result property="heightOfLeft" column="heightOfLeft"/>
+        <result property="heightOfRight" column="heightOfRight"/>
+        <result property="isTwoArms" column="isTwoArms"/>
+        <collection property="partList" ofType="com.knd.front.train.dto.BaseEquipmentDto">
+            <result property="id" column="bbpid"/>
+            <result property="name" column="part"/>
+        </collection>
+        <collection property="targetList" ofType="com.knd.front.train.dto.BaseEquipmentDto">
+            <result property="id" column="baid"/>
+            <result property="name" column="target"/>
+        </collection>
+        <collection property="equipmentList" ofType="com.knd.front.train.dto.BaseEquipmentDto">
+            <result property="id" column="beid"/>
+            <result property="name" column="equipment"/>
+        </collection>
+    </resultMap>
+
+    <select id="getFilterFreeTrainList" resultMap="FilterFreeTrainList">
+        SELECT
+        ba.id as actionId,ba.action ,ba.countMode,ba.aimDuration,ba.aimTimes,ba.basePower,
+        ba.leftRightAngleOfLeft,ba.leftRightAngleOfRight,ba.upDownAngleOfLeft,ba.upDownAngleOfRight,ba.heightOfLeft,ba.heightOfRight,ba.isTwoArms,
+        pic.filePath as images ,video.filePath as video,video.fileSize as videoSize,be.id as beid,
+        be.equipment as equipment,ba.targetId as baid,bt.target,ba.partId as bbpid,bbp.part
+        FROM
+        base_action ba
+        LEFT JOIN base_action_equipment bae ON ba.id = bae.actionId and bae.deleted = 0
+        LEFT JOIN base_equipment be ON be.id = bae.equipmentId and be.deleted = 0
+        LEFT JOIN tb_order od ON od.goodsId = be.id and od.deleted = 0
+        LEFT JOIN base_target bt ON bt.id = ba.targetId and bt.deleted = 0
+        LEFT JOIN base_body_part bbp ON bbp.id = ba.partId and bbp.deleted = 0
+        LEFT JOIN attach pic ON pic.id = ba.picAttachId and pic.deleted = 0
+        LEFT JOIN attach video ON video.id = ba.videoAttachId and video.deleted = 0
+        WHERE ba.deleted=0 and  ba.freeTrainFlag = '1'
+        <if test="equipmentList !=null and equipmentList!='' and equipmentList.size() &gt;0  ">
+            and be.id IN
+            <foreach collection="equipmentList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="partList !=null and partList!='' and partList.size() &gt;0  ">
+            and bbp.id IN
+            <foreach collection="partList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="targetList !=null and targetList!='' and targetList.size() &gt;0 ">
+            and bt.id IN
+            <foreach collection="targetList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="isBuy == 1">
+            and (od.userId = #{userId} or ba.vipType='0')
+        </if>
+        GROUP BY ba.action
+        ORDER BY ba.action desc,ba.targetId asc,ba.partId asc,be.createDate asc,bt.createDate asc,bbp.createDate asc
+    </select>
+
+    <select id="getFilterFreeTrainPage" resultMap="FilterFreeTrainList">
+        SELECT
+        ba.id as actionId
+        FROM
+        base_action ba
+        LEFT JOIN base_action_equipment bae ON ba.id = bae.actionId and bae.deleted = 0
+        LEFT JOIN base_equipment be ON be.id = bae.equipmentId and be.deleted = 0
+        LEFT JOIN base_target bt ON bt.id = ba.targetId and bt.deleted = 0
+        LEFT JOIN base_body_part bbp ON bbp.id = ba.partId and bbp.deleted = 0
+        LEFT JOIN attach pic ON pic.id = ba.picAttachId and pic.deleted = 0
+        LEFT JOIN attach video ON video.id = ba.videoAttachId and video.deleted = 0
+        WHERE ba.deleted=0 and  ba.freeTrainFlag = '1'
+        <if test="equipmentList !=null and equipmentList!='' and equipmentList.size() &gt;0  ">
+            and be.id IN
+            <foreach collection="equipmentList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="partList !=null and partList!='' and partList.size() &gt;0  ">
+            and bbp.id IN
+            <foreach collection="partList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="targetList !=null and targetList!='' and targetList.size() &gt;0 ">
+            and bt.id IN
+            <foreach collection="targetList" index="index" item="item" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        ORDER BY ba.action desc,ba.targetId asc,ba.partId asc,be.createDate asc,bt.createDate asc,bbp.createDate asc
+    </select>
+
+</mapper>

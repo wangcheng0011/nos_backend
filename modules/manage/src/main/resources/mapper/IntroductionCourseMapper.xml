@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.user.mapper.IntroductionCourseMapper">
+
+
+    <!--    //查询注册会员课程列表-->
+    <select id="selectUserCoursePageBySome" resultType="com.knd.manage.user.dto.IntroductionCourseDto" parameterType="map">
+        select i.courseHeadId id,u.nickName ,u.mobile ,i.vedioBeginTime ,
+       -- t.type ,
+        i.equipmentNo,i.course
+        from introduction_course i
+        left join user u on u.id = i.userId and u.deleted = '0'
+      --  left join course_type ct on ct.courseId =i.courseHeadId and ct.deleted = '0'
+      --  left join base_course_type t on t.id = ct.courseTypeId and t.deleted = '0'
+        where i.deleted = '0'
+        <if test="nickName != null">
+            and u.nickName like #{nickName}
+        </if>
+        <if test="mobile != null">
+            and u.mobile like #{mobile}
+        </if>
+        <if test="equipmentNo != null">
+            and i.equipmentNo like #{equipmentNo}
+        </if>
+        <if test="trainTimeBegin != null">
+            and str_to_date(i.vedioBeginTime,'%Y-%m-%d') >= #{trainTimeBegin}
+        </if>
+        <if test="trainTimeEnd != null">
+            and #{trainTimeEnd}>= str_to_date(i.vedioBeginTime,'%Y-%m-%d')
+        </if>
+        order by str_to_date(i.vedioBeginTime,'%Y-%m-%d %H:%i:%s') desc
+
+    </select>
+
+
+</mapper>

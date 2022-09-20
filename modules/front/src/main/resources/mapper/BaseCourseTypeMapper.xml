@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.home.mapper.BaseCourseTypeMapper">
+    <resultMap id="courseList" type="com.knd.front.home.dto.CourseListDto">
+        <result property="type" column="type"/>
+        <result property="typeId" column="typeId"/>
+        <result property="sort" column="sort"/>
+        <collection property="typeCourseList" ofType="com.knd.front.home.dto.CourseDto">
+            <result property="course" column="course"/>
+            <result property="courseId" column="courseId"/>
+            <result property="picAttachUrl" column="picAttachUrl"/>
+            <result property="videoAttachUrl" column="videoAttachUrl"/>
+            <result property="trainingFlag" column="trainingFlag"/>
+            <result property="chSort" column="chSort"/>
+            <result property="lastModifiedDate" column="lastModifiedDate"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="getHomeCourseList" resultMap="courseList">
+        SELECT
+        bct.id AS typeId,
+        bct.type AS `type`,
+        ch.id AS courseId,
+        ch.course AS course,
+        ch.trainingFlag AS trainingFlag,
+        pic.filePath AS picAttachUrl,
+        video.filePath AS videoAttachUrl,
+        bct.sort AS sort,
+        ch.sort AS chSort,
+        ch.lastModifiedDate
+        FROM
+        base_course_type bct
+        LEFT JOIN course_type ct  ON bct.id = ct.courseTypeId and ct.deleted = 0
+        LEFT JOIN course_head ch ON ct.courseId = ch.id and ch.deleted = 0 and ch.releaseFlag = 1 and ch.appHomeFlag = 1
+        LEFT JOIN attach pic ON ch.picAttachId = pic.id and pic.deleted = 0
+        LEFT JOIN attach video ON ch.videoAttachId = video.id and video.deleted = 0
+        WHERE bct.deleted=0 and bct.appHomeFlag = 1
+        <if test="isVip==0">
+            and ch.userScope = 0
+        </if>
+        order by (bct.sort+0) asc,(ch.sort+0) asc,str_to_date(ch.lastModifiedDate,'%Y-%m-%d %H:%i:%s') desc
+    </select>
+
+    <select id="getBaseCourseType" resultType="com.knd.front.home.dto.BaseCourseTypeDto">
+		SELECT `id` as id,`type` as name FROM base_course_type WHERE deleted = 0 order by (sort+0) asc
+	</select>
+    <select id="getBaseBodyPartList" resultType="com.knd.front.home.dto.BaseBodyPartDto">
+		SELECT `id` as id,part as name  FROM base_body_part WHERE deleted = 0 order by createDate asc
+	</select>
+    <select id="getBaseTargetList" resultType="com.knd.front.home.dto.BaseTargetDto">
+		SELECT `id` as id,target as name FROM base_target WHERE deleted = 0 order by createDate asc
+	</select>
+    <select id="getBaseLabelList" resultType="com.knd.front.home.dto.BaseLabelDto">
+       SELECT `type` as id, label as name FROM base_label WHERE deleted = 0 order by createDate asc
+    </select>
+
+</mapper>

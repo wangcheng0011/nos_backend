@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.basedata.mapper.BaseActionMapper">
+
+    <!--    //全部模糊查询所有-->
+    <select id="selectAllByLike" resultType="com.knd.manage.basedata.dto.ActionInfoDto" parameterType="map">
+        select b.id ,b.action,b.actionType,a.name as actionTypeName,t.target ,p.part ,b.countMode ,b.aimDuration,b.aimTimes
+        from base_action b
+        left join action_type a on a.id = b.actionType
+        left join base_target t on t.id = b.targetId
+        left join base_body_part p on p.id = b.partId
+        where
+        b.deleted ='0' and
+        t.deleted ='0' and
+        p.deleted ='0'
+        <if test="actionType !='%%'">
+            and a.name like #{actionType}
+        </if>
+        <if test="action !='%%'">
+            and b.action like #{action}
+        </if>
+        <if test="target !='%%'">
+            and t.target like #{target}
+        </if>
+        <if test="part !='%%'">
+            and p.part like #{part}
+        </if>
+        order by CONVERT(b.action using gbk) asc
+    </select>
+    <!--    //分页模糊查询所有-->
+    <select id="selectPageByLike" resultType="com.knd.manage.basedata.dto.ActionInfoDto" parameterType="map">
+        select b.id ,b.action ,b.actionType,a.name as actionTypeName,t.target ,p.part,b.countMode,b.aimDuration,b.aimTimes
+        from base_action b
+        left join action_type a on a.id = b.actionType and a.deleted ='0'
+        left join base_target t on t.id = b.targetId and t.deleted ='0'
+        left join base_body_part p on p.id = b.partId and p.deleted ='0'
+        where
+        b.deleted ='0'
+        <if test="actionType !='%%'">
+            and a.name like #{actionType}
+        </if>
+        <if test="action !='%%'">
+            and b.action like #{action}
+        </if>
+        <if test="target !='%%'">
+            and t.target like #{target}
+        </if>
+        <if test="part !='%%'">
+            and p.part like #{part}
+        </if>
+        order by CONVERT(b.action using gbk) asc
+    </select>
+
+<!--    //检查是否有未删除的动作使用该目标-->
+    <select id="selectActionCountByTargetId" resultType="integer" parameterType="string">
+            select count(*)
+            from base_action
+            where deleted = '0' and targetId = #{value }
+    </select>
+
+<!--    //检查是否有未删除的动作使用该部位-->
+    <select id="selectActionCountByPartId" resultType="integer" parameterType="string">
+            select count(*)
+            from base_action
+            where deleted = '0' and partId = #{value }
+    </select>
+
+</mapper>

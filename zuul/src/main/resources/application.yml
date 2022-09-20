@@ -1,0 +1,71 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: zuul
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+zuul:
+  routes:
+    auth:
+      path: /auth/**
+      serviceId: auth
+    manage:
+      path: /manage/**
+      serviceId: manage
+    front:
+      path: /front/**
+      serviceId: front
+    pay:
+      path: /pay/**
+      serviceId: pay
+  add-host-header: true
+  # 开发时填写 /api 正式部署时 不需要填写
+  #  prefix: /api
+  sensitive-headers: '*'
+  host:
+    socket-timeout-millis: 20000
+    connect-timeout-millis: 4000
+
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 120000
+
+ribbon:
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
+
+
+pass:
+  swagger-ui: /csrf,/swagger-resources,/swagger-ui.html,/v2/api-docs,/webjars/springfox-swagger-ui/
+
+swagger:
+  title: vita
+  description: 新健康接口文档
+  service-url: http://127.0.0.1:8000  # /swagger-ui.html
+  contact: sy
+  version: 0.0.1-beta
+
+eureka:
+  instance:
+    health-check-url: http://localhost:${server.port}/actuator/health
+    status-page-url: http://localhost:${server.port}/actuator/info
+    home-page-url: http://localhost:${server.port}
+    metadata-map:
+      cluster: ${spring.application.name}
+    hostname: localhost
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: false    #是否将自己注册到Eureka Server上，默认为true
+    fetch-register: false #是否从Eureka Server上获取注册信息，默认为true

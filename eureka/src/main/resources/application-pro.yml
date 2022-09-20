@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: eureka
+
+server:
+  port: 8761
+  tomcat:
+    uri-encoding: UTF-8
+
+eureka:
+  instance:
+    #主机名
+    hostname: eureka
+    #优先使用IP地址作为主机名的标识
+    prefer-ip-address: true
+    #eureka客户需要多长时间发送心跳给eureka服务器，表明它仍然活着,默认为30 秒
+    lease-renewal-interval-in-seconds: 30
+    #Eureka服务器在接收到实例的最后一次发出的心跳后，需要等待多久才可以将此实例删除，默认为90秒
+    lease-expiration-duration-in-seconds: 90
+  server:
+    #自我保护机制（生产环境建议开启）
+    enable-self-preservation: true
+    # 续期时间，即扫描失效服务的间隔时间（缺省为60*1000ms）
+    eviction-interval-timer-in-ms: 6000
+  client:
+    #是否从Euarka服务端获取注册信息(注册中心集群环境下需开启)
+    fetch-registry: false
+    #是否将自身的实例信息注册到Eureka服务端(注册中心集群环境下需开启)
+    register-with-eureka: false
+    serviceUrl:
+      #defaultZone: http://srv-pro-01:${server.port}/eureka/,http://srv-pro-02:${server.port}/eureka/
+      defaultZone: http://localhost:${server.port}/eureka/

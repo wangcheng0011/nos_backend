@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.train.mapper.TrainCourseHeadInfoMapper">
+
+    <select id="getCourseHeadTotalTrainKg" resultType="java.lang.String">
+        SELECT
+            sum(ifnull( tchi.finishTotalPower, 0 )) finishTotalPower,
+            sum(ifnull( tchi.calorie, 0 )) totalCalorie
+        FROM
+	    train_course_head_info tchi
+        WHERE
+        tchi.userId = #{userId} and tchi.deleted = 0
+--      SELECT
+-- 	    sum(
+-- 	    ifnull( tcai.actTotalPower, 0 ))
+--     FROM
+-- 	    train_course_head_info tchi
+-- 	    LEFT JOIN train_course_block_info tcbi ON tchi.id = tcbi.trainCourseHeadInfoId
+-- 	    AND tcbi.deleted = 0
+--         LEFT JOIN train_course_act_info tcai ON tcbi.id = tcai.trainCourseBlockInfoId
+--         AND tcai.deleted = 0
+--         WHERE
+--         tchi.userId = #{userId} and tchi.deleted = 0
+    </select>
+    <select id="getFreeHeadTotalTrainKg" resultType="java.lang.String">
+        select sum(ifnull(finishTotalPower,0)) from train_free_head where deleted = 0 and userId = #{userId}
+    </select>
+    <select id="getLatestTrainLevel" resultType="java.lang.String">
+        SELECT
+        trainLevel
+        FROM
+        user_train_level
+        WHERE
+        deleted = 0
+        AND userId = #{userId}
+
+        and trainPeriodEndTime &lt;= now()
+        ORDER BY
+       str_to_date(trainPeriodBeginTime,'%Y-%m-%d ') DESC limit 1
+    </select>
+</mapper>

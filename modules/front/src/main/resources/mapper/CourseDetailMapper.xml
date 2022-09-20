@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.train.mapper.CourseDetailMapper">
+    <resultMap id="CourseDetail" type="com.knd.front.train.dto.CourseDetailDto">
+        <result property="courseId" column="id"/>
+        <result property="course" column="course"/>
+        <result property="trainingFlag" column="trainingFlag"/>
+        <result property="remark" column="remark"/>
+        <result property="fitCrowdRemark" column="fitCrowdRemark"/>
+        <result property="unFitCrowdRemark" column="unFitCrowdRemark"/>
+        <result property="picAttachUrl" column="pic"/>
+        <result property="videoAttachUrl" column="video"/>
+		<result property="videoSize" column="videoSize"/>
+		<result property="appHomeFlag" column="appHomeFlag"/>
+		<result property="releaseFlag" column="releaseFlag"/>
+		<result property="frequency" column="frequency"/>
+        <result property="videoDurationMinutes" column="videoDurationMinutes"/>
+        <result property="videoDurationSeconds" column="videoDurationSeconds"/>
+		<collection property="equipmentList" ofType="com.knd.front.login.entity.BaseEquipment" resultMap="equipmentList"/>
+        <collection property="typeList" ofType="com.knd.front.home.dto.BaseBodyPartDto" resultMap="typeList"/>
+        <collection property="targetList" ofType="com.knd.front.home.dto.BaseBodyPartDto" resultMap="targetList"/>
+        <collection property="partList" ofType="com.knd.front.home.dto.BaseBodyPartDto" resultMap="partList"/>
+        <collection property="blockList" ofType="com.knd.front.train.dto.BlockDto" resultMap="blockList"/>
+    </resultMap>
+    <resultMap id="blockList" type="com.knd.front.train.dto.BlockDto">
+        <result property="blockId" column="blockId"/>
+        <result property="block" column="block"/>
+        <result property="aimSetNum" column="aimSetNum"/>
+        <collection property="actionList" ofType="com.knd.front.train.dto.ActionDto" resultMap="actionList"/>
+    </resultMap>
+    <resultMap id="actionList" type="com.knd.front.train.dto.ActionDto">
+        <result property="actionId" column="actionId"/>
+        <result property="action" column="action"/>
+        <result property="countMode" column="countMode"/>
+        <result property="aimDuration" column="aimDuration"/>
+        <result property="aimTimes" column="aimTimes"/>
+		<result property="nodeName" column="nodeName"/>
+		<result property="nodeId" column="nodeId"/>
+		<result property="actionType" column="actionType"/>
+		<result property="basePower" column="basePower"/>
+		<result property="picAttachUrl" column="actionFilePath"/>
+		<collection property="partList" ofType="com.knd.front.home.dto.BaseBodyPartDto" resultMap="actionPartList"/>
+    </resultMap>
+    <resultMap id="targetList" type="com.knd.front.home.dto.BaseBodyPartDto">
+        <result property="id" column="targetId"/>
+        <result property="name" column="target"/>
+    </resultMap>
+	<resultMap id="actionPartList" type="com.knd.front.home.dto.BaseBodyPartDto">
+		<result property="id" column="actionPartId"/>
+		<result property="name" column="actionPartName"/>
+	</resultMap>
+    <resultMap id="partList" type="com.knd.front.home.dto.BaseBodyPartDto">
+        <result property="id" column="partId"/>
+        <result property="name" column="part"/>
+    </resultMap>
+    <resultMap id="typeList" type="com.knd.front.home.dto.BaseBodyPartDto">
+        <result property="id" column="typeId"/>
+        <result property="name" column="type"/>
+    </resultMap>
+	<resultMap id="equipmentList" type="com.knd.front.login.entity.BaseEquipment">
+		<result property="id" column="equipmentNo"/>
+		<result property="name" column="equipment"/>
+	</resultMap>
+
+<!--    <select id="getCourseDetail" resultMap="CourseDetail">-->
+<!--    SELECT-->
+<!--     ctni.actionId as actionId,-->
+<!--	ch.id,-->
+<!--	ch.course,-->
+<!--	ch.trainingFlag,-->
+<!--	ch.remark,-->
+<!--	ch.fitCrowdRemark,-->
+<!--	ch.unFitCrowdRemark,-->
+<!--	pic.filePath as pic,-->
+<!--	video.filePath as video,-->
+<!--	ct.courseTypeId as couseTypeId,-->
+<!--	bct.type,-->
+<!--	ctarget.targetId as targetId,-->
+<!--	bt.target as target,-->
+<!--	cbp.partId as partId,-->
+<!--	bbp.part,-->
+<!--	ch.videoDurationMinutes,-->
+<!--	ch.videoDurationSeconds,-->
+<!--	ctb.id as blockId,-->
+<!--	ctb.block,-->
+<!--	ctb.aimSetNum,-->
+<!--	ba.action ,-->
+<!--	ba.countMode ,-->
+<!--	ba.aimDuration,-->
+<!--	ba.aimTimes,-->
+<!--	ba.actionType,-->
+<!--	ba.basePower,-->
+<!--	babbp.id as actionPartId,-->
+<!--	babbp.part as actionPartName,-->
+<!--	bapic.filePath as actionFilePath,-->
+<!--	video.fileSize as videoSize,-->
+<!--	ctni.nodeName,-->
+<!--	ctni.id as nodeId-->
+<!--&#45;&#45;     baa.aimDuration ,-->
+<!--&#45;&#45;     baa.aimTimes-->
+<!--    FROM-->
+<!--	course_head AS ch-->
+<!--	LEFT JOIN attach AS pic ON ch.picAttachId = pic.id and pic.deleted = 0-->
+<!--	LEFT JOIN attach AS video ON ch.videoAttachId = video.id and video.deleted = 0-->
+<!--	LEFT JOIN course_type AS ct ON ch.id = ct.courseId and ct.deleted = 0-->
+<!--	LEFT JOIN base_course_type AS bct ON ct.courseTypeId = bct.id and bct.deleted = 0-->
+<!--	LEFT JOIN course_target AS ctarget ON ctarget.courseId = ch.id and ctarget.deleted = 0-->
+<!--	LEFT JOIN base_target AS bt ON ctarget.targetId = bt.id and bt.deleted = 0-->
+<!--	LEFT JOIN course_body_part AS cbp ON cbp.courseId = ch.id and cbp.deleted = 0-->
+<!--	LEFT JOIN base_body_part AS bbp ON bbp.id = cbp.partId and bbp.deleted = 0-->
+<!--	LEFT JOIN course_trainning_block AS ctb ON ctb.courseId = ch.id and ctb.deleted = 0-->
+<!--	LEFT JOIN course_trainning_node_info AS ctni ON ctni.blockId = ctb.id and  ctni.deleted = 0 and ctni.actionFlag = 1 and ctni.trainingFlag = 1-->
+<!--	LEFT JOIN base_action AS ba ON ba.id = ctni.actionId and ba.deleted = 0-->
+<!--	LEFT JOIN base_body_part AS babbp ON babbp.id = ba.partId and babbp.deleted = 0-->
+<!--	LEFT JOIN attach AS bapic ON bapic.id = ba.picAttachId and bapic.deleted = 0-->
+<!--&#45;&#45; 	LEFT JOIN base_action_aim baa on baa.action = ba.id and baa.deleted = 0-->
+<!--	where ch.id = #{courseId} and ch.deleted = 0-->
+<!--&#45;&#45;	and ch.releaseFlag = 1-->
+<!--&#45;&#45; 	order by (ctb.sort +0) asc-->
+<!--	ORDER BY (bct.sort+0) asc,(ch.sort+0) asc,(ctb.sort +0) asc,(ctni.nodeSort + 0) asc,ch.lastModifiedDate desc,bt.createDate asc,bbp.createDate asc-->
+<!--    </select>-->
+	<!--
+		去掉课程详情中的已删除约束
+	-->
+	<select id="getCourseDetail" resultMap="CourseDetail">
+    SELECT
+     ctni.actionId as actionId,
+	ch.id,
+	ch.course,
+	ch.trainingFlag,
+	ch.remark,
+	ch.fitCrowdRemark,
+	ch.unFitCrowdRemark,
+	ch.appHomeFlag,
+	ch.releaseFlag,
+	bf.frequency,
+	be.equipment,
+	ce.equipmentNo,
+	pic.filePath as pic,
+	video.filePath as video,
+	ct.courseTypeId as couseTypeId,
+	bct.type,
+	ctarget.targetId as targetId,
+	bt.target as target,
+	cbp.partId as partId,
+	bbp.part,
+	ch.videoDurationMinutes,
+	ch.videoDurationSeconds,
+	ctb.id as blockId,
+	ctb.block,
+	ctb.aimSetNum,
+	ba.action ,
+	ba.countMode ,
+	ba.aimDuration,
+	ba.aimTimes,
+	ba.actionType,
+	ba.basePower,
+	babbp.id as actionPartId,
+	babbp.part as actionPartName,
+	bapic.filePath as actionFilePath,
+	video.fileSize as videoSize,
+	ctni.nodeName,
+	ctni.id as nodeId
+--     baa.aimDuration ,
+--     baa.aimTimes
+    FROM
+	course_head AS ch
+	LEFT JOIN course_equipment AS ce ON ch.id = ce.courseHeadId and ce.deleted = 0
+	LEFT JOIN base_equipment AS be ON be.id = ce.equipmentNo and be.deleted = 0
+	LEFT JOIN base_frequency AS bf ON ch.frequency = bf.id  and bf.deleted = 0
+	LEFT JOIN attach AS pic ON ch.picAttachId = pic.id and pic.deleted = 0
+	LEFT JOIN attach AS video ON ch.videoAttachId = video.id and video.deleted = 0
+	LEFT JOIN course_type AS ct ON ch.id = ct.courseId and ct.deleted = 0
+	LEFT JOIN base_course_type AS bct ON ct.courseTypeId = bct.id and bct.deleted = 0
+	LEFT JOIN course_target AS ctarget ON ctarget.courseId = ch.id and ctarget.deleted = 0
+	LEFT JOIN base_target AS bt ON ctarget.targetId = bt.id and bt.deleted = 0
+	LEFT JOIN course_body_part AS cbp ON cbp.courseId = ch.id and cbp.deleted = 0
+	LEFT JOIN base_body_part AS bbp ON bbp.id = cbp.partId and bbp.deleted = 0
+	LEFT JOIN course_trainning_block AS ctb ON ctb.courseId = ch.id and ctb.deleted = 0
+	LEFT JOIN course_trainning_node_info AS ctni ON ctni.blockId = ctb.id and ctni.actionFlag = 1 and ctni.trainingFlag = 1 and ctni.deleted = 0
+	LEFT JOIN base_action AS ba ON ba.id = ctni.actionId and ba.deleted = 0
+	LEFT JOIN base_body_part AS babbp ON babbp.id = ba.partId and babbp.deleted = 0
+	LEFT JOIN attach AS bapic ON bapic.id = ba.picAttachId and bapic.deleted = 0
+-- 	LEFT JOIN base_action_aim baa on baa.action = ba.id and baa.deleted = 0
+	where ch.id = #{courseId} and ch.releaseFlag =1
+--	and ch.releaseFlag = 1
+-- 	order by (ctb.sort +0) asc
+	ORDER BY (bct.sort+0) asc,(ch.sort+0) asc,(ctb.sort +0) asc,(ctni.nodeSort + 0) asc,ch.lastModifiedDate desc,bt.createDate asc,bbp.createDate asc
+    </select>
+    <select id="getCourseNodeDetail" resultType="com.knd.front.train.dto.CourseNodeDetailDto">
+ SELECT
+	ctni.id,
+	ctni.nodeSort,
+	ctni.nodeName,
+	ctni.actionFlag,
+	ctni.nodeBeginMinutes,
+	ctni.nodeBeginSeconds,
+	ctni.nodeEndMinutes,
+	ctni.nodeEndSeconds,
+	ctni.countDownFlag,
+	ctni.blockId,
+	ctb.block,
+	ctni.actionId,
+	ctni.endNodePeriod,
+	ba.action,
+	ba.countMode,
+	ctni.aimDuration,
+	ctni.aimTimes,
+	ctb.aimSetNum,
+	ctni.trainingFlag,
+	mu.musicUrlId as musicUrl,
+	ctni.countdownLength,
+	ba.picAttachId as picAttachUrl,
+	ba.isTwoArms,
+	ctni.blockRests
+FROM
+	course_trainning_node_info ctni
+	LEFT JOIN course_trainning_block ctb ON ctni.blockId = ctb.id and ctb.deleted = 0
+	LEFT JOIN base_action ba ON ba.id = ctni.actionId and ba.deleted = 0
+	left join base_music mu on mu.id = ctni.musicId and mu.deleted = 0
+WHERE
+	ctni.courseId = #{courseId}     and ctni.deleted = 0 order by (ctni.nodeSort +0) asc
+    </select>
+    <resultMap id="FreeTrainDetail" type="com.knd.front.train.dto.FreeTrainDetailDto">
+        <result property="actionId" column="id"/>
+		<result property="actionType" column="actionType"/>
+        <result property="action" column="action"/>
+        <result property="videoAttachUrl" column="videoAttachUrl"/>
+		<result property="videoSize" column="videoSize"/>
+        <result property="picAttachUrl" column="picAttachUrl"/>
+        <result property="countMode" column="countMode"/>
+        <result property="aimDuration" column="aimDuration"/>
+        <result property="aimTimes" column="aimTimes"/>
+        <result property="basePower" column="basePower"/>
+        <result property="isTwoArms" column="isTwoArms"/>
+        <collection property="targetList" ofType="com.knd.front.home.dto.BaseTargetDto">
+            <result property="id" column="targetId"/>
+            <result property="name" column="target"/>
+        </collection>
+        <collection property="partList" ofType="com.knd.front.home.dto.BaseTargetDto">
+            <result property="id" column="partId"/>
+            <result property="name" column="part"/>
+        </collection>
+    </resultMap>
+    <select id="getFreeTrainDetail" resultMap="FreeTrainDetail">
+	SELECT
+	ba.id,
+	ba.action,
+	ba.actionType,
+	pic.filePath as picAttachUrl,
+	video.filePath as videoAttachUrl,
+	video.fileSize as videoSize,
+	ba.targetId,
+	bt.target,
+	ba.partId,
+	bbp.part,
+	ba.countMode,
+	ba.aimDuration,
+	ba.aimTimes,
+	ba.basePower,
+	ba.isTwoArms
+-- 	baa.aimDuration,
+-- 	baa.aimTimes,
+-- 	baa.basePower
+	FROM
+	base_action ba
+	LEFT JOIN attach pic ON ba.picAttachId = pic.id and pic.deleted = 0
+	LEFT JOIN attach video ON ba.videoAttachId = video.id and video.deleted = 0
+	LEFT JOIN base_target bt ON ba.targetId = bt.id and bt.deleted = 0
+	LEFT JOIN base_body_part bbp ON ba.partId = bbp.id and bbp.deleted = 0
+-- 	LEFT JOIN base_action_aim baa ON baa.action = ba.id and baa.deleted = 0
+	where ba.id = #{actionId} and ba.deleted = 0
+	</select>
+    <select id="getCourseVideoProgressInfo" resultType="com.knd.front.train.dto.CourseNodeDetailDto">
+	SELECT
+	ctni.nodeBeginMinutes,
+	ctni.nodeBeginSeconds,
+	ctni.nodeEndMinutes,
+	ctni.nodeEndSeconds,
+	ctni.blockId,
+	ctni.nodeSort,
+	ctb.aimSetNum
+	FROM
+	course_trainning_node_info ctni left join course_trainning_block ctb on ctni.blockId = ctb.id and ctb.deleted = 0
+	WHERE ctni.deleted = 0 AND ctni.courseId = #{courseId}
+	ORDER BY
+	(ctni.nodeSort + 0) ASC
+	</select>
+
+
+</mapper>

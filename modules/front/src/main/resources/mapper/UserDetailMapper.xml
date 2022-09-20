@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.login.mapper.UserDetailMapper">
+
+    <update id="updateUserDetail">
+        update user_detail set
+         gender = #{gender},birthDay = #{birthDay},height = #{height},weight = #{weight},
+         trainHisFlag = #{trainHisFlag},lastModifiedBy = #{userId},
+         targetId = #{targetId},target = #{target},headPicUrlId = #{headPicUrlId},
+         shapeId = #{shapeId},hobbyId = #{hobbyId},perSign = #{perSign},bmi = #{bmi},
+         lastModifiedDate = now()
+        where userId = #{userId} and deleted = 0
+    </update>
+</mapper>

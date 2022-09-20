@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.basedata.mapper.BaseActionEquipmentMapper">
+
+    <!--    //根据动作id获取器材id和器材名称-->
+    <select id="selectIDAndNameByActionId" parameterType="string" resultType="com.knd.manage.basedata.dto.EquipmentDto">
+        select b.id equipmentId,b.equipment equipment
+        from base_action_equipment a
+        left join base_equipment b on b.id = a.equipmentId and b.deleted = "0"
+        where a.deleted = "0"
+        and actionId = #{values }
+    </select>
+
+    <!--    //检查是否有未删除的动作使用该器材-->
+    <select id="selectActionCountByEquipId" resultType="integer" parameterType="string">
+            select count(*)
+            from base_action_equipment e
+            inner join base_action a on a.id = e.actionId and a.deleted = '0'
+            where e.deleted = '0' and e.equipmentId = #{value }
+    </select>
+
+</mapper>

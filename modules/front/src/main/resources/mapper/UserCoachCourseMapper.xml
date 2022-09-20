@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.live.mapper.UserCoachCourseMapper">
+
+    <select id="selectCoachCoursePageByStatus" resultType="com.knd.front.live.dto.CoachCourseTimeDto">
+        SELECT
+            uct.id,
+            uct.beginTime,
+            uct.liveStatus,
+            uct.coachUserId,
+            ucc.courseName,
+            ucco.isOrder,
+            u.id userId,
+            u.nickName,
+            u.mobile
+        FROM
+            lb_user_coach_time uct
+            LEFT JOIN lb_user_coach_course ucc ON ucc.id = uct.coachCourseId
+            INNER JOIN lb_user_coach_course_order ucco ON ucco.coachTimeId = uct.id
+            INNER JOIN USER u ON u.id = ucco.orderUserId
+        WHERE
+            uct.coachUserId = #{userId}
+            AND ucc.courseType IN ( '0', '1' )
+            AND uct.deleted = '0'
+        <if test='queryType == "0"'>
+            <!-- 全部 按订单预约状态 课程计划时间倒序-->
+            AND ucco.isOrder IN ( '1', '2' )
+            ORDER BY
+            uct.beginTime DESC
+        </if>
+
+        <if test='queryType == "1"'>
+            <!-- 最新预约 按照订单预约时间倒序查询最新被约的直播-->
+            AND ucco.isOrder = '1'
+            ORDER BY
+            ucco.createDate DESC
+        </if>
+
+        <if test='queryType == "2"'>
+            <!-- 待上课程 按照课程计划时间倒序查询将要上课的直播-->
+            AND ucco.isOrder = '1'
+            AND uct.liveStatus = '0'
+            ORDER BY
+            uct.beginTime DESC
+        </if>
+
+        <if test='queryType == "3"'>
+            <!-- 已上课程 按照课程计划时间倒序查询已完成的直播-->
+            AND ucco.isOrder = '1'
+            AND uct.liveStatus = '2'
+            ORDER BY
+            uct.beginTime DESC
+        </if>
+
+
+    </select>
+</mapper>

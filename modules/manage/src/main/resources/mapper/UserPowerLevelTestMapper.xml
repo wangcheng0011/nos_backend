@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.user.mapper.UserPowerLevelTestMapper">
+
+
+<!--    //分页查询注册会员力量等级测试列表-->
+    <select id="selectPowerLevelTestPageBySome" parameterType="map" resultType="com.knd.manage.user.dto.PowerLevelTestDto">
+        select t.id , u.nickName , u.mobile , t.createDate ,t.action ,t.maxPower ,t.powerLevel
+        from user_power_level_test t
+        left join user u on u.id = t.userId and u.deleted = '0'
+        where t.deleted = '0'
+         and u.nickName like #{nickName}
+        and u.mobile like #{mobile}
+        and t.action like #{action}
+        <if test="trainTimeBegin != null">
+            and str_to_date(t.createDate,'%Y-%m-%d') >= #{trainTimeBegin}
+        </if>
+        <if test="trainTimeEnd != null">
+            and #{trainTimeEnd}>= str_to_date(t.createDate,'%Y-%m-%d')
+        </if>
+        order by t.createDate desc
+    </select>
+</mapper>

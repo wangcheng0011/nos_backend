@@ -1,0 +1,16 @@
+package com.knd.front.train.service.impl;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.knd.front.entity.TrainActionArrayAction;
+import com.knd.front.train.mapper.TrainActionArrayActionMapper;
+import com.knd.front.train.service.ITrainActionArrayActionService;
+import org.springframework.stereotype.Service;
+
+
+/**
+ * @author will
+ */
+@Service
+public class TrainActionArrayActionServiceImpl extends ServiceImpl<TrainActionArrayActionMapper, TrainActionArrayAction> implements ITrainActionArrayActionService {
+
+}

@@ -1,0 +1,98 @@
+package com.knd.manage.basedata.controller;
+
+
+import com.knd.common.basic.StringUtils;
+import com.knd.common.log.Log;
+import com.knd.common.response.Result;
+import com.knd.common.response.ResultEnum;
+import com.knd.common.response.ResultUtil;
+import com.knd.common.userutil.UserUtils;
+import com.knd.manage.basedata.service.IBaseEquipmentService;
+import com.knd.manage.basedata.vo.VoSaveEquipment;
+import com.knd.manage.common.vo.VoId;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+
+@Api(tags = "云端管理-basedata")
+@RestController
+@CrossOrigin
+@RequestMapping("/admin/basedata")
+public class BaseEquipmentController {
+
+    @Resource
+    private IBaseEquipmentService iBaseEquipmentService;
+
+    @Log("I230-获取器材列表")
+    @ApiOperation(value = "I230-获取器材列表")
+    @GetMapping("/getEquipmentList")
+    public Result getEquipmentList(String equipment, String current) {
+        return iBaseEquipmentService.getEquipmentList(equipment, current);
+    }
+
+    @Log("I233-获取器材")
+    @ApiOperation(value = "I233-获取器材")
+    @GetMapping("/getEquipment")
+    public Result getEquipment(String id) {
+        //数据检查
+        if (StringUtils.isEmpty(id)) {
+            //参数校验失败
+            return ResultUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        return iBaseEquipmentService.getEquipment(id);
+    }
+
+    @Log("I231-删除器材")
+    @ApiOperation(value = "I231-删除器材")
+    @PostMapping("/deleteEquipment")
+    public Result deleteEquipment(@RequestBody  @Validated VoId vo, BindingResult bindingResult) {
+        if(StringUtils.isEmpty(vo.getUserId())){
+            //userId从token获取
+            vo.setUserId(UserUtils.getUserId());
+        }
+        //校验参数
+        if (bindingResult.hasErrors()) {
+            //参数校验失败
+            return ResultUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        return iBaseEquipmentService.deleteEquipment(vo.getUserId(), vo.getId());
+    }
+
+    @Log("I232-维护器材")
+    @ApiOperation(value = "I232-维护器材")
+    @PostMapping("/saveEquipment")
+    public Result saveEquipment(@RequestBody @Validated VoSaveEquipment vo, BindingResult bindingResult) {
+        if(StringUtils.isEmpty(vo.getUserId())){
+            //userId从token获取
+            vo.setUserId(UserUtils.getUserId());
+        }
+        //参数校验
+        if (bindingResult.hasErrors()) {
+            //参数校验失败
+            return ResultUtil.error(ResultEnum.PARAM_ERROR);
+        }
+        if (vo.getPostType().equals("1")) {
+            //新增
+            return iBaseEquipmentService.add(vo.getUserId(), vo.getEquipment(), vo.getRemark());
+        }
+        {
+            //更新
+            //数据检查
+            if (StringUtils.isEmpty(vo.getEquipmentId())) {
+                //参数校验失败
+                return ResultUtil.error(ResultEnum.PARAM_ERROR);
+            }
+            return iBaseEquipmentService.edit(vo.getUserId(), vo.getEquipment(), vo.getRemark(), vo.getEquipmentId());
+        }
+    }
+
+
+
+
+
+}
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.mall.mapper.VerifyCodeMapper">
+
+    <update id="updateByPrimaryKeyList">
+        UPDATE verify_code SET deleted = 1 ,lastModifiedDate = now(),lastModifiedBy = '1'
+        WHERE deleted = 0
+        and
+        <foreach collection="verifyCodes" item="item" separator="OR">
+             id=#{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+    <update id="updateCode">
+        update verify_code set deleted = 1 where deleted=0 and mobile = #{mobile} and id = #{id}
+    </update>
+</mapper>

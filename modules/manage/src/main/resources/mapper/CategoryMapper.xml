@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.mall.mapper.CategoryMapper">
+
+    <!--    //分页模糊查询所有-->
+<!--    <select id="selectPageByLike" resultType="com.knd.manage.mall.entity.CategoryEntity" parameterType="map">-->
+<!--        select b.*,a.categoryName-->
+<!--        from pms_goods b-->
+<!--        left join pms_category a on a.id = b.categoryId and a.deleted ='0'-->
+<!--        where-->
+<!--        b.deleted ='0'-->
+<!--        <if test="goodsName !='%%'">-->
+<!--            and b.goodsName like #{goodsName}-->
+<!--        </if>-->
+<!--        order by b.createDate desc-->
+<!--    </select>-->
+
+</mapper>

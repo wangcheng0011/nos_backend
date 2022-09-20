@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.batch.mapper.UserLevelInfoMapper">
+
+    <!--    //根据用户id获取最新的周日期信息-->
+    <select id="selectNewestById" parameterType="string" resultType="com.knd.batch.entity.UserLevelInfo">
+        select
+        id ,userId, sort,beginDate,endDate,starFlag,trainDayCount,bufferDayCount,userTrainLevelId,createDate,lastModifiedDate
+        from user_level_info
+        where userId = #{value } and deleted = '0'
+        order by (str_to_date(beginDate,'%Y-%m-%d')) desc limit 0,1
+    </select>
+
+
+    <!--    //根据用户id和训练周期id获取当前星星总数-->
+    <select id="selectStarCountBySome" parameterType="map" resultType="com.knd.batch.dto.StarCountAndBufferDayCountDto">
+        select sum(starFlag+0) as starCount ,sum(bufferDayCount+0) as bufferDayCount from user_level_info
+        where  userId = #{userId } and deleted = '0' and userTrainLevelId = #{userTrainLevelId}
+    </select>
+
+</mapper>

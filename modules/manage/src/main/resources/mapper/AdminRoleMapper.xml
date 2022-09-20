@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.admin.mapper.AdminRoleMapper">
+
+    <!--    //根据用户id获取关联的角色名称-->
+    <select id="selectNamelist" resultType="string" parameterType="string">
+        select r.name
+        from admin_role a
+        left join role r on r.id = a.roleId and r.deleted = '0'
+        where a.deleted = '0' and a.userId = #{value }
+    </select>
+
+<!--    //根据角色id查看绑定的用户数量-->
+<!--    int selectCountByAdminId(String roleId);-->
+<select id="selectCountByAdminId" parameterType="string" resultType="integer">
+    select count(*)
+    from admin_role r
+    inner join admin a on a.id = r.userId and a.deleted = '0'
+    where r.deleted = '0' and r.roleId = #{value }
+</select>
+
+</mapper>

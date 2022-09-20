@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.knd.front.train.mapper.ProgramDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.knd.front.entity.ProgramEntity" id="programMap">
+        <result property="id" column="id"/>
+        <result property="programName" column="programName"/>
+        <result property="userId" column="userId"/>
+        <result property="beginTime" column="beginTime"/>
+        <result property="endTime" column="endTime"/>
+        <result property="trainTotalDayNum" column="trainTotalDayNum"/>
+        <result property="trainWeekNum" column="trainWeekNum"/>
+        <result property="trainWeekDayNum" column="trainWeekDayNum"/>
+        <result property="createBy" column="createBy"/>
+        <result property="createDate" column="createDate"/>
+        <result property="lastModifiedBy" column="lastModifiedBy"/>
+        <result property="lastModifiedDate" column="lastModifiedDate"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+    <select id="getTrainProgramPlan" resultType="com.knd.front.train.dto.TrainProgramPlanDto">
+
+    </select>
+
+
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.course.mapper.TrainCourseHeadInfoMapper">
+
+    <!--    //根据用户id获取完成课程训练的日期列表,升序-->
+    <select id="selectTrainDateListById" parameterType="string" resultType="date">
+    select distinct str_to_date(createDate,'%Y-%m-%d') as createDate
+    from train_course_head_info
+    where deleted = '0' and userId = #{value }
+    order by createDate asc
+</select>
+
+
+    <!--    //根据周日期范围获取完成的的课程训练天数-->
+    <select id="selectCountByDateAndId" resultType="integer" parameterType="map">
+        select count(distinct str_to_date(createDate,'%Y-%m-%d'))
+        from train_course_head_info
+        where deleted = '0' and userId = #{userId }
+        and  str_to_date(createDate,'%Y-%m-%d') >= #{beginDate}
+        and #{endDate} >= str_to_date(createDate,'%Y-%m-%d')
+    </select>
+</mapper>

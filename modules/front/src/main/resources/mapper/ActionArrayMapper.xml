@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.train.mapper.ActionArrayMapper">
+    <resultMap id="ActionArray" type="com.knd.front.train.dto.ActionArrayDto">
+        <result property="actionArrayName" column="actionArrayName"/>
+        <result property="actionQuantity" column="actionQuantity"/>
+        <result property="totalDuration" column="totalDuration"/>
+        <result property="shareStatus" column="shareStatus"/>
+        <result property="userId" column="userId"/>
+        <result property="createDate" column="createDate"/>
+        <result property="coverAttachUrl" column="coverAttachUrl"/>
+        <collection property="actionVideoUrl" ofType="string" javaType="list">
+            <result  column="videoUrl"/>
+        </collection>
+    </resultMap>
+
+<!--    <select id="getUserActionArrayList" resultType="com.knd.front.train.dto.ActionArrayDto">-->
+<!--        SELECT a.id,a.actionArrayName,-->
+<!--	a.actionQuantity,-->
+<!--	a.totalDuration,-->
+<!--	a.shareStatus,-->
+<!--	a.userId,-->
+<!--    img.filePath coverAttachUrl,video.filePath videoUrl-->
+<!--	FROM action_array a-->
+<!--	LEFT JOIN attach img on a.coverAttachId = img.id-->
+<!--	LEFT JOIN action_array_detail ad on ad.actionArrayId =a.id-->
+<!--	LEFT JOIN base_action ac on ac.id =ad.actionId-->
+<!--	LEFT JOIN attach video on ac.videoAttachId =video.id-->
+
+<!--    where a.userId='Lr5uq4bH' and a.deleted='0' or (a.shareStatus ='1' and a.deleted ='0')-->
+<!--    </select>-->
+    <select id="getUserActionArrayList" resultType="com.knd.front.train.dto.ActionArrayDto">
+        SELECT a.id,a.actionArrayName,
+	a.actionQuantity,
+	a.totalDuration,
+	a.shareStatus,
+	a.userId,
+	a.createDate,
+    img.filePath coverAttachUrl
+	FROM action_array a
+	LEFT JOIN attach img on a.coverAttachId = img.id
+    ${ew.customSqlSegment}
+    </select>
+</mapper>

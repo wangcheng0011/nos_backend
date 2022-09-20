@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.mall.mapper.GoodsMapper">
+
+    <!--    //分页模糊查询所有-->
+    <select id="selectPageByLike" resultType="com.knd.manage.mall.dto.GoodsDto" parameterType="map">
+        select b.*,a.categoryName
+        from pms_goods b
+        left join pms_category a on a.id = b.categoryId and a.deleted ='0'
+        where
+        b.deleted ='0'
+        <if test="platform == 1">
+            and publishStatus = '1'
+        </if>
+
+        <if test="goodsName !='%%'">
+            and b.goodsName like #{goodsName}
+        </if>
+
+        <if test="goodsType!= null and goodsType != ''">
+            and b.goodsType=#{goodsType}
+        </if>
+        order by b.createDate desc
+    </select>
+
+<!--    //检查是否有未删除的动作使用该目标-->
+    <select id="selectActionCountByTargetId" resultType="integer" parameterType="string">
+            select count(*)
+            from base_action
+            where deleted = '0' and targetId = #{value }
+    </select>
+
+<!--    //检查是否有未删除的动作使用该部位-->
+    <select id="selectActionCountByPartId" resultType="integer" parameterType="string">
+            select count(*)
+            from base_action
+            where deleted = '0' and partId = #{value }
+    </select>
+
+
+    <!--    //分页模糊查询所有-->
+    <select id="selectPageByTypeLike" resultType="com.knd.manage.mall.dto.GoodsDto" parameterType="map">
+        select b.*,b.coverAttachId coverUrl,a.id categoryId,a.categoryName
+        from pms_goods b
+        left join pms_category a on a.id = b.categoryId and a.deleted ='0'
+        where
+        b.deleted ='0'
+        AND b.websiteFlag = '0'
+        AND b.publishStatus = '1'
+        <if test="typeList !=null and typeList!='' and typeList.size() &gt; 0">
+            and a.id in
+            <foreach collection="typeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="goodName !=null and goodName!=''">
+            and b.goodsName like concat('%',#{goodName},'%')
+        </if>
+        order by b.createDate desc
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.course.mapper.CourseTypeMapper">
+    <!--    //根据课程id查询与分类名称-->
+    <select id="selectNameListByCourseid" parameterType="string" resultType="string">
+    select bt.type
+    from course_type t
+    left join base_course_type bt on bt.id = t.courseTypeId and bt.deleted ='0'
+    where t.courseId = #{values } and t.deleted = '0'
+</select>
+    <!--    //检查是否有未删除的课程使用该类型-->
+    <select id="selectCourseCountByTypeId" resultType="integer" parameterType="string">
+            select count(*)
+            from course_type t
+            inner join course_head  c on c.id = t.courseId and  c.deleted = '0'
+            where t.deleted = '0' and t.courseTypeId = #{value }
+    </select>
+</mapper>

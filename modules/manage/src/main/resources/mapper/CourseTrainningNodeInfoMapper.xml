@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.course.mapper.CourseTrainningNodeInfoMapper">
+
+
+    <!--    //获取一组动作里的不重复的动作总数（去重）-->
+    <select id="selectActionCountForDistinct" parameterType="map" resultType="integer">
+        select count(distinct actionId ) from course_trainning_node_info
+        where courseId = #{courseId} and blockId = #{blockId} and deleted ='0'
+        and actionFlag = '1'
+    </select>
+
+    <!--    ///根据block id 查询小节信息-->
+    <select id="selectSomeByBlockid" resultType="com.knd.manage.course.dto.NodeDto" parameterType="string">
+        select n.id , n.nodeSort ,n.nodeName , n.actionFlag , n.nodeBeginMinutes, n.nodeBeginSeconds,
+        n.nodeEndMinutes,n.nodeEndSeconds,n.countDownFlag,n.blockId,n.actionId,n.aimDuration,n.aimTimes,
+        b.block ,a.action,a.countMode
+        from course_trainning_node_info n
+        left join course_trainning_block b on b.id =n.blockId and b.deleted = '0'
+        left join base_action a on a.id = n.actionId and  a.deleted = '0'
+        where n.deleted = '0' and n.blockId = #{value }
+        order by n.nodeBeginMinutes asc , n.nodeBeginSeconds asc
+    </select>
+
+    <!--    ///根据 课程 id 查询所有小节信息-->
+    <select id="selectSomeByCourseId" resultType="com.knd.manage.course.dto.NodeDto" parameterType="string">
+        select n.id , n.nodeSort ,n.nodeName , n.actionFlag , n.nodeBeginMinutes, n.nodeBeginSeconds,
+        n.nodeEndMinutes,n.nodeEndSeconds,n.countDownFlag,n.blockId,n.actionId,n.aimDuration,n.aimTimes,
+        b.block ,a.action,a.countMode,n.trainingFlag,n.endNodePeriod,n.countdownLength,n.musicId,n.blockRests
+        from course_trainning_node_info n
+        left join course_trainning_block b on b.id =n.blockId and b.deleted = '0'
+        left join base_action a on a.id = n.actionId and  a.deleted = '0'
+        where n.deleted = '0' and n.courseId = #{value }
+        order by (n.nodeBeginMinutes +0) asc ,( n.nodeBeginSeconds +0) asc
+    </select>
+    <!--    //检查是否有未删除的课程使用该动作-->
+    <select id="selectCourseCountByActionId" resultType="integer" parameterType="string">
+            select count(*)
+            from course_trainning_node_info t
+            inner join course_head  c on c.id = t.courseId and  c.deleted = '0'
+            where t.deleted = '0' and t.actionId = #{value }
+    </select>
+
+
+    <!--    &lt;!&ndash;    //获取block范围数据&ndash;&gt;-->
+    <!--    <select id="getBlockDataDto" parameterType="map" resultType="com.knd.manage.course.dto.BlockDataDto">-->
+    <!--        select b1.lastBlockSort ,b2.nextBlockSort, b3.nowBlockSort-->
+    <!--        from-->
+    <!--        (-->
+    <!--        select-->
+    <!--        distinct t1.sort as lastBlockSort-->
+    <!--        from course_trainning_node_info n1-->
+    <!--        left join course_trainning_block t1 on t1.id = n1.blockId and t1.deleted = '0'-->
+    <!--        where n1.deleted = '0' and n1.blockId is not null and n1.blockId != ''-->
+    <!--        and n1.courseId = #{courseId}-->
+    <!--        and (#{nodeSort}+0)>=(n1.nodeSort+0)-->
+    <!--        <if test="nodeId != null">-->
+    <!--            and n1.id != #{nodeId}-->
+    <!--        </if>-->
+    <!--        order by (n1.nodeSort+0) desc limit 0,1-->
+    <!--        ) as b1 ,-->
+    <!--        (-->
+    <!--        select-->
+    <!--        distinct t2.sort as nextBlockSort-->
+    <!--        from course_trainning_node_info n2-->
+    <!--        left join course_trainning_block t2 on t2.id = n2.blockId and t2.deleted = '0'-->
+    <!--        where n2.deleted = '0' and n2.blockId is not null and n2.blockId != ''-->
+    <!--        and n2.courseId = #{courseId}-->
+    <!--        and (n2.nodeSort+0)>=(#{nodeSort}+0)-->
+    <!--        <if test="nodeId != null">-->
+    <!--            and n2.id != #{nodeId}-->
+    <!--        </if>-->
+    <!--        order by (n2.nodeSort+0) asc limit 0,1-->
+    <!--        ) as b2 ,-->
+    <!--        (-->
+    <!--        select-->
+    <!--        t3.sort as nowBlockSort-->
+    <!--        from course_trainning_block t3-->
+    <!--        where t3.id = #{blockId} and t3.deleted = '0'-->
+    <!--        ) as b3-->
+    <!--    </select>-->
+
+    <!--    //上一个block序号-->
+    <!--    String getLastBlockSort(@Param("nodeSort") String nodeSort ,@Param("courseId") String courseId,@Param("nodeId") String nodeId);-->
+    <select id="getLastBlockSort" parameterType="map" resultType="string">
+        select
+        distinct t1.sort as lastBlockSort
+        from course_trainning_node_info n1
+        left join course_trainning_block t1 on t1.id = n1.blockId and t1.deleted = '0'
+        where n1.deleted = '0' and n1.blockId is not null and n1.blockId != ''
+        and n1.courseId = #{courseId}
+        and (#{nodeSort}+0)>=(n1.nodeSort+0)
+        <if test="nodeId != null">
+            and n1.id != #{nodeId}
+        </if>
+        order by (n1.nodeSort+0) desc limit 0,1
+    </select>
+    <!--    //下一个block序号-->
+    <!--    String getNextBlockSort(@Param("nodeSort") String nodeSort,@Param("courseId") String courseId,@Param("nodeId") String nodeId);-->
+    <select id="getNextBlockSort" parameterType="map" resultType="string">
+        select
+        distinct t2.sort as nextBlockSort
+        from course_trainning_node_info n2
+        left join course_trainning_block t2 on t2.id = n2.blockId and t2.deleted = '0'
+        where n2.deleted = '0' and n2.blockId is not null and n2.blockId != ''
+        and n2.courseId = #{courseId}
+        and (n2.nodeSort+0)>=(#{nodeSort}+0)
+        <if test="nodeId != null">
+            and n2.id != #{nodeId}
+        </if>
+        order by (n2.nodeSort+0) asc limit 0,1
+    </select>
+    <!--    //当前block序号-->
+    <!--    String nowBlockSort(@Param("blockId") String blockId);-->
+    <select id="getNowBlockSort" parameterType="map" resultType="string">
+         select
+        t3.sort as nowBlockSort
+        from course_trainning_block t3
+        where t3.id = #{blockId} and t3.deleted = '0'
+    </select>
+
+    <!--&lt;!&ndash;    //小节绑定block的数量检查&ndash;&gt;-->
+    <!--    <select id="selectBNCountByCourseId" parameterType="string" resultType="integer">-->
+    <!--        select count(n.blockId) from course_trainning_node_info n-->
+    <!--        left join course_head c on c.id = n.courseId and c.deleted = '0' and c.trainingFlag = '1'-->
+    <!--        where n.courseId = #{value } and n.deleted = '0' and n.blockId is not null and n.blockId != ''-->
+    <!--    </select>-->
+
+    <!--    //小节绑定block的数量检查-->
+    <select id="selectBNCountByCourseId" parameterType="string" resultType="integer">
+        select count(*) FROM
+    (SELECT n.id FROM `course_trainning_block` b
+    LEFT JOIN course_trainning_node_info n on n.blockId = b.id and n.deleted = '0'
+    WHERE b.deleted = '0' AND b.courseId = #{value }) a
+    WHERE a.id is null
+    </select>
+
+</mapper>

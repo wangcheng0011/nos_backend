@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.batch.mapper.TrainCourseHeadInfoMapper">
+    <!--    //根据用户id获取完成课程训练的日期列表,升序-->
+    <!--    <select id="selectTrainDateListById" parameterType="string" resultType="date">-->
+    <!--    select distinct str_to_date(createDate,'%Y-%m-%d') as createDate-->
+    <!--    from train_course_head_info-->
+    <!--    where deleted = '0' and userId = #{value }-->
+    <!--    order by createDate asc-->
+    <!--</select>-->
+    <!--  根据根据用户id获取完成训练的日期列表（包括课程训练和自由训练）,升序-->
+    <select id="selectTrainDateListById" parameterType="string" resultType="date">
+    (select  str_to_date(h.createDate,'%Y-%m-%d') as createDate
+    from train_course_head_info h
+    where h.deleted = '0' and h.userId = #{value }
+    )
+    UNION
+    (select  str_to_date(t.createDate,'%Y-%m-%d') as createDate
+    from train_free_head t
+    where t.deleted = '0' and t.userId = #{value }
+    )
+    order by createDate asc
+    </select>
+
+    <!--    //根据周日期范围获取完成的的课程训练天数-->
+    <!--    <select id="selectCountByDateAndId" resultType="integer" parameterType="map">-->
+    <!--        select count(distinct str_to_date(createDate,'%Y-%m-%d'))-->
+    <!--        from train_course_head_info-->
+    <!--        where deleted = '0' and userId = #{userId }-->
+    <!--        and  str_to_date(createDate,'%Y-%m-%d') >= #{beginDate}-->
+    <!--        and #{endDate} >= str_to_date(createDate,'%Y-%m-%d')-->
+    <!--    </select>-->
+    <!--    //根据周日期范围获取完成的的训练（包括课程训练和自由训练）天数-->
+    <select id="selectCountByDateAndId" resultType="integer" parameterType="map">
+    select count(createDate)
+    from(
+        (select  str_to_date(h.createDate,'%Y-%m-%d') as createDate
+        from train_course_head_info h
+        where h.deleted = '0' and h.userId = #{userId }
+        and  str_to_date(h.createDate,'%Y-%m-%d') >= #{beginDate}
+        and #{endDate} >= str_to_date(h.createDate,'%Y-%m-%d')
+        )
+        UNION
+        (select  str_to_date(t.createDate,'%Y-%m-%d') as createDate
+        from train_free_head t
+        where t.deleted = '0' and t.userId = #{userId }
+        and  str_to_date(t.createDate,'%Y-%m-%d') >= #{beginDate}
+        and #{endDate} >= str_to_date(t.createDate,'%Y-%m-%d')
+        )
+    ) as r
+    </select>
+
+
+</mapper>

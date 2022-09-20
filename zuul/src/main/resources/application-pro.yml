@@ -1,0 +1,61 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: zuul
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+zuul:
+  routes:
+    auth:
+      path: /auth/**
+      serviceId: auth
+    manage:
+      path: /manage/**
+      serviceId: manage
+    front:
+      path: /front/**
+      serviceId: front
+  add-host-header: true
+  # 开发时填写 /api 正式部署时 不需要填写
+  #  prefix: /api
+  sensitive-headers: '*'
+
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 120000
+
+ribbon:
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
+
+
+pass:
+  swagger-ui:
+
+swagger:
+  title: vita
+  description: 新健康接口文档
+  service-url: http://127.0.0.1:8000  # /swagger-ui.html
+  contact: sy
+  version: 4.0.0-beta
+
+eureka:
+  instance:
+    metadata-map:
+      cluster: ${spring.application.name}
+    hostname: ${spring.cloud.client.hostname}
+  client:
+    serviceUrl:
+      #defaultZone: http://srv-pro-01:8761/eureka/,http://srv-pro-02:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.batch.mapper.UserTrainLevelMapper">
+
+    <!--    &lt;!&ndash;    //根据用户id,获取最新的训练周期信息&ndash;&gt;-->
+    <!--    <select id="selectNewestByUserid" parameterType="string" resultType="com.knd.batch.entity.UserTrainLevel">-->
+    <!--        select id,trainLevel,trainPeriodBeginTime,trainPeriodEndTime,createDate-->
+    <!--        from user_train_level-->
+    <!--         where userId = #{value } and deleted = '0'-->
+    <!--        and trainPeriodBeginTime =-->
+    <!--        (-->
+    <!--        select max(str_to_date(trainPeriodBeginTime,'%Y-%m-%d'))-->
+    <!--         from user_train_level-->
+    <!--          where userId = #{value } and deleted = '0'-->
+    <!--        )-->
+    <!--    </select>-->
+
+    <!--    //根据用户id,获取最新的训练周期信息-->
+    <select id="selectNewestByUserid" parameterType="string" resultType="com.knd.batch.entity.UserTrainLevel">
+        select id,trainLevel,trainPeriodBeginTime,trainPeriodEndTime,createDate
+        from user_train_level
+         where userId = #{value } and deleted = '0'
+     order by str_to_date(trainPeriodBeginTime,'%Y-%m-%d') desc limit 0,1
+    </select>
+</mapper>

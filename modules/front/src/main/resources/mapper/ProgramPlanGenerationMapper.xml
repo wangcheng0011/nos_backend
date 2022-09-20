@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.knd.front.train.mapper.ProgramPlanGenerationDao">
+
+
+
+    <select id="getEndTrainDate" resultType="java.lang.String">
+        SELECT date_format(max(trainDate) ,'%Y-%m-%d %H:%i:%s') FROM train_program_plan_generation
+        where userId=#{userId} and trainProgramId=#{trainProgramId}
+    </select>
+
+
+</mapper>

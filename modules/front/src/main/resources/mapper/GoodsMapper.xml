@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.pay.mapper.GoodsMapper">
+
+    <!--    //分页模糊查询所有-->
+    <select id="selectPageByLike" resultType="com.knd.front.pay.dto.GoodsDto" parameterType="map">
+        select b.*,b.coverAttachId coverUrl,a.id categoryId,a.categoryName
+        from pms_goods b
+        left join pms_category a on a.id = b.categoryId and a.deleted ='0'
+        where
+        b.deleted ='0'
+        AND b.websiteFlag = '0'
+        AND b.publishStatus = '1'
+        <if test="typeList !=null and typeList!='' and typeList.size() &gt; 0">
+            and a.id in
+            <foreach collection="typeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="goodName !=null and goodName!=''">
+            and b.goodsName like concat('%',#{goodName},'%')
+        </if>
+        order by b.createDate desc
+    </select>
+
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.user.mapper.BaseActionMapper">
+    <select id="getUserTestActionDto" resultType="com.knd.front.user.dto.UserTestActionDto">
+        select ba.id actionId,ba.action actionName,ba.isTwoArms,act.id actionTypeId,act.name actionTypeName,picat.filePath picUrl,voat.filePath videoUrl from base_action ba  left join action_type act on ba.actionType =act.id
+            left join attach picat on picat.id =ba.picAttachId
+            left join attach voat on voat.id =ba.videoAttachId
+        where ba.actionType=#{actionTypeId} and ba.strengthTestFlag='1' and ba.deleted='0'
+    </select>
+
+</mapper>

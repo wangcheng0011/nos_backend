@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.train.mapper.TrainActionArrayHeadMapper">
+	<resultMap id="trainActionArrayHeadDetail" type="com.knd.front.train.dto.TrainActionArrayHeadDto">
+		<result property="commitTrainTime" column="commitTrainTime"/>
+		<result property="actionArrayName" column="actionArrayName"/>
+		<result property="totalSeconds" column="totalSeconds"/>
+		<result property="actTrainSeconds" column="actTrainSeconds"/>
+		<result property="finishSets" column="finishSets"/>
+		<result property="finishCounts" column="finishCounts"/>
+		<result property="finishTotalPower" column="tfhFinishTotalPower"/>
+		<result property="maxExplosiveness" column="maxExplosiveness"/>
+		<result property="avgExplosiveness" column="avgExplosiveness"/>
+		<result property="calorie" column="calorie"/>
+		<collection property="trainActionArrayItemsDtoList" ofType="com.knd.front.train.dto.TrainActionArrayItemsDto" resultMap="trainActionArrayItemsDtoList" />
+	</resultMap>
+	<resultMap id="trainActionArrayItemsDtoList" type="com.knd.front.train.dto.TrainActionArrayItemsDto">
+		<result property="actionArraySetNum" column="actionArraySetNum"/>
+		<collection property="trainActionArrayActionDtoList" ofType="com.knd.front.train.dto.TrainActionArrayActionDto" resultMap="trainActionArrayActionDtoList"/>
+	</resultMap>
+	<resultMap id="trainActionArrayActionDtoList" type="com.knd.front.train.dto.TrainActionArrayActionDto">
+		<result property="actId" column="actId"/>
+		<result property="action" column="action"/>
+		<result property="actCountMod" column="actCountMod"/>
+		<result property="actSetNum" column="actSetNum"/>
+		<result property="actTotalSeconds" column="actTotalSeconds"/>
+		<result property="actLastPowerSetting" column="actLastPowerSetting"/>
+		<result property="actFinishCounts" column="actFinishCounts"/>
+		<result property="actAimCounts" column="actAimCounts"/>
+		<result property="actAimDuration" column="actAimDuration"/>
+		<result property="finishTotalPower" column="tfiFinishTotalPower"/>
+	</resultMap>
+
+    <select id="getActionArrayTrainList" resultType="com.knd.front.train.dto.ActionArrayTrainListDto">
+        SELECT
+		3 AS trainType,
+		tchi.id AS trainReportId,
+		tchi.actionArrayName AS trainName,
+		tchi.trainBeginTime AS trainTime,
+		tchi.actTrainSeconds AS actualTrainSeconds,
+		tchi.finishTotalPower AS finishTotalPower
+	FROM
+		train_action_array_head tchi
+		where tchi.userId=#{userId} and tchi.deleted = 0
+		order by trainBeginTime Desc
+    </select>
+	<select id="getTrainActionArrayHeadDetail" resultMap="trainActionArrayHeadDetail">
+		SELECT
+	tfh.createDate AS commitTrainTime,
+	tfh.actionArrayName,
+	tfh.totalSeconds,
+	tfh.actTrainSeconds,
+	tfh.finishSets,
+	tfh.finishCounts,
+	tfh.finishTotalPower as tfhFinishTotalPower,
+	tfh.maxExplosiveness,
+    tfh.avgExplosiveness,
+    tfh.calorie,
+	tfa.actionArraySetNum,
+	tfi.actId,
+	tfi.actCountMod,
+	tfi.action,
+	tfi.actSetNum,
+	tfi.actTotalSeconds,
+	tfi.actLastPowerSetting,
+	tfi.actFinishCounts,
+	tfi.actAimCounts,
+	tfi.actAimDuration,
+	tfi.sort,
+	tfi.finishTotalPower as tfiFinishTotalPower
+    FROM
+	train_action_array_head tfh
+	LEFT JOIN train_action_array_items tfa ON tfh.id = tfa.trainActionArrayHeadId and tfa.deleted = 0
+	LEFT JOIN train_action_array_action tfi ON tfa.id = tfi.trainActionArrayItemId and tfi.deleted = 0
+	WHERE tfh.deleted = 0  AND tfh.id = #{id} ORDER BY (tfa.actionArraySetNum+0) asc,tfi.sort asc
+	</select>
+</mapper>

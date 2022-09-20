@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.front.user.mapper.UserInfoMapper">
+
+    <select id="getUserCourseInfo" resultType="com.knd.front.user.dto.UserCourseInfoDto">
+    SELECT
+	a.vedioBeginTime,
+	a.vedioEndTime,
+	a.trainCourseHeadInfoId,
+	a.course,
+	a.trainingFlag,
+	a.courseId,
+	b.videoDurationMinutes,
+	b.videoDurationSeconds,
+	pic.filePath as picAttachUrl
+    FROM
+	(
+	SELECT
+		tchi.vedioBeginTime AS vedioBeginTime,
+		tchi.vedioEndTime AS vedioEndTime,
+		tchi.id AS trainCourseHeadInfoId,
+		tchi.course AS course,
+		1 AS trainingFlag,
+		tchi.courseHeadId AS courseId
+	FROM
+		train_course_head_info tchi
+	WHERE
+		tchi.userId = #{userId} AND tchi.deleted = 0
+		and tchi.vedioEndTime is not null and tchi.vedioEndTime != ''
+UNION
+	SELECT
+		ic.vedioBeginTime AS vedioBeginTime,
+		ic.vedioEndTime AS vedioEndTime,
+		NULL AS trainCourseHeadInfoId,
+		ic.course AS course,
+		0 AS trainingFlag,
+		ic.courseHeadId AS courseId
+	FROM
+		introduction_course ic
+	WHERE
+		ic.userId = #{userId} AND ic.deleted = 0
+		and ic.vedioEndTime is not null and ic.vedioEndTime != ''
+	) a
+	LEFT JOIN course_head b on b.id = a.courseId and b.deleted =0 and b.releaseFlag=1
+	LEFT JOIN attach pic on b.picAttachId = pic.id and pic.deleted=0
+    ORDER BY
+    str_to_date(vedioBeginTime,'%Y-%m-%d %H:%i:%s') DESC
+    </select>
+
+
+    <resultMap id="UserTrainFreeDetail" type="com.knd.front.user.dto.TrainFreeHeadDto">
+        <result property="commitTrainTime" column="commitTrainTime"/>
+        <result property="action" column="action"/>
+        <result property="totalSeconds" column="totalSeconds"/>
+        <result property="actTrainSeconds" column="actTrainSeconds"/>
+        <result property="finishSets" column="finishSets"/>
+        <result property="finishCounts" column="finishCounts"/>
+        <result property="finishTotalPower" column="tfhFinishTotalPower"/>
+        <result property="maxExplosiveness" column="maxExplosiveness"/>
+        <result property="avgExplosiveness" column="avgExplosiveness"/>
+        <result property="calorie" column="calorie"/>
+        <collection property="trainFreeItemList" ofType="com.knd.front.user.dto.TrainFreeItemsDto">
+            <result property="actId" column="actId"/>
+            <result property="actCountMod" column="actCountMod"/>
+            <result property="actSetNum" column="actSetNum"/>
+            <result property="actTotalSeconds" column="actTotalSeconds"/>
+            <result property="actLastPowerSetting" column="actLastPowerSetting"/>
+            <result property="actFinishCounts" column="actFinishCounts"/>
+            <result property="actAimCounts" column="actAimCounts"/>
+            <result property="actAimDuration" column="actAimDuration"/>
+            <result property="finishTotalPower" column="tfiFinishTotalPower"/>
+        </collection>
+    </resultMap>
+    <select id="getUserTrainFreeDetail" resultMap="UserTrainFreeDetail">
+    SELECT
+	tfh.createDate AS commitTrainTime,
+	tfh.action,
+	tfh.totalSeconds,
+	tfh.actTrainSeconds,
+	tfh.finishSets,
+	tfh.finishCounts,
+	tfh.finishTotalPower as tfhFinishTotalPower,
+	tfh.maxExplosiveness,
+    tfh.avgExplosiveness,
+    tfh.calorie,
+	tfi.actId,
+	tfi.actCountMod,
+	tfi.action,
+	tfi.actSetNum,
+	tfi.actTotalSeconds,
+	tfi.actLastPowerSetting,
+	tfi.actFinishCounts,
+	tfi.actAimCounts,
+	tfi.actAimDuration,
+	tfi.finishTotalPower as tfiFinishTotalPower
+    FROM
+	train_free_head tfh
+	LEFT JOIN train_free_items tfi ON tfh.id = tfi.trainFreeHeadId and tfi.deleted = 0
+	WHERE tfh.deleted = 0  AND tfh.id = #{trainReportId} ORDER BY (tfi.actSetNum+0) asc
+    </select>
+    <select id="getUserTrainInfo" resultType="com.knd.front.user.dto.TrainListDto">
+SELECT
+	trainType,
+	trainReportId,
+	trainName,
+	trainTime
+FROM
+	(
+	SELECT
+		1 AS trainType,
+		tchi.id AS trainReportId,
+		tchi.course AS trainName,
+		tchi.vedioEndTime AS trainTime,
+		tchi.actualTrainSeconds AS actualTrainSeconds
+	FROM
+		train_course_head_info tchi
+	WHERE
+		tchi.deleted = 0
+		AND tchi.userId = #{userId} UNION
+	SELECT
+		2 AS trainType,
+		tfh.id AS trainReportId,
+		tfh.action AS trainName,
+		tfh.vedioEndTime AS trainTime,
+		tfh.actTrainSeconds AS actualTrainSeconds
+	FROM
+		train_free_head tfh
+	WHERE
+		tfh.deleted = 0
+		AND tfh.userId = #{userId}
+	) a
+ORDER BY
+ str_to_date(trainTime,'%Y-%m-%d %H:%i:%s') DESC
+	</select>
+    <select id="getUserCourseHeadInfo" resultType="com.knd.front.user.dto.TrainCourseHeadInfoDto">
+		SELECT
+	id,
+	createDate AS commitTrainTime,
+	course,
+	totalDurationSeconds,
+	actualTrainSeconds,
+	finishTotalPower,
+	maxExplosiveness,
+	avgExplosiveness,
+	calorie
+
+FROM
+	train_course_head_info
+WHERE
+	deleted = 0
+	AND userId = #{userId}
+	AND id = #{trainReportId}
+	</select>
+    <select id="getUserCourseBlockInfoList" resultType="com.knd.front.user.dto.TrainCourseBlockInfoDto">
+		SELECT
+	tcbi.id,
+	tcbi.blockId,
+	tcbi.block,
+	tcbi.blockSetNum,
+	tcbi.sets,
+	ctb.sort
+FROM
+	train_course_block_info tcbi
+	LEFT JOIN course_trainning_block ctb on tcbi.blockId = ctb.id and ctb.deleted = 0
+WHERE
+	tcbi.deleted = 0
+	AND tcbi.trainCourseHeadInfoId = #{trainCourseHeadInfoId} order by (ctb.sort +0) asc,(tcbi.blockSetNum +0) asc
+	</select>
+    <select id="getUserCourseActInfoList" resultType="com.knd.front.user.dto.TrainCourseActInfoDto">
+		SELECT
+		tcai.actId,
+		tcai.actCountMod,
+		tcai.action,
+		tcai.actTotalSeconds,
+		tcai.actBasePowerSetting,
+		tcai.actFinishSets,
+		tcai.actAimSets,
+		tcai.actAimDuration,
+		tcai.actTotalPower
+		FROM
+		train_course_act_info tcai
+		where
+		tcai.deleted = 0
+		and
+		tcai.trainCourseBlockInfoId =
+		#{trainCourseBlockInfoId}
+		order by tcai.sort+0 asc
+	</select>
+    <select id="getUserTrainData" resultType="com.knd.front.user.dto.UserTrainDataDto">
+        select
+        SUM(case when trainType = "3" then 1 else 0 end) as finishCourseCount ,
+        case when LENGTH(trim(MAX(maxExplosiveness)))=0 then 0 else MAX(maxExplosiveness) END maxExplosiveness,
+        ROUND(AVG(avgExplosiveness),2) avgExplosiveness,
+        SUM(totalTrainSeconds) totalTrainSeconds,
+        SUM(calorie) totalCalorie
+        from
+        (
+        select
+        id,
+        "1" as trainType,
+        userId,
+        actTrainSeconds totalTrainSeconds,
+        maxExplosiveness,
+        avgExplosiveness,
+        ROUND(calorie,2) calorie
+        from train_action_array_head
+        where userId = #{userId} and deleted ='0'
+        <if test="month != null and month != ''">
+            and date_format(createDate ,'%Y-%m') = #{month}
+        </if>
+        <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
+            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+        </if>
+        <if test="chooseDay != null and chooseDay != ''">
+            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+        </if>
+        UNION
+        select
+        id,
+        "2" as trainType,
+        userId,
+        actTrainSeconds totalTrainSeconds,
+        maxExplosiveness,
+        avgExplosiveness,
+        ROUND(calorie,2) calorie
+        from train_free_head where userId = #{userId} and deleted ='0'
+        <if test="month != null and month != ''">
+            and date_format(createDate ,'%Y-%m') = #{month}
+        </if>
+        <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
+            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+        </if>
+        <if test="chooseDay != null and chooseDay != ''">
+            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+        </if>
+        UNION
+        select
+        id,
+        "3" as trainType,
+        userId,
+        actualTrainSeconds totalTrainSeconds,
+        maxExplosiveness,
+        avgExplosiveness,
+        ROUND(calorie,2) calorie
+        from train_course_head_info where userId = #{userId} and deleted ='0'
+        <if test="month != null and month != ''">
+            and date_format(createDate ,'%Y-%m') = #{month}
+        </if>
+        <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
+            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+        </if>
+        <if test="chooseDay != null and chooseDay != ''">
+            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+        </if>
+        UNION
+        select
+        id,
+        "4" as trainType,
+        userId,
+        actTrainSeconds totalTrainSeconds,
+        maxExplosiveness,
+        avgExplosiveness,
+        ROUND(calorie,2) calorie
+        from train_free_training_head where userId = #{userId} and deleted ='0'
+        <if test="month != null and month != ''">
+            and date_format(createDate ,'%Y-%m') = #{month}
+        </if>
+        <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
+            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+        </if>
+        <if test="chooseDay != null and chooseDay != ''">
+            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+        </if>
+        ) a
+    </select>
+    <select id="getUserTrainConsecutiveDays" resultType="com.knd.front.user.dto.UserConsecutiveTrainDayDto">
+		select min(createDate) beginDate,
+		max(createDate) endDate,
+		(max(id1)-min(id1)+1) consecutiveDays
+		from (
+			select datediff(createDate,'2019-01-01') id1,
+				(select count(1)
+					from
+						(select date_format(createDate ,'%Y-%m-%d') createDate
+							from (SELECT createDate
+									from train_action_array_head
+									where userId=#{userId}
+								  UNION ALL
+								  SELECT createDate
+									from train_free_head
+									where userId=#{userId}
+								 ) a
+							GROUP BY
+								date_format(createDate ,'%Y-%m-%d')
+						) tr
+					where tr.createDate &lt;= a.createDate
+				) id2,
+				a.createDate
+				from
+				(
+					select date_format(createDate ,'%Y-%m-%d') createDate
+						from
+							(SELECT createDate
+								from train_action_array_head
+								where userId=#{userId}
+							UNION ALL
+							SELECT createDate
+								from train_free_head
+								where userId=#{userId}
+							) a
+					GROUP BY date_format(createDate ,'%Y-%m-%d')
+				) a
+		) a
+		group by a.id1-a.id2
+	</select>
+    <select id="getUserTrainInfoNew" resultType="com.knd.front.user.dto.TrainListDto">
+        SELECT
+        trainType,
+        trainReportId,
+        trainName,
+        trainTime,
+        actualTrainSeconds,
+        finishTotalPower,
+        calorie
+        FROM
+        (
+        SELECT
+        1 AS trainType,
+        tchi.id AS trainReportId,
+        tchi.course AS trainName,
+        tchi.vedioEndTime AS trainTime,
+        tchi.actualTrainSeconds AS actualTrainSeconds,
+        tchi.finishTotalPower AS finishTotalPower,
+        ROUND(tchi.calorie,2) calorie
+        FROM
+        train_course_head_info tchi
+        WHERE
+        tchi.deleted = 0
+        AND tchi.userId = #{userTrainInfoQueryRequest.userId} UNION
+        SELECT
+        2 AS trainType,
+        tfh.id AS trainReportId,
+        tfh.action AS trainName,
+        tfh.vedioEndTime AS trainTime,
+        tfh.actTrainSeconds AS actualTrainSeconds,
+        tfh.finishTotalPower AS finishTotalPower,
+        ROUND(tfh.calorie,2) calorie
+        FROM
+        train_free_head tfh
+        WHERE
+        tfh.deleted = 0
+        AND tfh.userId = #{userTrainInfoQueryRequest.userId} UNION
+        SELECT
+        3 AS trainType,
+        taah.id AS trainReportId,
+        taah.actionArrayName AS trainName,
+        taah.trainBeginTime AS trainTime,
+        taah.actTrainSeconds AS actualTrainSeconds,
+        taah.finishTotalPower AS finishTotalPower,
+        ROUND(taah.calorie,2) calorie
+        FROM
+        train_action_array_head taah
+        where
+        taah.deleted = 0
+        and taah.userId=#{userTrainInfoQueryRequest.userId} UNION
+        SELECT
+        4 AS trainType,
+        tfth.id AS trainReportId,
+        tfth.action AS trainName,
+        tfth.vedioEndTime AS trainTime,
+        tfth.actTrainSeconds AS actualTrainSeconds,
+        tfth.finishTotalPower AS finishTotalPower,
+        ROUND(tfth.calorie,2) calorie
+        FROM
+        train_free_training_head tfth
+        WHERE
+        tfth.deleted = 0
+        AND tfth.userId = #{userTrainInfoQueryRequest.userId}
+        ) a
+        WHERE
+        <if test="userTrainInfoQueryRequest.trainType != null and userTrainInfoQueryRequest.trainType != ''">
+            a.trainType = #{userTrainInfoQueryRequest.trainType}
+        </if>
+        <if test="userTrainInfoQueryRequest.month != null and userTrainInfoQueryRequest.month != ''">
+            and date_format(a.trainTime ,'%Y-%m') = #{userTrainInfoQueryRequest.month}
+        </if>
+        <if test="userTrainInfoQueryRequest.beginWeekDate != null and userTrainInfoQueryRequest.beginWeekDate != '' and userTrainInfoQueryRequest.endWeekDate != null and userTrainInfoQueryRequest.endWeekDate != ''">
+            and date_format(a.trainTime ,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
+            #{userTrainInfoQueryRequest.endWeekDate}
+        </if>
+        <if test="userTrainInfoQueryRequest.chooseDay != null and userTrainInfoQueryRequest.chooseDay != ''">
+            and date_format(a.trainTime ,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
+        </if>
+        ORDER BY
+        str_to_date(trainTime,'%Y-%m-%d %H:%i:%s') DESC
+    </select>
+</mapper>

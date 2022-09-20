@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.user.mapper.UserLoginInfoMapper">
+
+    <select id="selectPageBySome" parameterType="map" resultType="com.knd.manage.user.dto.LoginInfoDto">
+        select u.id ,u.nickName ,u.mobile ,i.loginInTime ,i.equipmentNo,i.loginOutTime
+        from user_login_info i
+        left join user u on u.id = i.userId and u.deleted = '0'
+        where i.deleted = '0'
+        and u.nickName like #{nickName}
+        and u.mobile like #{mobile}
+        and i.equipmentNo like #{equipmentNo}
+        <if test="loginInTimeBegin != null">
+            and str_to_date(i.loginInTime,'%Y-%m-%d') >= #{loginInTimeBegin}
+        </if>
+        <if test="loginInTimeEnd != null">
+            and #{loginInTimeEnd}>= str_to_date(i.loginInTime,'%Y-%m-%d')
+        </if>
+        order by i.loginInTime desc ,u.nickName asc
+    </select>
+</mapper>

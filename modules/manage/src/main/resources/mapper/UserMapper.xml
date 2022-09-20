@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.user.mapper.UserMapper">
+    <!--    //查询注册会员列表-->
+    <select id="selectPageBySome" parameterType="map" resultType="com.knd.manage.user.dto.UserDto">
+        select u.id userId,u.nickName ,u.mobile, u.registTime ,d.birthDay ,d.height ,d.weight ,d.gender ,
+        u.frozenFlag
+        from user u
+        left join user_detail d on d.userId = u.id and d.deleted = '0'
+        where u.deleted = '0'
+        <if test="nickName != '%%'">
+            and u.nickName like #{nickName}
+        </if>
+        <if test="mobile != '%%'">
+            and u.mobile like #{mobile}
+        </if>
+        <if test="frozenFlag != '%%'">
+            and u.frozenFlag like #{frozenFlag}
+        </if>
+        <if test="registTimeBegin != null">
+            and str_to_date(u.registTime,'%Y-%m-%d') >= #{registTimeBegin}
+        </if>
+        <if test="registTimeEnd != null">
+            and #{registTimeEnd}>= str_to_date(u.registTime,'%Y-%m-%d')
+        </if>
+        group by u.mobile
+        order by str_to_date(u.registTime,'%Y-%m-%d %H:%i:%s')desc ,u.nickName asc
+    </select>
+
+    <!--    //查询注册会员训练列表-->
+    <select id="selectTrainPageBySome" parameterType="map" resultType="com.knd.manage.user.dto.TrainDto">
+        select u.id, u.nickName ,u.mobile , '1' trainType ,ch.id trainReportId,ch.course trainName,
+        ch.vedioBeginTime trainBeginTime ,ch.vedioEndTime trainEndTime,ch.equipmentNo equipmentNo
+        from user u
+        inner join train_course_head_info ch on ch.userId = u.id and ch.deleted = '0'
+        where u.deleted = '0'
+        <if test="nickName != '%%'">
+            and u.nickName like #{nickName}
+        </if>
+        <if test="mobile != '%%'">
+            and u.mobile like #{mobile}
+        </if>
+        <if test="equipmentNo != '%%'">
+            and ch.equipmentNo like #{equipmentNo}
+        </if>
+        <if test="trainTimeBegin != null">
+            and str_to_date(ch.vedioBeginTime,'%Y-%m-%d') >= #{trainTimeBegin}
+        </if>
+        <if test="trainTimeEnd != null">
+            and #{trainTimeEnd}>= str_to_date(ch.vedioEndTime,'%Y-%m-%d')
+        </if>
+        union
+        select u.id, u.nickName ,u.mobile , '2' trainType ,f.id trainReportId ,CONCAT('自由训练-',f.action) trainName,
+        f.vedioBeginTime trainBeginTime ,f.vedioEndTime trainEndTime,f.equipmentNo equipmentNo
+        from user u
+        inner join train_free_head f on f.userId = u.id and f.deleted = '0'
+        where u.deleted = '0'
+        <if test="nickName != '%%'">
+            and u.nickName like #{nickName}
+        </if>
+        <if test="mobile != '%%'">
+            and u.mobile like #{mobile}
+        </if>
+        <if test="equipmentNo != '%%'">
+            and f.equipmentNo like #{equipmentNo}
+        </if>
+        <if test="trainTimeBegin != null">
+            and str_to_date(f.vedioBeginTime,'%Y-%m-%d') >= #{trainTimeBegin}
+        </if>
+        <if test="trainTimeEnd != null">
+            and #{trainTimeEnd}>= str_to_date(f.vedioEndTime,'%Y-%m-%d')
+        </if>
+        order by str_to_date(trainBeginTime,'%Y-%m-%d %H:%i:%s') desc ,nickName asc
+    </select>
+
+    <!--    //查询注册会员训练列表__课程训练  -->
+    <select id="selectTrainPageBySome2" parameterType="map" resultType="com.knd.manage.user.dto.TrainDto">
+        select u.id, u.nickName ,u.mobile , '1' trainType ,ch.id trainReportId,ch.course trainName,
+        ch.vedioBeginTime trainBeginTime ,ch.vedioEndTime trainEndTime,ch.equipmentNo equipmentNo
+        from user u
+        inner join train_course_head_info ch on ch.userId = u.id and ch.deleted = '0'
+        where u.deleted = '0'
+        <if test="nickName != '%%'">
+            and u.nickName like #{nickName}
+        </if>
+        <if test="mobile != '%%'">
+            and u.mobile like #{mobile}
+        </if>
+        <if test="equipmentNo != '%%'">
+            and ch.equipmentNo like #{equipmentNo}
+        </if>
+        <if test="trainTimeBegin != null">
+            and str_to_date(ch.vedioBeginTime,'%Y-%m-%d') >= #{trainTimeBegin}
+        </if>
+        <if test="trainTimeEnd != null">
+            and #{trainTimeEnd}>= str_to_date(ch.vedioEndTime,'%Y-%m-%d')
+        </if>
+        order by str_to_date(trainBeginTime,'%Y-%m-%d %H:%i:%s') desc ,nickName asc
+    </select>
+
+
+    <!--    //查询注册会员训练列表__自由训练-->
+    <select id="selectTrainPageBySome3" parameterType="map" resultType="com.knd.manage.user.dto.TrainDto">
+        select u.id, u.nickName ,u.mobile , '2' trainType ,f.id trainReportId ,CONCAT('自由训练-',f.action) trainName,
+        f.vedioBeginTime trainBeginTime ,f.vedioEndTime trainEndTime,f.equipmentNo equipmentNo
+        from user u
+        inner join train_free_head f on f.userId = u.id and f.deleted = '0'
+        where u.deleted = '0'
+        <if test="nickName != '%%'">
+            and u.nickName like #{nickName}
+        </if>
+        <if test="mobile != '%%'">
+            and u.mobile like #{mobile}
+        </if>
+        <if test="equipmentNo != '%%'">
+            and f.equipmentNo like #{equipmentNo}
+        </if>
+        <if test="trainTimeBegin != null">
+            and str_to_date(f.vedioBeginTime,'%Y-%m-%d') >= #{trainTimeBegin}
+        </if>
+        <if test="trainTimeEnd != null">
+            and #{trainTimeEnd}>= str_to_date(f.vedioEndTime,'%Y-%m-%d')
+        </if>
+        order by str_to_date(trainBeginTime,'%Y-%m-%d %H:%i:%s') desc ,nickName asc
+    </select>
+</mapper>

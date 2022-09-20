@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.knd.manage.course.mapper.CourseBodyPartMapper">
+
+    <!--    //根据课程id查询与分类名称-->
+    <select id="selectNameListByCourseid" parameterType="string" resultType="string">
+    select bb.part
+    from course_body_part b
+    left join base_body_part bb on bb.id = b.partId and bb.deleted ='0'
+    where b.courseId = #{values } and b.deleted = '0'
+</select>
+<!--    //检查是否有未删除的课程使用该部位-->
+    <select id="selectCourseCountById" resultType="integer" parameterType="string">
+            select count(*)
+            from course_body_part t
+            inner join course_head c on c.id = t.courseId and c.deleted = '0'
+            where  t.deleted = '0' and t.partId = #{value }
+    </select>
+
+</mapper>
