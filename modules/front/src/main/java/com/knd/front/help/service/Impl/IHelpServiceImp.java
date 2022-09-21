@@ -136,7 +136,7 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         QueryWrapper<HelpAttachEntity> helpEntityQueryWrapper = new QueryWrapper<>();
         helpEntityQueryWrapper.eq("helpId", id);
         helpEntityQueryWrapper.eq("deleted", "0");
-        helpEntityQueryWrapper.orderByAsc("createDate");
+        helpEntityQueryWrapper.orderByDesc("createDate");
         List<HelpAttachEntity> helpAttachEntities = helpAttachMapper.selectList(helpEntityQueryWrapper);
         ArrayList<ImgDto> imgDtos = new ArrayList<>();
         helpAttachEntities.stream().forEach(helpAttach -> {
@@ -170,7 +170,7 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
             QueryWrapper<HelpAttachEntity> helpEntityQueryWrapper = new QueryWrapper<>();
             helpEntityQueryWrapper.eq("helpId", helpEntity.getId());
             helpEntityQueryWrapper.eq("deleted", "0");
-            helpEntityQueryWrapper.orderByAsc("createDate");
+            helpEntityQueryWrapper.orderByDesc("createDate");
             List<HelpAttachEntity> helpAttachEntities = helpAttachMapper.selectList(helpEntityQueryWrapper);
             ArrayList<ImgDto> imgDtos = new ArrayList<>();
             helpAttachEntities.stream().forEach(helpAttach -> {
