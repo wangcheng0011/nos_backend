@@ -26,10 +26,9 @@ public interface TrainCourseHeadInfoMapper extends BaseMapper<TrainCourseHeadInf
     //根据周日期范围获取完成的的课程训练天数
     int selectCountByDateAndId(@Param("userId") String userId,@Param("beginDate") LocalDate beginDate,@Param("endDate") LocalDate endDate);
 
-    @Select("select c.difficulty,count(1) as num from train_course_head_info a  " +
-            "LEFT JOIN  course_head b on a.courseHeadId = b.id    " +
-            "LEFT JOIN base_difficulty c on b.difficultyId = c.id   " +
-            "where a.deleted=0 and b.deleted=0 and c.deleted=0 GROUP BY b.difficultyId")
+    @Select("select c.difficulty,count(1) as num from course_head b " +
+            "            LEFT JOIN base_difficulty c on b.difficultyId = c.id  " +
+            "            where b.deleted=0 and c.deleted=0 GROUP BY b.difficultyId")
     List<Map<String,Object>> getTrainDifficultyNumList();
 
 }

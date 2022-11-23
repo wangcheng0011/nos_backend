@@ -1,9 +1,7 @@
 package com.knd.front.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knd.common.basic.StringUtils;
-import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
 import com.knd.front.domain.RankingTypeEnum;
@@ -17,7 +15,6 @@ import com.knd.front.user.request.UserTrainPraiseRequest;
 import com.knd.front.user.service.UserTrainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,22 +40,27 @@ public class UserTrainServiceImpl implements UserTrainService {
 
     @Override
     public Result getRankingList(RankingTypeEnum type,LocalDate date,String userId,Long size) {
+        log.info("-------------------------------我要获取排行榜啦--------------------------------");
+        log.info("getRankingList type:{{}}",type);
+        log.info("getRankingList date:{{}}",date);
+        log.info("getRankingList userId:{{}}",userId);
+        log.info("getRankingList size:{{}}",size);
         if(date == null){
             date = LocalDate.now();
         }
         //本月开始时间
-        LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
+       /* LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDateTime month_start = LocalDateTime.of(firstDay, LocalTime.MIN);
         //本月结束时间
         LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-        LocalDateTime month_end = LocalDateTime.of(lastDay, LocalTime.MAX);
-
+        LocalDateTime month_end = LocalDateTime.of(lastDay, LocalTime.MAX);*/
         List<UserTrainDto> userTrainList;
         UserTrainDto userTrainDto;
 
         //毅力得字段存在不一样，所以无法统一使用
         if(type.equals(RankingTypeEnum.WILL)){
-            userTrainList = userTrainMapper.getUserWill(userId,month_start, month_end,size);
+            userTrainList = userTrainMapper.getUserWill(userId,date,size);
+            log.info("getRankingList userTrainList:{{}}",userTrainList);
             for(UserTrainDto dto : userTrainList){
                 if(StringUtils.isEmpty(dto.getTrainNum())){
                     dto.setTrainNum("0");
@@ -67,7 +69,8 @@ public class UserTrainServiceImpl implements UserTrainService {
                     dto.setHeadPicUrl(fileImagesPath+dto.getHeadPicUrl());
                 }
             }
-            userTrainDto = userTrainByUserMapper.getUserWill(userId,month_start, month_end);
+            userTrainDto = userTrainByUserMapper.getUserWill(userId,date);
+            log.info("getRankingList userTrainDto:{{}}",userTrainDto);
             userTrainDto = StringUtils.isNotEmpty(userTrainDto) ? userTrainDto : new UserTrainDto();
             if(StringUtils.isNotEmpty(userTrainDto.getHeadPicUrl())){
                 userTrainDto.setHeadPicUrl(fileImagesPath+userTrainDto.getHeadPicUrl());
@@ -79,7 +82,8 @@ public class UserTrainServiceImpl implements UserTrainService {
 //            wrapper.orderBy(true,false,"trainNum","praiseNum");
             wrapper.orderByDesc("trainNum","praiseNum");
             wrapper.last("limit "+size);
-            userTrainList = userTrainMapper.getUserTrainByParam(userId,month_start, month_end,type.getParamType(),type.getPraiseType(),wrapper);
+            userTrainList = userTrainMapper.getUserTrainByParam(userId,date,type.getParamType(),type.getPraiseType(),wrapper);
+            log.info("getRankingList userTrainList:{{}}",userTrainList);
             for(UserTrainDto dto : userTrainList){
                 if(StringUtils.isEmpty(dto.getTrainNum())){
                     dto.setTrainNum("0");
@@ -90,14 +94,16 @@ public class UserTrainServiceImpl implements UserTrainService {
             }
             wrapper.clear();
             wrapper.eq("u.id",userId);
-            List<UserTrainDto> userTrainListByUser = userTrainMapper.getUserTrainByParam(userId,month_start, month_end,type.getParamType(),type.getPraiseType(),wrapper);
+            List<UserTrainDto> userTrainListByUser = userTrainMapper.getUserTrainByParam(userId,date,type.getParamType(),type.getPraiseType(),wrapper);
+            log.info("getRankingList userTrainListByUser:{{}}",userTrainListByUser);
             userTrainDto = StringUtils.isNotEmpty(userTrainListByUser) ? userTrainListByUser.get(0) : new UserTrainDto();
+            log.info("getRankingList userTrainDto:{{}}",userTrainDto);
             if(StringUtils.isNotEmpty(userTrainDto.getHeadPicUrl())){
                 userTrainDto.setHeadPicUrl(fileImagesPath+userTrainDto.getHeadPicUrl());
             }
         }
-
         RankingListDto dto = RankingListDto.builder().userTrainDto(userTrainDto).userTrainList(userTrainList).build();
+        log.info("-----------------------------获取排行榜结束---------------------------------------");
         return ResultUtil.success(dto);
     }
 

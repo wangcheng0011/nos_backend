@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
-
 /**
  * <p>
  * 
@@ -54,6 +52,9 @@ public class TrainCourseActInfo extends BaseEntity {
 
     @ApiModelProperty(value = "动作总力")
     private String actTotalPower;
+
+    @ApiModelProperty(value = "完成总次数")
+    private String finishCounts;
 
     @ApiModelProperty(value = "序号")
     private String sort;

@@ -42,10 +42,10 @@ spring:
       quiet-period: 400ms #触发重启之前没有任何类路径更改所需的安静时间量。
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://124.70.213.14:3306/vitadb_test?useSSL=false&characterEncoding=UTF-8
+    url: jdbc:mysql://124.70.213.14:3306/vitadb_new?useSSL=false&characterEncoding=UTF-8
     driver-class-name: com.mysql.jdbc.Driver
-    username: vitadb_dev
-    password: Vitadb-dev
+    username: vitadba
+    password: vitadba@KLD2020
     hikari:
       #最小空闲连接数量
       minimum-idle: 5

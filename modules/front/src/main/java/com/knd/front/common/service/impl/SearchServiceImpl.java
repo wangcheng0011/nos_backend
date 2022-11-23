@@ -17,7 +17,6 @@ import com.knd.front.home.dto.BaseBodyPartDto;
 import com.knd.front.home.mapper.CourseHeadMapper;
 import com.knd.front.live.entity.BaseDifficulty;
 import com.knd.front.live.mapper.BaseDifficultyMapper;
-import com.knd.front.login.mapper.UserDetailMapper;
 import com.knd.front.social.dto.LabelDto;
 import com.knd.front.social.entity.UserSocialFollowEntity;
 import com.knd.front.social.entity.UserSocialMomentEntity;
@@ -56,7 +55,7 @@ public class SearchServiceImpl implements SearchService {
     private final UserSocialMomentMapper userSocialMomentMapper;
     private final UserSocialRelationMapper userSocialRelationMapper;
     private final UserLabelMapper userLabelMapper;
-    private final UserDetailMapper userDetailMapper;
+    private final AttachServiceImpl attachServiceImpl;
     private final AttachMapper attachMapper;
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
@@ -170,7 +169,7 @@ public class SearchServiceImpl implements SearchService {
             UserListDto dto = new UserListDto();
             dto.setUserId(u.getId());
             dto.setUserName(u.getNickName());
-            dto.setHeadPicUrl(getHeadPicUrl(u.getId()));
+            dto.setHeadPicUrl(attachServiceImpl.getHeadPicUrl(u.getId()));
             QueryWrapper<UserSocialFollowEntity> followWrapper = new QueryWrapper<>();
             followWrapper.eq("deleted","0");
             followWrapper.eq("targetUserId",u.getId());
@@ -243,14 +242,6 @@ public class SearchServiceImpl implements SearchService {
         return ResultUtil.success(dtoPage);
     }
 
-    private String getHeadPicUrl(String userId){
-        UserDetail userDetail = userDetailMapper.selectOne(new QueryWrapper<UserDetail>().eq("userId", userId).eq("deleted", "0"));
-        if(userDetail!=null && userDetail.getHeadPicUrlId()!=null){
-            Attach attach = attachMapper.selectById(userDetail.getHeadPicUrlId());
-            return attach!=null ? fileImagesPath+attach.getFilePath() : "";
-        }else{
-            return "";
-        }
-    }
+
 
 }

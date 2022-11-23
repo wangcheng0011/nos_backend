@@ -9,6 +9,7 @@ import com.knd.common.userutil.UserUtils;
 import com.knd.front.live.request.CancelOrderCoachRequest;
 import com.knd.front.live.request.OrderCoachRequest;
 import com.knd.front.live.service.CoachOrderService;
+import com.knd.front.live.service.IRoomService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 public class CoachOrderController {
     private final CoachOrderService coachOrderService;
+    private final IRoomService iRoomService;
 
 //    @Log("获取用户预约教练课程全部记录")
 //    @ApiOperation(value = "获取用户预约教练课程全部记录",notes = "获取用户预约教练课程全部记录")
@@ -107,11 +108,11 @@ public class CoachOrderController {
         return coachOrderService.cancelOrderSuccess(request.getCoachTimeId(),request.getUserId());
     }
 
-    @PostMapping("/coachOrder/closeUserCoachCourseOrder")
-    @Log("关闭私教")
-    @ApiOperation(value = "关闭私教", notes = "关闭私教")
-    public Result closeUserCoachCourseOrder(@ApiParam("主键Id") @RequestParam(required = true, name = "id") String id) {
-        return coachOrderService.closeUserCoachCourseOrder(id);
+    @PostMapping("/coachOrder/userCoachCloseRoom")
+    @Log("关闭房间 私教关闭房间")
+    @ApiOperation(value = "关闭房间 私教关闭房间", notes = "关闭房间 私教关闭房间")
+    public Result userCoachCloseRoom(@ApiParam("courseId") @RequestParam(required = true, name = "courseId") String courseId) {
+        return iRoomService.userCoachCloseRoom(courseId);
     }
 
 

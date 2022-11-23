@@ -1,16 +1,11 @@
 package com.knd.manage.equip.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.knd.mybatis.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -36,6 +31,9 @@ public class EquipmentInfo extends BaseEntity {
 
     @ApiModelProperty(value = "删除标志")
     private String deleted;
+
+    @ApiModelProperty(value = "序列号")
+    private String serialNo;
 
     @ApiModelProperty(value = "描述")
     private String remark;

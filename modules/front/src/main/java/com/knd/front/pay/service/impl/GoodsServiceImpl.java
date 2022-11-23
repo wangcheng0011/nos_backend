@@ -15,6 +15,7 @@ import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.userutil.UserUtils;
+import com.knd.front.common.service.AttachService;
 import com.knd.front.entity.*;
 import com.knd.front.home.service.ICourseHeadService;
 import com.knd.front.live.entity.UserCoachCourseEntity;
@@ -68,11 +69,9 @@ import java.util.List;
 public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> implements IGoodsService {
 
 
-
     //图片路径
     @Value("${upload.FileImagesPath}")
     private String FileImagesPath;
-
 
     @Resource
     private AttachMapper attachMapper;
@@ -110,13 +109,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
     private UserCoachTimeMapper userCoachTimeMapper;
 
     @Resource
-    private IGoodsService iGoodsService;
-
-
-
-
-
-
+    private AttachService attachService;
 
     @Override
     public Result getGoodsList(GoodsListRequest request) {
@@ -131,7 +124,6 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
                 goodsDto.setCoverUrl(FileImagesPath + aPi.getFilePath());
             }
         }
-
         return ResultUtil.success(p);
 
     }
@@ -163,7 +155,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
                     .eq("goodsId", goodsId).eq("imgType", "0"));
             List<ImgDto> headImgList = new ArrayList<>();
             for (GoodsImgEntity goodsHeadImgEntity : goodsHeadImgEntities) {
-                headImgList.add(getAttachById(goodsHeadImgEntity.getAttachId()));
+                headImgList.add(attachService.getImgDto(goodsHeadImgEntity.getAttachId()));
             }
             goodsInfoDto.setHeadImgList(headImgList);
 
@@ -173,27 +165,16 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
             List<ImgDto> infoImgList = new ArrayList<>();
             for (GoodsImgEntity goodsInfoImgEntity : goodsInfoImgEntities) {
                 //根据id获取图片信息
-                infoImgList.add(getAttachById(goodsInfoImgEntity.getAttachId()));
+                infoImgList.add(attachService.getImgDto(goodsInfoImgEntity.getAttachId()));
             }
             goodsInfoDto.setInfoImgList(infoImgList);
 
             //根据id获取图片信息
-            goodsInfoDto.setCoverImg(getAttachById(goodsEntity.getCoverAttachId()));
+            goodsInfoDto.setCoverImg(attachService.getImgDto(goodsEntity.getCoverAttachId()));
         }
         return ResultUtil.success(goodsInfoDto);
     }
 
-    private ImgDto getAttachById(String id) {
-        //根据id获取图片信息
-        Attach aPi = attachMapper.selectById(id);
-        if (aPi != null) {
-            ImgDto imgDto = new ImgDto();
-            imgDto.setPicAttachUrl(FileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            return imgDto;
-        }
-        return null;
-    }
 
     @Override
     public Result getPayInfo(HttpServletResponse response,GetOrderInfoRequest getOrderInfoRequest) {

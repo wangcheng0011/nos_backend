@@ -21,10 +21,8 @@ import com.knd.front.food.mapper.FoodMapper;
 import com.knd.front.food.service.IBaseFoodTypeService;
 import com.knd.front.food.vo.VoSaveFoodItem;
 import com.knd.front.food.vo.VoSaveFoodType;
-import com.knd.front.pay.dto.ImgDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,13 +34,6 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
 
     @Autowired
     private AttachService attachService;
-
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     @Autowired
     private FoodMapper foodMapper;
@@ -197,7 +188,7 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
         });
         dto.setItemList(foodDtos);
         if(StringUtils.isNotEmpty(b.getFoodUrlId())){
-            dto.setPicAttachUrl(getImgDto(b.getFoodUrlId()));
+            dto.setPicAttachUrl(attachService.getImgDto(b.getFoodUrlId()));
         }
         //成功
         return ResultUtil.success(dto);
@@ -234,7 +225,7 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
             });
             dto.setItemList(foodDtos);
             if(StringUtils.isNotEmpty(entity.getFoodUrlId())){
-                dto.setPicAttachUrl(getImgDto(entity.getFoodUrlId()));
+                dto.setPicAttachUrl(attachService.getImgDto(entity.getFoodUrlId()));
             }
             dtoList.add(dto);
         }
@@ -248,19 +239,6 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
 
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = attachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
 
     @Override
     public BaseFoodType insertReturnEntity(BaseFoodType entity) {

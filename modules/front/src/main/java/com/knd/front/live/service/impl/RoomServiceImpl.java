@@ -351,11 +351,11 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, RoomEntity> impleme
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result closeRoom(String id)  {
+    public Result closeRoom(String roomId)  {
         try {
             log.info("-------------------------------关闭房间 开始-----------------------------------");
-            log.info("closeRoom id:{{}}",id);
-            RoomEntity roomEntity = baseMapper.selectById(id);
+            log.info("closeRoom id:{{}}",roomId);
+            RoomEntity roomEntity = baseMapper.selectById(roomId);
             if (!roomEntity.getUserId().equals(UserUtils.getUserId())) {
                 return ResultUtil.error(ResultEnum.FAIL.getCode(), "只有房主才能修改房间状态");
             }
@@ -399,6 +399,80 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, RoomEntity> impleme
          e.printStackTrace();
           return ResultUtil.error(ResultEnum.FAIL.getCode(),"系统异常");
        }
+        return ResultUtil.success();
+    }
+
+   /* @Override
+    public Result coachTimeCloseRoom(String timeId) {
+        UserCoachTimeEntity userCoachTimeEntity = new UserCoachTimeEntity();
+        try {
+            log.info("coachcloseRoom id:{{}}",timeId);
+            userCoachTimeEntity = userCoachTimeMapper.selectById(timeId);
+            if(userCoachTimeEntity== null || "2".equals(userCoachTimeEntity.getLiveStatus())) {
+                return ResultUtil.error(ResultEnum.FAIL.getCode(),"直播间不存在或已关闭");
+            }
+            userCoachTimeEntity.setLiveStatus("2");
+            userCoachTimeMapper.updateById(userCoachTimeEntity);
+
+            log.info("coachcloseRoom roomEntity:{{}}",userCoachTimeEntity);
+            //踢出该房间所有用户
+            Response response = rtcRoomManager.listUser(appId,timeId);
+//            JSONObject jsonObject = JSON.parseObject(response.getInfo());
+//            JSONArray users = jsonObject.getJSONArray("users");
+            log.info("coachcloseRoom response:{{}}",response);
+            JSONObject jsonObject = JSON.parseObject(response.bodyString());
+            JSONArray users = jsonObject.getJSONArray("users");
+            log.info("coachcloseRoom users:{{}}",users);
+            users.stream().forEach( e-> {
+                JSONObject jo = (JSONObject)e;
+                String userId = jo.getString("userId");
+                try {
+                    rtcRoomManager.kickUser(appId,timeId,userId);
+                } catch (QiniuException qiniuException) {
+                    qiniuException.printStackTrace();
+                }
+            });
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResultUtil.error(ResultEnum.FAIL.getCode(),"系统异常");
+        }
+        return ResultUtil.success();
+    }*/
+
+    @Override
+    public Result userCoachCloseRoom(String courseId) {
+        try {
+            QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
+            userCoachTimeEntityQueryWrapper.eq("coachCourseId",courseId);
+            userCoachTimeEntityQueryWrapper.eq("deleted",0);
+            UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
+            if(userCoachTimeEntity== null || "2".equals(userCoachTimeEntity.getLiveStatus())) {
+                return ResultUtil.error(ResultEnum.FAIL.getCode(),"私教不存在或已关闭");
+            }
+            userCoachTimeEntity.setLiveStatus("2");
+            userCoachTimeMapper.updateById(userCoachTimeEntity);
+            log.info("closeUserCoachCourseOrder userCoachTimeEntity:{{}}",userCoachTimeEntity);
+            //踢出该房间所有用户
+            Response response = rtcRoomManager.listUser(appId,courseId);
+//            JSONObject jsonObject = JSON.parseObject(response.getInfo());
+//            JSONArray users = jsonObject.getJSONArray("users");
+            log.info("closeUserCoachCourseOrder response:{{}}",response);
+            JSONObject jsonObject = JSON.parseObject(response.bodyString());
+            JSONArray users = jsonObject.getJSONArray("users");
+            log.info("closeUserCoachCourseOrder users:{{}}",users);
+            users.stream().forEach( e-> {
+                JSONObject jo = (JSONObject)e;
+                String userId = jo.getString("userId");
+                try {
+                    rtcRoomManager.kickUser(appId,courseId,userId);
+                } catch (QiniuException qiniuException) {
+                    qiniuException.printStackTrace();
+                }
+            });
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResultUtil.error(ResultEnum.FAIL.getCode(),"系统异常");
+        }
         return ResultUtil.success();
     }
 
@@ -677,52 +751,6 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, RoomEntity> impleme
         return ResultUtil.success();
     }
 
-    @Override
-    public Result coachcloseRoom(String id) {
-        UserCoachTimeEntity userCoachTimeEntity = new UserCoachTimeEntity();
-        try {
-            log.info("coachcloseRoom id:{{}}",id);
-           /* RoomEntity roomEntity = baseMapper.selectById(id);
-            log.info("closeRoomForManage roomEntity:{{}}",roomEntity);
-            if (checkGroupIsExist(roomEntity.getTrainGroupId())) {
-                return ResultUtil.error(ResultEnum.FAIL.getCode(), "小组不存在");
-            }
-            if(roomEntity== null || "1".equals(roomEntity.getRoomStatus())) {
-                return ResultUtil.error(ResultEnum.FAIL.getCode(),"房间不存在或已关闭");
-            }
-            roomEntity.setRoomStatus("1");
-            baseMapper.updateById(roomEntity);*/
 
-            userCoachTimeEntity = userCoachTimeMapper.selectById(id);
-            if(userCoachTimeEntity== null || "2".equals(userCoachTimeEntity.getLiveStatus())) {
-                return ResultUtil.error(ResultEnum.FAIL.getCode(),"直播间不存在或已关闭");
-            }
-            userCoachTimeEntity.setLiveStatus("2");
-            userCoachTimeMapper.updateById(userCoachTimeEntity);
-
-            log.info("coachcloseRoom roomEntity:{{}}",userCoachTimeEntity);
-            //踢出该房间所有用户
-            Response response = rtcRoomManager.listUser(appId,id);
-//            JSONObject jsonObject = JSON.parseObject(response.getInfo());
-//            JSONArray users = jsonObject.getJSONArray("users");
-            log.info("coachcloseRoom response:{{}}",response);
-            JSONObject jsonObject = JSON.parseObject(response.bodyString());
-            JSONArray users = jsonObject.getJSONArray("users");
-            log.info("coachcloseRoom users:{{}}",users);
-            users.stream().forEach( e-> {
-                JSONObject jo = (JSONObject)e;
-                String userId = jo.getString("userId");
-                try {
-                    rtcRoomManager.kickUser(appId,id,userId);
-                } catch (QiniuException qiniuException) {
-                    qiniuException.printStackTrace();
-                }
-            });
-        }catch (Exception e) {
-            e.printStackTrace();
-           return ResultUtil.error(ResultEnum.FAIL.getCode(),"系统异常");
-     }
-        return ResultUtil.success();
-    }
 
 }

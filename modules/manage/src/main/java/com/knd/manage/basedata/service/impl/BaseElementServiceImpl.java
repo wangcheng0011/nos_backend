@@ -2,7 +2,6 @@ package com.knd.manage.basedata.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.knd.common.basic.StringUtils;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
@@ -55,13 +54,13 @@ public class BaseElementServiceImpl extends ServiceImpl<BaseElementMapper, BaseE
         BaseElement basePage = baseMapper.selectOne(wrapper);
         BeanUtils.copyProperties(basePage,dto);
 
-        ImgDto selectImgDto = getImgDto(basePage.getImageUrlId());
+        ImgDto selectImgDto = iAttachService.getImgDto(basePage.getImageUrlId());
         dto.setImageUrl(selectImgDto);
 
-        ImgDto unSelectImgDto = getImgDto(basePage.getBackgroundUrlId());
+        ImgDto unSelectImgDto = iAttachService.getImgDto(basePage.getBackgroundUrlId());
         dto.setBackgroundUrl(unSelectImgDto);
 
-        ImgDto showUrlDto = getImgDto(basePage.getShowUrlId());
+        ImgDto showUrlDto = iAttachService.getImgDto(basePage.getShowUrlId());
         dto.setShowUrl(showUrlDto);
         //成功
         return ResultUtil.success(dto);
@@ -106,15 +105,15 @@ public class BaseElementServiceImpl extends ServiceImpl<BaseElementMapper, BaseE
         VoUrl showElementUrl = vo.getShowUrl();
         if(imgElementUrl != null && imgElementUrl.getPicAttachSize()!=null){
             //保存选中图片
-            Attach imgAttach = goodsService.saveAttach(userId, imgElementUrl.getPicAttachName(), imgElementUrl.getPicAttachNewName(), imgElementUrl.getPicAttachSize());
+            Attach imgAttach = iAttachService.saveAttach(userId, imgElementUrl.getPicAttachName(), imgElementUrl.getPicAttachNewName(), imgElementUrl.getPicAttachSize());
             baseElement.setImageUrlId(imgAttach.getId());
         }
         if(backgroundElementUrl != null && backgroundElementUrl.getPicAttachSize()!=null){
-            Attach backgroundAttach = goodsService.saveAttach(userId, backgroundElementUrl.getPicAttachName(), backgroundElementUrl.getPicAttachNewName(), backgroundElementUrl.getPicAttachSize());
+            Attach backgroundAttach = iAttachService.saveAttach(userId, backgroundElementUrl.getPicAttachName(), backgroundElementUrl.getPicAttachNewName(), backgroundElementUrl.getPicAttachSize());
             baseElement.setBackgroundUrlId(backgroundAttach.getId());
         }
         if(showElementUrl != null && showElementUrl.getPicAttachSize()!=null){
-            Attach showAttach = goodsService.saveAttach(userId, showElementUrl.getPicAttachName(), showElementUrl.getPicAttachNewName(), showElementUrl.getPicAttachSize());
+            Attach showAttach = iAttachService.saveAttach(userId, showElementUrl.getPicAttachName(), showElementUrl.getPicAttachNewName(), showElementUrl.getPicAttachSize());
             baseElement.setShowUrlId(showAttach.getId());
         }
         baseElementMapper.insert(baseElement);
@@ -167,15 +166,15 @@ public class BaseElementServiceImpl extends ServiceImpl<BaseElementMapper, BaseE
         VoUrl showElementUrl = vo.getShowUrl();
         if(imgElementUrl != null && imgElementUrl.getPicAttachSize()!=null){
             //保存选中图片
-            Attach imgAttach = goodsService.saveAttach(userId, imgElementUrl.getPicAttachName(), imgElementUrl.getPicAttachNewName(), imgElementUrl.getPicAttachSize());
+            Attach imgAttach = iAttachService.saveAttach(userId, imgElementUrl.getPicAttachName(), imgElementUrl.getPicAttachNewName(), imgElementUrl.getPicAttachSize());
             baseElement.setImageUrlId(imgAttach.getId());
         }
         if(backgroundElementUrl != null && backgroundElementUrl.getPicAttachSize()!=null){
-            Attach backgroundAttach = goodsService.saveAttach(userId, backgroundElementUrl.getPicAttachName(), backgroundElementUrl.getPicAttachNewName(), backgroundElementUrl.getPicAttachSize());
+            Attach backgroundAttach = iAttachService.saveAttach(userId, backgroundElementUrl.getPicAttachName(), backgroundElementUrl.getPicAttachNewName(), backgroundElementUrl.getPicAttachSize());
             baseElement.setBackgroundUrlId(backgroundAttach.getId());
         }
         if(showElementUrl != null && showElementUrl.getPicAttachSize()!=null){
-            Attach showAttach = goodsService.saveAttach(userId, showElementUrl.getPicAttachName(), showElementUrl.getPicAttachNewName(), showElementUrl.getPicAttachSize());
+            Attach showAttach = iAttachService.saveAttach(userId, showElementUrl.getPicAttachName(), showElementUrl.getPicAttachNewName(), showElementUrl.getPicAttachSize());
             baseElement.setShowUrlId(showAttach.getId());
         }
         baseElementMapper.updateById(baseElement);
@@ -192,19 +191,7 @@ public class BaseElementServiceImpl extends ServiceImpl<BaseElementMapper, BaseE
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 
 
 }

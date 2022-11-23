@@ -1,6 +1,6 @@
 package com.knd.manage.help.request;
 
-import com.knd.manage.basedata.vo.VoUrl;
+import com.knd.manage.basedata.vo.VoUrlSort;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -24,7 +24,7 @@ public class HelpRequest {
     private String titleSort;
 
     @ApiModelProperty(value = "图片")
-    private List<VoUrl> imageUrls;
+    private List<VoUrlSort> imageUrls;
 
     //1新增 2修改
     @NotBlank

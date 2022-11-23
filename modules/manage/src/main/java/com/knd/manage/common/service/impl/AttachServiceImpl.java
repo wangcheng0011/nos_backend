@@ -11,6 +11,7 @@ import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.userutil.UserUtils;
 import com.knd.common.uuid.UUIDUtil;
+import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.dto.UploadInfoDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.mapper.AttachMapper;
@@ -52,6 +53,9 @@ public class AttachServiceImpl extends ServiceImpl<AttachMapper, Attach> impleme
     //图片文件夹路径
     @Value("${OBS.imageFoldername}")
     private String imageFoldername;
+    //图片路径
+    @Value("${upload.FileImagesPath}")
+    private String fileImagesPath;
     //视频文件夹路径
     @Value("${OBS.videoFoldername}")
     private String videoFoldername;
@@ -190,12 +194,14 @@ public class AttachServiceImpl extends ServiceImpl<AttachMapper, Attach> impleme
     //将原文件标识设为删除
     @Override
     public void deleteFile(String id,String userid) {
-        Attach a = new Attach();
-        a.setId(id);
-        a.setDeleted("1");
-        a.setLastModifiedDate(LocalDateTime.now());
-        a.setLastModifiedBy(userid);
-        baseMapper.updateById(a);
+        Attach a = baseMapper.selectById(id);
+        if(StringUtils.isNotEmpty(a)){
+            a.setId(id);
+            a.setDeleted("1");
+            a.setLastModifiedDate(LocalDateTime.now());
+            a.setLastModifiedBy(userid);
+            baseMapper.updateById(a);
+        }
     }
 
     @Override
@@ -231,6 +237,23 @@ public class AttachServiceImpl extends ServiceImpl<AttachMapper, Attach> impleme
         }
         return aPi;
     }
+
+    @Override
+    public ImgDto getImgDto(String urlId) {
+        //根据id获取图片信息
+        Attach aPi = getInfoById(urlId);
+        ImgDto imgDto = new ImgDto();
+        if (aPi != null) {
+            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
+            imgDto.setPicAttachSize(aPi.getFileSize());
+            String[] strs = (aPi.getFilePath()).split("\\?");
+            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
+            imgDto.setPicAttachName(aPi.getFileName());
+        }
+        return imgDto;
+    }
+
+
 
 
 }

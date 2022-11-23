@@ -7,7 +7,6 @@ import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
-import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.basedata.dto.MusicListDto;
 import com.knd.manage.basedata.entity.BaseMusic;
 import com.knd.manage.basedata.mapper.BaseMusicMapper;
@@ -15,12 +14,10 @@ import com.knd.manage.basedata.service.IBaseMusicService;
 import com.knd.manage.basedata.vo.VoSaveMusic;
 import com.knd.manage.common.dto.ResponseDto;
 import com.knd.manage.common.entity.Attach;
-import com.knd.manage.common.mapper.AttachMapper;
 import com.knd.manage.common.service.IAttachService;
 import com.knd.manage.mall.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,13 +34,6 @@ public class IBaseMusicServiceImpl implements IBaseMusicService {
     private final BaseMusicMapper baseMusicMapper;
     private final IGoodsService goodsService;
     private final IAttachService iAttachService;
-    private final AttachMapper attachMapper;
-    //图片路径
-    @Value("${upload.FileVideoPath}")
-    private String fileVideoPath;
-    //图片文件夹路径
-    @Value("${OBS.videoFoldername}")
-    private String videoFoldername;
 
 
     @Override
@@ -61,7 +51,7 @@ public class IBaseMusicServiceImpl implements IBaseMusicService {
         records.stream().forEach(record->{
             MusicListDto dto = new MusicListDto();
             BeanUtils.copyProperties(record,dto);
-            dto.setMusicUrl(getImgDto(record.getMusicUrlId()));
+            dto.setMusicUrl(iAttachService.getImgDto(record.getMusicUrlId()));
             dtoList.add(dto);
         });
 
@@ -96,7 +86,7 @@ public class IBaseMusicServiceImpl implements IBaseMusicService {
         if(StringUtils.isNotEmpty(vo.getMusicUrl())
                 && StringUtils.isNotEmpty(vo.getMusicUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(vo.getUserId(), vo.getMusicUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(vo.getUserId(), vo.getMusicUrl().getPicAttachName()
                     , vo.getMusicUrl().getPicAttachNewName(), vo.getMusicUrl().getPicAttachSize());
             musicUrlId = imgAPi.getId();
         }
@@ -113,17 +103,5 @@ public class IBaseMusicServiceImpl implements IBaseMusicService {
         return ResultUtil.success();
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileVideoPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(videoFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

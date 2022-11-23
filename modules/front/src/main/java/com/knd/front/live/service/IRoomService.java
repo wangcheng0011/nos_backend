@@ -32,7 +32,7 @@ public interface IRoomService extends SuperService<RoomEntity> {
 
     Result deleteRoom(String id);
 
-    Result closeRoom(String id);
+    Result closeRoom(String roomId);
 
     Result closeRoomForManage(String id);
 
@@ -44,9 +44,11 @@ public interface IRoomService extends SuperService<RoomEntity> {
 
     Result reportRoom(ReportRoomRequest request);
 
-    Result coachcloseRoom(String id) ;
+   // Result coachTimeCloseRoom(String coachId) ;
 
     Result scheduledCloseRoom(String id);
 
     Result closeCourse(String id);
+
+    Result userCoachCloseRoom(String courseId);
 }

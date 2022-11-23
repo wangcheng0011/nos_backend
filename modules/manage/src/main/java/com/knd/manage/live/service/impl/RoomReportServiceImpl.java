@@ -9,12 +9,10 @@ import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.dto.ResponseDto;
-import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.service.IAttachService;
 import com.knd.manage.common.vo.VoId;
 import com.knd.manage.course.entity.RoomReportAttach;
 import com.knd.manage.course.mapper.RoomReportAttachMapper;
-import com.knd.manage.course.mapper.UserCoachCourseMapper;
 import com.knd.manage.live.dto.RoomReportDto;
 import com.knd.manage.live.entity.RoomEntity;
 import com.knd.manage.live.entity.RoomReportEntity;
@@ -57,7 +55,6 @@ public class RoomReportServiceImpl implements RoomReportService {
     private final RoomReportAttachMapper roomReportAttachMapper;
     private final IAttachService iAttachService;
     private final UserCoachTimeMapper userCoachTimeMapper;
-    private final UserCoachCourseMapper userCoachCourseMapper;
     // @Resource
     // private RtcRoomManager rtcRoomManager;
 
@@ -79,14 +76,14 @@ public class RoomReportServiceImpl implements RoomReportService {
         List<RoomReportDto> dtoList = new ArrayList<>();
         Page<RoomReportDto> page = new Page<>(Long.parseLong(vo.getCurrent()), PageInfo.pageSize);
         QueryWrapper<RoomReportEntity> wrapper = new QueryWrapper();
-        if (StringUtils.isNotEmpty(vo.getNickName())){
+        if (StringUtils.isNotEmpty(vo.getNickName())) {
             wrapper.like("u.nickName", vo.getNickName());
         }
         if (StringUtils.isNotEmpty(vo.getMobile())) {
             wrapper.like("u.mobile", vo.getMobile());
         }
-        if(StringUtils.isNotEmpty(vo.getType())){
-            wrapper.eq("r.type",vo.getType());
+        if (StringUtils.isNotEmpty(vo.getType())) {
+            wrapper.eq("r.type", vo.getType());
         }
         wrapper.eq("r.deleted", "0");
         wrapper.orderByDesc("r.createDate");
@@ -95,7 +92,7 @@ public class RoomReportServiceImpl implements RoomReportService {
         log.info("getRoomReportList list：{{}}", list);
         for (RoomReportDto entity : list) {
             RoomReportDto dto = new RoomReportDto();
-            if("0".equals(vo.getType())){
+            if ("0".equals(vo.getType())) {
                 //举报房间
                 RoomEntity roomEntity = roomMapper.selectById(entity.getRoomId());
                 log.info("getRoomReportList roomEntity：{{}}", roomEntity);
@@ -106,22 +103,22 @@ public class RoomReportServiceImpl implements RoomReportService {
                     dto.setRoomId(roomEntity.getId());
                     dto.setUserId(roomEntity.getUserId());
                     dto.setRoom(roomEntity.getRoomName());
-                   // dto.setType(entity.getType());
+                    // dto.setType(entity.getType());
                     dto.setRoomMobile(roomUser.getMobile());
                     dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
                     dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
                     dto.setIsClose(roomEntity.getRoomStatus());
                     int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
                     dto.setIsKickOut(count + "");
-                 //   User reportUser = userMapper.selectById(entity.getReportUserId());
-                 //   dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
+                    //   User reportUser = userMapper.selectById(entity.getReportUserId());
+                    //   dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
                     dtoList.add(dto);
                 }
-            }else if("1".equals(vo.getType())){
+            } else if ("1".equals(vo.getType())) {
                 //举报直播
                 QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
-                userCoachTimeEntityQueryWrapper.eq("id",entity.getRoomId());
-                userCoachTimeEntityQueryWrapper.eq("deleted","0");
+                userCoachTimeEntityQueryWrapper.eq("id", entity.getRoomId());
+                userCoachTimeEntityQueryWrapper.eq("deleted", "0");
                 UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
                 if (userCoachTimeEntity != null) {
                     BeanUtils.copyProperties(entity, dto);
@@ -129,23 +126,23 @@ public class RoomReportServiceImpl implements RoomReportService {
                     log.info("getRoomReportList User：{{}}", roomUser);
                     dto.setRoomId(userCoachTimeEntity.getId());
                     dto.setUserId(userCoachTimeEntity.getCoachUserId());
-                   // dto.setRoom(roomUser.getNickName());
-                   // dto.setType(entity.getType());
+                    // dto.setRoom(roomUser.getNickName());
+                    // dto.setType(entity.getType());
                     dto.setRoomMobile(roomUser.getMobile());
                     dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
                     dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
-                    dto.setIsClose(userCoachTimeEntity.getLiveStatus()=="1"?"0":"1");
-                   // int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
-                  //  dto.setIsKickOut(count + "");
-                  //  User reportUser = userMapper.selectById(entity.getReportUserId());
-                  //  dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
+                    dto.setIsClose(userCoachTimeEntity.getLiveStatus() == "1" ? "0" : "1");
+                    // int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
+                    //  dto.setIsKickOut(count + "");
+                    //  User reportUser = userMapper.selectById(entity.getReportUserId());
+                    //  dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
                     dtoList.add(dto);
                 }
-            }else if("2".equals(vo.getType())){
+            } else if ("2".equals(vo.getType())) {
                 //举报私教
                 QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
-                userCoachTimeEntityQueryWrapper.eq("coachCourseId",entity.getRoomId());
-                userCoachTimeEntityQueryWrapper.eq("deleted","0");
+                userCoachTimeEntityQueryWrapper.eq("coachCourseId", entity.getRoomId());
+                userCoachTimeEntityQueryWrapper.eq("deleted", "0");
                 UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
                 if (userCoachTimeEntity != null) {
                     BeanUtils.copyProperties(entity, dto);
@@ -153,17 +150,17 @@ public class RoomReportServiceImpl implements RoomReportService {
                     log.info("getRoomReportList User：{{}}", roomUser);
                     dto.setRoomId(userCoachTimeEntity.getCoachCourseId());
                     dto.setUserId(userCoachTimeEntity.getCoachUserId());
-                   // dto.setRoom(roomEntity.getRoomName());
-                   // dto.setType(entity.getType());
+                    // dto.setRoom(roomEntity.getRoomName());
+                    // dto.setType(entity.getType());
                     dto.setRoomMobile(roomUser.getMobile());
                     dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
                     dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
-                    dto.setIsClose(userCoachTimeEntity.getLiveStatus()=="1"?"0":"1");
+                    dto.setIsClose(userCoachTimeEntity.getLiveStatus() == "1" ? "0" : "1");
 
-                 //   int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
-                   // dto.setIsKickOut(count + "");
-                 //   User reportUser = userMapper.selectById(entity.getReportUserId());
-                  //  dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
+                    //   int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
+                    // dto.setIsKickOut(count + "");
+                    //   User reportUser = userMapper.selectById(entity.getReportUserId());
+                    //  dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
                     dtoList.add(dto);
                 }
             }
@@ -177,13 +174,12 @@ public class RoomReportServiceImpl implements RoomReportService {
     }
 
 
-
     @Override
     public Result getRoomReport(String id) {
         RoomReportEntity roomReportEntity = reportMapper.selectById(id);
         RoomReportDto dto = new RoomReportDto();
         BeanUtils.copyProperties(roomReportEntity, dto);
-        if("0".equals(roomReportEntity.getType())){
+        if ("0".equals(roomReportEntity.getType())) {
             //举报房间
             RoomEntity roomEntity = roomMapper.selectById(roomReportEntity.getRoomId());
             log.info("getRoomReportList roomEntity：{{}}", roomEntity);
@@ -204,11 +200,11 @@ public class RoomReportServiceImpl implements RoomReportService {
                 //   User reportUser = userMapper.selectById(entity.getReportUserId());
                 //   dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
             }
-        }else if("1".equals(roomReportEntity.getType())){
+        } else if ("1".equals(roomReportEntity.getType())) {
             //举报直播
             QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
-            userCoachTimeEntityQueryWrapper.eq("id",roomReportEntity.getRoomId());
-            userCoachTimeEntityQueryWrapper.eq("deleted","0");
+            userCoachTimeEntityQueryWrapper.eq("id", roomReportEntity.getRoomId());
+            userCoachTimeEntityQueryWrapper.eq("deleted", "0");
             UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
             if (userCoachTimeEntity != null) {
                 BeanUtils.copyProperties(roomReportEntity, dto);
@@ -221,17 +217,17 @@ public class RoomReportServiceImpl implements RoomReportService {
                 dto.setRoomMobile(roomUser.getMobile());
                 dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
                 dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
-                dto.setIsClose(userCoachTimeEntity.getLiveStatus()=="1"?"0":"1");
+                dto.setIsClose(userCoachTimeEntity.getLiveStatus() == "1" ? "0" : "1");
                 // int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
                 //  dto.setIsKickOut(count + "");
                 //  User reportUser = userMapper.selectById(entity.getReportUserId());
                 //  dto.setReportUserName(reportUser != null ? reportUser.getNickName() : "");
             }
-        }else if("2".equals(roomReportEntity.getType())){
+        } else if ("2".equals(roomReportEntity.getType())) {
             //举报私教
             QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
-            userCoachTimeEntityQueryWrapper.eq("coachCourseId",roomReportEntity.getRoomId());
-            userCoachTimeEntityQueryWrapper.eq("deleted","0");
+            userCoachTimeEntityQueryWrapper.eq("coachCourseId", roomReportEntity.getRoomId());
+            userCoachTimeEntityQueryWrapper.eq("deleted", "0");
             UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
             if (userCoachTimeEntity != null) {
                 BeanUtils.copyProperties(roomReportEntity, dto);
@@ -244,7 +240,7 @@ public class RoomReportServiceImpl implements RoomReportService {
                 dto.setRoomMobile(roomUser.getMobile());
                 dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
                 dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
-                dto.setIsClose(userCoachTimeEntity.getLiveStatus()=="1"?"0":"1");
+                dto.setIsClose(userCoachTimeEntity.getLiveStatus() == "1" ? "0" : "1");
 
                 //   int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
                 // dto.setIsKickOut(count + "");
@@ -260,16 +256,16 @@ public class RoomReportServiceImpl implements RoomReportService {
         QueryWrapper<RoomReportAttach> attachQueryWrapper = new QueryWrapper<>();
         attachQueryWrapper.eq("deleted", "0");
         attachQueryWrapper.eq("reportId", roomReportEntity.getId());
-        log.info("getRoomReport reportId:{{}}",roomReportEntity.getId());
+        log.info("getRoomReport reportId:{{}}", roomReportEntity.getId());
         List<RoomReportAttach> roomReportAttaches = roomReportAttachMapper.selectList(attachQueryWrapper);
-        log.info("getRoomReport roomReportAttaches:{{}}",roomReportAttaches);
+        log.info("getRoomReport roomReportAttaches:{{}}", roomReportAttaches);
         for (RoomReportAttach attach : roomReportAttaches) {
-            ImgDto img = getImgDto(attach.getAttachUrlId());
+            ImgDto img = iAttachService.getImgDto(attach.getAttachUrlId());
             imageUrl.add(img);
         }
-        log.info("getRoomReport imageUrl:{{}}",imageUrl);
+        log.info("getRoomReport imageUrl:{{}}", imageUrl);
         dto.setImageUrl(imageUrl);
-        log.info("getRoomReport RoomReportDto:{{}}",dto);
+        log.info("getRoomReport RoomReportDto:{{}}", dto);
         //成功
         return ResultUtil.success(dto);
     }
@@ -343,36 +339,23 @@ public class RoomReportServiceImpl implements RoomReportService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result closeUserCoachTime(String id) {
-        log.info("---------------------------------后台关闭私教或直播课程--------------------------------------");
-        log.info("closeUserCoachTime id", id);
-        //关闭房间
-        Result result = frontReportFeign.closeUserCoachTime(id);
+    public Result closeUserCoachTime(String timeId) {
+        log.info("---------------------------------后台关闭直播课程--------------------------------------");
+        log.info("closeUserCoachTime id", timeId);
+        //关闭直播课程
+        Result result = frontReportFeign.coachTimeCloseRoom(timeId);
         return ResultUtil.success(result);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result closeUserCoachCourseOrder(String id) {
-        log.info("---------------------------------后台关闭私教或直播课程--------------------------------------");
-        log.info("closeUserCoachCourseOrder id", id);
-        //关闭房间
-        Result result = frontReportFeign.closeUserCoachCourseOrder(id);
+    public Result closeUserCoachCourseOrder(String courseId) {
+        log.info("---------------------------------后台关闭私教课程--------------------------------------");
+        log.info("closeUserCoachCourseOrder id", courseId);
+        //关闭私教课程
+        Result result = frontReportFeign.userCoachCloseRoom(courseId);
         return ResultUtil.success(result);
     }
 
 
-    public ImgDto getImgDto(String urlId) {
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
 }

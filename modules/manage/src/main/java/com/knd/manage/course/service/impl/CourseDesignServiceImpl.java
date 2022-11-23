@@ -9,7 +9,6 @@ import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
-import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.mapper.AttachMapper;
 import com.knd.manage.common.service.IAttachService;
@@ -18,7 +17,10 @@ import com.knd.manage.course.dto.ActionListDto;
 import com.knd.manage.course.dto.TrainDetailDto;
 import com.knd.manage.course.dto.TrainListDto;
 import com.knd.manage.course.dto.TrainWeekDetailDto;
-import com.knd.manage.course.entity.*;
+import com.knd.manage.course.entity.ActionArrayEntity;
+import com.knd.manage.course.entity.ProgramDayItemEntity;
+import com.knd.manage.course.entity.ProgramWeekDetailEntity;
+import com.knd.manage.course.entity.TrainProgramEntity;
 import com.knd.manage.course.mapper.ActionArrayMapper;
 import com.knd.manage.course.mapper.ProgramDayItemMapper;
 import com.knd.manage.course.mapper.ProgramWeekDetailMapper;
@@ -193,7 +195,7 @@ public class CourseDesignServiceImpl extends ServiceImpl<TrainProgramMapper,Trai
         programWeekDetailMapper.delete(weekQw);
 
         //保存选中图片
-        Attach picAttachUrl = goodsService.saveAttach(request.getUserId(), request.getPicAttachUrl().getPicAttachName()
+        Attach picAttachUrl = iAttachService.saveAttach(request.getUserId(), request.getPicAttachUrl().getPicAttachName()
                 , request.getPicAttachUrl().getPicAttachNewName(), request.getPicAttachUrl().getPicAttachSize());
 
         log.info("editTrain picAttachUrl:{{}}",picAttachUrl);
@@ -273,7 +275,7 @@ public class CourseDesignServiceImpl extends ServiceImpl<TrainProgramMapper,Trai
         TrainProgramEntity trainProgramEntity = baseMapper.selectOne(qw);
         List<TrainWeekDetailDto> detail = trainProgramMapper.getDetail(id);
         BeanUtils.copyProperties(trainProgramEntity,dto);
-        dto.setPicAttach(getImgDto(trainProgramEntity.getPicAttachId()));
+        dto.setPicAttach(iAttachService.getImgDto(trainProgramEntity.getPicAttachId()));
         dto.setTrainDetailList(detail);
         return ResultUtil.success(dto);
     }
@@ -315,17 +317,5 @@ public class CourseDesignServiceImpl extends ServiceImpl<TrainProgramMapper,Trai
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

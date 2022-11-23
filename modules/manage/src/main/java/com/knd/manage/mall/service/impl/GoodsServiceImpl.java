@@ -479,6 +479,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
                 , createGoodsRequest.getPicAttachNewName(), createGoodsRequest.getPicAttachSize());
         //存储商品
         GoodsEntity g = new GoodsEntity();
+        //g.setId(UUIDUtil.getShortUUID());
         g.setCategoryId(createGoodsRequest.getCategoryId());
        // g.setCoverAttachId(aPi.getId());
         g.setGoodsName(createGoodsRequest.getGoodsName());
@@ -1053,23 +1054,6 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
-
-
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
-
 
     @Override
     public Result parseOrderNotifyResult(ParseOrderNotifyRequest parseOrderNotifyRequest) {

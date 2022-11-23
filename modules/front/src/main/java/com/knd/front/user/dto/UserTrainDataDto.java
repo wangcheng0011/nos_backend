@@ -15,6 +15,8 @@ public class UserTrainDataDto {
     private String totalTrainSeconds  = "0";
     @ApiModelProperty(value = "总训练课程数")
     private String finishCourseCount  = "0";
+    @ApiModelProperty(value = "完成总次数")
+    private String finishCounts  = "0";
     @ApiModelProperty(value = "历史最高连续训练天数")
     private String maxConsecutiveDays  = "0";
     @ApiModelProperty(value = "最近连续训练天数")

@@ -38,4 +38,19 @@
         ORDER BY
        str_to_date(trainPeriodBeginTime,'%Y-%m-%d ') DESC limit 1
     </select>
+    <select id="getUserCourseHeadInfo" resultType="com.knd.front.user.dto.TrainCourseHeadInfoDataDto">
+     SELECT
+	ifnull(sum(tcai.finishCounts),0) as finishCounts,
+	ifnull(ROUND(tchi.calorie,2),0) as calorie,
+	ifnull(tchi.finishTotalPower,0) as finishTotalPower,
+	ifnull(tchi.totalDurationSeconds,0) as totalDurationSeconds,
+	ifnull(tchi.actualTrainSeconds,0)as actualTrainSeconds
+FROM
+	train_course_head_info tchi
+				LEFT JOIN train_course_block_info tcbi ON tcbi.trainCourseHeadInfoId = tchi.id AND tcbi.deleted = 0
+				LEFT JOIN train_course_act_info	tcai on tcai.trainCourseBlockInfoId = tcbi.id AND tcai.deleted = 0
+WHERE
+	tchi.deleted = 0
+	AND tchi.userId = #{userId}
+    </select>
 </mapper>

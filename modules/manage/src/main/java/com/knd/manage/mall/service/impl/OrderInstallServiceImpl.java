@@ -14,6 +14,7 @@ import com.knd.manage.admin.entity.Admin;
 import com.knd.manage.admin.mapper.AdminMapper;
 import com.knd.manage.basedata.vo.VoUrl;
 import com.knd.manage.common.entity.Attach;
+import com.knd.manage.common.service.IAttachService;
 import com.knd.manage.common.util.JPushUtil;
 import com.knd.manage.mall.dto.InstallPersonDto;
 import com.knd.manage.mall.dto.OrderIcDto;
@@ -27,7 +28,6 @@ import com.knd.manage.mall.mapper.TbOrderOperateHistoryMapper;
 import com.knd.manage.mall.mapper.UserReceiveAddressMapper;
 import com.knd.manage.mall.request.EditInstallRequest;
 import com.knd.manage.mall.request.OrderInstallRequest;
-import com.knd.manage.mall.service.IGoodsService;
 import com.knd.manage.mall.service.IOrderInstallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -52,7 +52,7 @@ public class OrderInstallServiceImpl implements IOrderInstallService {
     private final UserReceiveAddressMapper userReceiveAddressMapper;
     private final TbOrderOperateHistoryMapper historyMapper;
     private final AdminMapper adminMapper;
-    private final IGoodsService goodsService;
+    private final IAttachService iAttachService;
     private final JPushUtil jPushUtil;
 
     @Override
@@ -252,7 +252,6 @@ public class OrderInstallServiceImpl implements IOrderInstallService {
             addressEntity.setId(UUIDUtil.getShortUUID());
             addressEntity.setDeleted("0");
             userReceiveAddressMapper.insert(addressEntity);
-
             QueryWrapper<OrderIcEntity> wrapper = new QueryWrapper<>();
             wrapper.eq("tbOrderId",request.getTbOrderId());
             wrapper.eq("deleted", "0");
@@ -261,7 +260,6 @@ public class OrderInstallServiceImpl implements IOrderInstallService {
             entity.setLocationStatus(request.getAddressRequest().getLocationStatus());
             entity.setLocationTime(LocalDateTime.now());
             orderIcMapper.updateById(entity);
-
             if(StringUtils.isNotEmpty(tbOrder)
                     && InstallStatusEnum.WAIT_INSTALLED.getCode().equals(tbOrder.getInstallStatus())){
                 tbOrder.setInstallStatus(InstallStatusEnum.INSTALLATION.getCode());
@@ -282,12 +280,12 @@ public class OrderInstallServiceImpl implements IOrderInstallService {
                 tbOrderMapper.updateById(tbOrder);
 
                 //保存签名图片
-                Attach signatureUrl = goodsService.saveAttach(request.getPersonId(), request.getSignatureUrl().getPicAttachName()
+                Attach signatureUrl = iAttachService.saveAttach(request.getPersonId(), request.getSignatureUrl().getPicAttachName()
                         , request.getSignatureUrl().getPicAttachNewName(), request.getSignatureUrl().getPicAttachSize());
                 //保存安装多图
                 String installUrlIds = "";
                 for(VoUrl url : request.getInstallUrl()){
-                    Attach installUrl = goodsService.saveAttach(request.getPersonId(), url.getPicAttachName()
+                    Attach installUrl = iAttachService.saveAttach(request.getPersonId(), url.getPicAttachName()
                             , url.getPicAttachNewName(), url.getPicAttachSize());
                     installUrlIds = StringUtils.isNotEmpty(installUrlIds) ? installUrlIds+","+installUrl.getId() : installUrl.getId();
                 }
@@ -297,14 +295,12 @@ public class OrderInstallServiceImpl implements IOrderInstallService {
                 entity.setSignatureUrlId(signatureUrl.getId());
                 entity.setInstallUrlIds(installUrlIds);
                 orderIcMapper.updateById(entity);
-
                 historyEntity.setNote(InstallOperationEnum.CONFIRM_INSTALL.getMessage());
                 historyEntity.setOrderStatus("10");
                 historyMapper.insert(historyEntity);
             }else{
                 return ResultUtil.error("U0999", "当前订单状态不可进行此操作");
             }
-
         }else{
             return ResultUtil.error(ResultEnum.FAIL);
         }

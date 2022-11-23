@@ -142,11 +142,11 @@ public class CoachController {
         return coachService.publishCourse(userId,request);
     }
 
-    @Log("私教关闭房间")
-    @PostMapping("/closeRoom")
-    @ApiOperation(value = "关闭房间 私教关闭房间", notes = "关闭房间 私教关闭房间")
-    public Result coachcloseRoom(@ApiParam("主键timeId") @RequestParam(required = true, name = "id") String id) {
-        return iRoomService.coachcloseRoom(id);
-    }
+    /*@Log("关闭直播 直播关闭房间")
+    @PostMapping("/coachTimeCloseRoom")
+    @ApiOperation(value = "关闭直播 直播关闭房间", notes = "关闭直播 直播关闭房间")
+    public Result coachTimeCloseRoom(@ApiParam("timeId") @RequestParam(required = true, name = "timeId") String timeId) {
+        return iRoomService.coachTimeCloseRoom(timeId);
+    }*/
 
 }

@@ -92,8 +92,8 @@ public class ActionArrayServiceImpl extends ServiceImpl<ActionArrayMapper, Actio
         ActionArray actionArray1 = baseMapper.selectOne(actionArrayQueryWrapper);
         log.info("saveActionArray actionArray1:{{}}",actionArray1);
         if(StringUtils.isNotEmpty(actionArray1)){
-            log.info("saveActionArray 该动作组合重复提交");
-            return ResultUtil.error("U1998", "该动作组合重复提交");
+            log.info("saveActionArray 该动作组合名称重复提交");
+            return ResultUtil.error("U1998", "该动作组合名称重复提交");
         }
         log.info("saveActionArray actionArray:{{}}",actionArray);
         baseMapper.insert(actionArray);
@@ -123,7 +123,7 @@ public class ActionArrayServiceImpl extends ServiceImpl<ActionArrayMapper, Actio
         log.info("updateActionArray actionArrays:{{}}",actionArrays);
         if(actionArrays.size()>0){
             log.info("saveActionArray 该动作组合名称重复提交");
-            return ResultUtil.error("U1998", "该动作组合重复提交");
+            return ResultUtil.error("U1998", "该动作组合名称重复提交");
         }
         if(updateActionArrayRequest.getSaveActionArrayDetailRequests() == null ||
                 updateActionArrayRequest.getSaveActionArrayDetailRequests().size() == 0 ) {

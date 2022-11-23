@@ -4,5 +4,5 @@ import com.knd.front.social.dto.MomentAddressDto;
 
 public interface MomentAddressService {
 
-    String add(MomentAddressDto request, String momentId);
+    String add(MomentAddressDto request, String momentId) throws Exception;
 }

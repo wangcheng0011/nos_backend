@@ -1,7 +1,7 @@
 package com.knd.front.train.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.knd.front.entity.TrainFreeTrainingHead;
+import com.knd.front.entity.TrainFreeActHead;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.knd.front.entity.TrainFreeTrainingHead;
  * @author llx
  * @since 2020-07-03
  */
-public interface TrainFreeTrainingHeadMapper extends BaseMapper<TrainFreeTrainingHead> {
+public interface TrainFreeActHeadMapper extends BaseMapper<TrainFreeActHead> {
 
 }

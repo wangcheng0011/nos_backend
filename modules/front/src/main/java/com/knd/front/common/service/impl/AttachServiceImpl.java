@@ -6,6 +6,9 @@ import com.knd.common.obs.ObsObjectUtil;
 import com.knd.common.uuid.UUIDUtil;
 import com.knd.front.common.service.AttachService;
 import com.knd.front.entity.Attach;
+import com.knd.front.entity.UserDetail;
+import com.knd.front.login.mapper.UserDetailMapper;
+import com.knd.front.pay.dto.ImgDto;
 import com.knd.front.train.mapper.AttachMapper;
 import com.obs.services.ObsClient;
 import com.obs.services.ObsConfiguration;
@@ -37,8 +40,17 @@ public class AttachServiceImpl implements AttachService {
     @Value("${OBS.bucketname}")
     private String bucketname;
 
+    @Value("${upload.FileImagesPath}")
+    private String fileImagesPath;
+
+    //图片文件夹路径
+    @Value("${OBS.imageFoldername}")
+    private String imageFoldername;
+
     @Autowired
     private AttachMapper attachMapper;
+    @Autowired
+    private UserDetailMapper userDetailMapper;
 
     @Override
     public Attach saveAttach(String userId, String picAttachName, String picAttachNewName, String picAttachSize) {
@@ -97,5 +109,44 @@ public class AttachServiceImpl implements AttachService {
         qw.select("fileName", "filePath", "fileSize", "fileType");
         qw.eq("id", id);
         return attachMapper.selectOne(qw);
+    }
+
+    @Override
+    public String getHeadPicUrl(String userId){
+        UserDetail userDetail = userDetailMapper.selectOne(new QueryWrapper<UserDetail>().eq("userId", userId).eq("deleted", "0"));
+        if(userDetail!=null){
+            Attach attach = attachMapper.selectById(userDetail.getHeadPicUrlId());
+            return attach!=null ? fileImagesPath+attach.getFilePath() : "";
+        }else{
+            return "";
+        }
+    }
+
+    //将原文件标识设为删除
+    @Override
+    public void deleteFile(String id,String userid) {
+        Attach a = attachMapper.selectById(id);
+        if(StringUtils.isNotEmpty(a)){
+            a.setId(id);
+            a.setDeleted("1");
+            a.setLastModifiedDate(LocalDateTime.now());
+            a.setLastModifiedBy(userid);
+            attachMapper.updateById(a);
+        }
+    }
+
+    @Override
+    public ImgDto getImgDto(String urlId) {
+        //根据id获取图片信息
+        Attach aPi = getInfoById(urlId);
+        ImgDto imgDto = new ImgDto();
+        if (aPi != null) {
+            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
+            imgDto.setPicAttachSize(aPi.getFileSize());
+            String[] strs = (aPi.getFilePath()).split("\\?");
+            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
+            imgDto.setPicAttachName(aPi.getFileName());
+        }
+        return imgDto;
     }
 }

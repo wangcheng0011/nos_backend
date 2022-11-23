@@ -12,8 +12,8 @@ import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
 import com.knd.manage.basedata.dto.HobbyDto;
 import com.knd.manage.basedata.dto.HobbyListDto;
-import com.knd.manage.basedata.dto.PartHobbyDto;
 import com.knd.manage.basedata.dto.ImgDto;
+import com.knd.manage.basedata.dto.PartHobbyDto;
 import com.knd.manage.basedata.entity.BasePartHobby;
 import com.knd.manage.basedata.mapper.BasePartHobbyMapper;
 import com.knd.manage.basedata.service.IBasePartHobbyService;
@@ -24,7 +24,6 @@ import com.knd.manage.common.service.IAttachService;
 import com.knd.manage.mall.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,21 +49,15 @@ public class BasePartHobbyServiceImpl extends ServiceImpl<BasePartHobbyMapper, B
     private final IGoodsService goodsService;
     private final IAttachService iAttachService;
     private final AttachMapper attachMapper;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     @Override
     public Result add(String userId, VoSaveHobby vo) {
         //保存选中图片
-        Attach selectAPi = goodsService.saveAttach(userId, vo.getSelectUrlDto().getPicAttachName()
+        Attach selectAPi = iAttachService.saveAttach(userId, vo.getSelectUrlDto().getPicAttachName()
                 , vo.getSelectUrlDto().getPicAttachNewName(), vo.getSelectUrlDto().getPicAttachSize());
 
         //保存选中图片
-        Attach unSelectAPi = goodsService.saveAttach(userId, vo.getUnSelectUrlDto().getPicAttachName()
+        Attach unSelectAPi = iAttachService.saveAttach(userId, vo.getUnSelectUrlDto().getPicAttachName()
                 , vo.getUnSelectUrlDto().getPicAttachNewName(), vo.getUnSelectUrlDto().getPicAttachSize());
 
         QueryWrapper<BasePartHobby> wrapper = new QueryWrapper<>();
@@ -124,11 +117,11 @@ public class BasePartHobbyServiceImpl extends ServiceImpl<BasePartHobbyMapper, B
         attachMapper.deleteBatchIds(attachIds);
 
         //保存选中图片
-        Attach selectAPi = goodsService.saveAttach(userId, vo.getSelectUrlDto().getPicAttachName()
+        Attach selectAPi = iAttachService.saveAttach(userId, vo.getSelectUrlDto().getPicAttachName()
                 , vo.getSelectUrlDto().getPicAttachNewName(), vo.getSelectUrlDto().getPicAttachSize());
 
         //保存选中图片
-        Attach unSelectAPi = goodsService.saveAttach(userId, vo.getUnSelectUrlDto().getPicAttachName()
+        Attach unSelectAPi = iAttachService.saveAttach(userId, vo.getUnSelectUrlDto().getPicAttachName()
                 , vo.getUnSelectUrlDto().getPicAttachNewName(), vo.getUnSelectUrlDto().getPicAttachSize());
 
         BasePartHobby b = new BasePartHobby();
@@ -166,10 +159,10 @@ public class BasePartHobbyServiceImpl extends ServiceImpl<BasePartHobbyMapper, B
         BeanUtils.copyProperties(basePartHobby,dto);
         dto.setPart(basePartHobbyMapper.getPart(basePartHobby.getPartId()));
 
-        ImgDto selectImgDto = getImgDto(basePartHobby.getSelectUrlId());
+        ImgDto selectImgDto = iAttachService.getImgDto(basePartHobby.getSelectUrlId());
         dto.setSelectImg(selectImgDto);
 
-        ImgDto unSelectImgDto = getImgDto(basePartHobby.getUnSelectUrlId());
+        ImgDto unSelectImgDto = iAttachService.getImgDto(basePartHobby.getUnSelectUrlId());
         dto.setUnSelectImg(unSelectImgDto);
         //成功
         return ResultUtil.success(dto);
@@ -201,17 +194,5 @@ public class BasePartHobbyServiceImpl extends ServiceImpl<BasePartHobbyMapper, B
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

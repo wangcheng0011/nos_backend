@@ -1,7 +1,7 @@
 package com.knd.front.help.request;
 
 
-import com.knd.front.dto.VoUrl;
+import com.knd.front.dto.VoUrlSort;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import javax.validation.constraints.NotBlank;
@@ -25,7 +25,7 @@ public class HelpRequest {
     private String titleSort;
 
     @ApiModelProperty(value = "图片")
-    private List<VoUrl> imageUrls;
+    private List<VoUrlSort> imageUrls;
 
     //1新增 2修改
     @NotBlank

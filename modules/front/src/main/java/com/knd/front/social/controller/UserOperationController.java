@@ -26,7 +26,7 @@ public class UserOperationController {
     @Log("发布动态")
     @PostMapping("/moment")
     @ApiOperation(value = "发布动态", notes = "发布动态")
-    public Result moment(@RequestBody OperationMomentRequest request, BindingResult bindingResult) {
+    public Result moment(@RequestBody OperationMomentRequest request, BindingResult bindingResult) throws Exception {
         if (bindingResult.hasErrors()) {
             String error = bindingResult.getFieldError().getDefaultMessage();
             return ResultUtil.error("U0995", error);

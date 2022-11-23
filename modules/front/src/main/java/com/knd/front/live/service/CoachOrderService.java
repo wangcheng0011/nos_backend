@@ -51,10 +51,4 @@ public interface CoachOrderService {
      */
     Result cancelOrderSuccess(String coachTimeId,String userId);
 
-    /**
-     * 关闭私教接口
-     * @param id
-     * @return
-     */
-    Result closeUserCoachCourseOrder(String id);
 }

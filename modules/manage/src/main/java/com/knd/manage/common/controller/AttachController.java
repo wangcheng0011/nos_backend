@@ -134,59 +134,63 @@ public class AttachController {
     @Resource
     private AttachMapper attachMapper;
 
+/*
+    @Log("同步删除文件")
+    @ApiOperation(value = "同步删除文件")
+    @PostMapping("/tDfile")
+    @Transactional(rollbackFor = Exception.class)
+    public void tDfile(){
+        List<String> ldb = new ArrayList<>();
 
-//    @Log("同步删除文件")
-//    @ApiOperation(value = "同步删除文件")
-//    @PostMapping("/tDfile")
-//    @Transactional(rollbackFor = Exception.class)
-//    public void tDfile(){
-//        List<String> ldb = new ArrayList<>();
-//
-//        //获取未删除的文件id
-//        QueryWrapper<CourseHead> q1 = new QueryWrapper<>();
-//        q1.eq("deleted","0");
-//        List<CourseHead> co = courseHeadMapper.selectList(q1);
-//        for (CourseHead c : co){
-//            ldb.add(c.getVideoAttachId());
-//            ldb.add(c.getPicAttachId());
-//        }
-//
-//        QueryWrapper<BaseAction> q2 = new QueryWrapper<>();
-//        q2.eq("deleted","0");
-//        List<BaseAction> co2 = baseActionMapper.selectList(q2);
-//        for (BaseAction c : co2){
-//            ldb.add(c.getVideoAttachId());
-//            ldb.add(c.getPicAttachId());
-//        }
-//        QueryWrapper<AppReleaseVersion> q23 = new QueryWrapper<>();
-//        q23.eq("deleted","0");
-//        List<AppReleaseVersion> co23 = appReleaseVersionMapper.selectList(q23);
-//        for (AppReleaseVersion c : co23){
-//            ldb.add(c.getAttachId());
-//        }
-//        //获取所有未删除的数据id
-//        //从数据库获取标识为0的文件
-//        QueryWrapper<Attach> a = new QueryWrapper<>();
-//        a.select("id");
-//        a.eq("deleted", "0");
-//        List<Attach> la = attachMapper.selectList(a);
-//        List<String> lastr = new ArrayList<>();
-//        for (Attach t : la){
-//            lastr.add(t.getId());
-//        }
-//        //差集
-//        lastr.removeAll(ldb);
-//
-//        //将剩余的都删除了
-//        for (String t :lastr){
-//            Attach ta = new Attach();
-//            ta.setId(t);
-//            ta.setDeleted("1");
-//            ta.setLastModifiedBy("程序校验删除");
-//            ta.setLastModifiedDate(LocalDateTime.now());
-//            attachMapper.updateById(ta);
-//        }
-//    }
+        //获取未删除的文件id
+        QueryWrapper<CourseHead> q1 = new QueryWrapper<>();
+        q1.eq("deleted","0");
+        List<CourseHead> co = courseHeadMapper.selectList(q1);
+        for (CourseHead c : co){
+            ldb.add(c.getVideoAttachId());
+            ldb.add(c.getPicAttachId());
+        }
+
+        QueryWrapper<BaseAction> q2 = new QueryWrapper<>();
+        q2.eq("deleted","0");
+        List<BaseAction> co2 = baseActionMapper.selectList(q2);
+        for (BaseAction c : co2){
+            ldb.add(c.getVideoAttachId());
+            ldb.add(c.getPicAttachId());
+        }
+        QueryWrapper<AppReleaseVersion> q23 = new QueryWrapper<>();
+        q23.eq("deleted","0");
+        List<AppReleaseVersion> co23 = appReleaseVersionMapper.selectList(q23);
+        for (AppReleaseVersion c : co23){
+            ldb.add(c.getAttachId());
+        }
+        //获取所有未删除的数据id
+        //从数据库获取标识为0的文件
+        QueryWrapper<Attach> a = new QueryWrapper<>();
+        a.select("id");
+        a.eq("deleted", "0");
+        List<Attach> la = attachMapper.selectList(a);
+        List<String> lastr = new ArrayList<>();
+        for (Attach t : la){
+            lastr.add(t.getId());
+        }
+        //差集
+        lastr.removeAll(ldb);
+
+        //将剩余的都删除了
+        for (String t :lastr){
+            Attach ta = new Attach();
+            ta.setId(t);
+            ta.setDeleted("1");
+            ta.setLastModifiedBy("程序校验删除");
+            ta.setLastModifiedDate(LocalDateTime.now());
+            attachMapper.updateById(ta);
+        }
+    }*/
+
+
+
+
 
 
 }

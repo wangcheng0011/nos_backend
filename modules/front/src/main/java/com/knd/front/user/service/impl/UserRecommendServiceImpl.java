@@ -201,10 +201,13 @@ public class UserRecommendServiceImpl implements IUserRecommendService {
                 }
                 coursePayDtoList.add(userCoursePayDto);
             });
-            trainProgramWeekDetail.add(TrainProgramWeekDetailDto.builder()
-                    .weekDayName(week.getWeekDayName())
-                    .trainCourseList(coursePayDtoList).build());
+            if(StringUtils.isNotEmpty(coursePayDtoList)&&coursePayDtoList.size()!=0){
+                trainProgramWeekDetail.add(TrainProgramWeekDetailDto.builder()
+                        .weekDayName(week.getWeekDayName())
+                        .trainCourseList(coursePayDtoList).build());
+            }
         }
+        dto.setId(programEntity.getId());
         dto.setType(programEntity.getType());
         dto.setProgramName(programEntity.getProgramName());
         dto.setTrainWeekNum(programEntity.getTrainWeekNum());

@@ -81,7 +81,6 @@ public class UserInfoController {
                         temp = consecutiveDays.get(i);
                     }
                 }
-
             }
             userTrainData.setMaxConsecutiveDays(temp+"");
             //userTrainData.setMaxConsecutiveDays(Collections.max(consecutiveDays)+"");

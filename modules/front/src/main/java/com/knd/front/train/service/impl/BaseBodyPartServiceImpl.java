@@ -170,7 +170,6 @@ public class BaseBodyPartServiceImpl extends ServiceImpl<BaseBodyPartMapper, Bas
         try {
             log.info("commitTrainCourseInfo trainCourseInfoRequest:{{}}",trainCourseInfoRequest);
             TrainCourseHeadInfo trainCourseHeadInfo = new TrainCourseHeadInfo();
-
             trainCourseHeadInfo.setUserId(trainCourseInfoRequest.getUserId());
             trainCourseHeadInfo.setCourseHeadId(trainCourseInfoRequest.getCourseHeadId());
             trainCourseHeadInfo.setCourse(trainCourseInfoRequest.getCourse());
@@ -196,7 +195,6 @@ public class BaseBodyPartServiceImpl extends ServiceImpl<BaseBodyPartMapper, Bas
                 trainCourseBlockInfo.setBlock(blockList.get(i).getBlock());
                 trainCourseBlockInfo.setBlockSetNum(blockList.get(i).getBlockSetNum());
                 trainCourseBlockInfo.setSets(blockList.get(i).getSets());
-
                 trainCourseBlockInfoMapper.insert(trainCourseBlockInfo);
                 //block动作批量新增
                 List<TrainCourseActInfoRequest> actionList = blockList.get(i).getActionList();
@@ -214,6 +212,7 @@ public class BaseBodyPartServiceImpl extends ServiceImpl<BaseBodyPartMapper, Bas
                     trainCourseActInfo.setActAimSets(actionList.get(j).getActAimSets());
                     trainCourseActInfo.setActAimDuration(actionList.get(j).getActAimDuration());
                     trainCourseActInfo.setTrainCourseBlockInfoId(trainCourseBlockInfo.getId());
+                    trainCourseActInfo.setFinishCounts(actionList.get(j).getFinishCounts());
                     trainCourseActInfo.setSort(sort + "");
                     trainCourseActInfoList.add(trainCourseActInfo);
                     sort++;
@@ -237,4 +236,6 @@ public class BaseBodyPartServiceImpl extends ServiceImpl<BaseBodyPartMapper, Bas
         }
         return ResultUtil.success();
     }
+
+
 }

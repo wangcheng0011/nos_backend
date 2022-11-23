@@ -30,7 +30,6 @@ import com.knd.manage.course.vo.VoSaveSeries;
 import com.knd.manage.mall.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,13 +59,6 @@ public class SeriesCourseServiceImpl extends ServiceImpl<SeriesCourseHeadMapper,
     private final AttachMapper attachMapper;
     private final IAttachService iAttachService;
     private final IGoodsService goodsService;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     @Override
     public Result getList(String name, String userId, String current) {
@@ -143,12 +135,12 @@ public class SeriesCourseServiceImpl extends ServiceImpl<SeriesCourseHeadMapper,
         attachQw.eq("seriesId",id);
         List<SeriesCourseAttach> attaches = seriesCourseAttachMapper.selectList(attachQw);
         for(SeriesCourseAttach attach : attaches){
-            ImgDto img = getImgDto(attach.getAttachId());
+            ImgDto img = iAttachService.getImgDto(attach.getAttachId());
             imageUrl.add(img);
         }
         imageUrl = imageUrl.stream().sorted(Comparator.comparing(ImgDto::getPicAttachName)).collect(Collectors.toList());
         BeanUtils.copyProperties(series,dto);
-        dto.setPicAttach(getImgDto(series.getPicAttachId()));
+        dto.setPicAttach(iAttachService.getImgDto(series.getPicAttachId()));
         dto.setCourseList(courseList);
         dto.setImageUrl(imageUrl);
         //成功
@@ -177,7 +169,7 @@ public class SeriesCourseServiceImpl extends ServiceImpl<SeriesCourseHeadMapper,
             return ResultUtil.error(ResultEnum.SERVICE_KEY_ERROR);
         }
         //保存选中图片
-        Attach picAttachUrl = goodsService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
+        Attach picAttachUrl = iAttachService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
                 , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
 
         SeriesCourseHead head = new SeriesCourseHead();
@@ -237,7 +229,7 @@ public class SeriesCourseServiceImpl extends ServiceImpl<SeriesCourseHeadMapper,
         seriesCourseRelationMapper.delete(relationQueryWrapper);
 
         //保存选中图片
-        Attach picAttachUrl = goodsService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
+        Attach picAttachUrl = iAttachService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
                 , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
 
         SeriesCourseHead head = new SeriesCourseHead();
@@ -262,23 +254,11 @@ public class SeriesCourseServiceImpl extends ServiceImpl<SeriesCourseHeadMapper,
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 
     public void save(String userId, VoSaveSeries vo,String seriesId){
         for(VoUrl url : vo.getAttachUrl()){
-            Attach attach = goodsService.saveAttach(userId, url.getPicAttachName()
+            Attach attach = iAttachService.saveAttach(userId, url.getPicAttachName()
                     , url.getPicAttachNewName(), url.getPicAttachSize());
             SeriesCourseAttach courseAttach = new SeriesCourseAttach();
             courseAttach.setId(UUIDUtil.getShortUUID());

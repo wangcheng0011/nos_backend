@@ -185,7 +185,10 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public synchronized EquipmentInfo queryEquipmentNo(String equipmentNo) throws Exception {
+        log.info("--------------------------------获取设备授权码信息开始---------------------------------------");
+        log.info("queryEquipmentNo equipmentNo:{{}}",equipmentNo);
         String equipmentInfoStr = redisClient.get(equipmentNo);
+        log.info("queryEquipmentNo equipmentInfoStr:{{}}",equipmentInfoStr);
         EquipmentInfo equipmentInfo = JSONObject.parseObject(equipmentInfoStr,EquipmentInfo.class);
         if(equipmentInfo != null && "1".equals(equipmentInfo.getStatus())) {
             redisClient.set(equipmentNo,equipmentInfoStr);
@@ -196,22 +199,25 @@ public class AuthServiceImpl implements IAuthService {
             objectQueryWrapper.eq("equipmentNo",equipmentNo);
             objectQueryWrapper.eq("deleted","0");
             //objectQueryWrapper.eq("status","1");
-
             EquipmentInfo equipmentInfo1 = equipmentInfoMapper.selectOne(objectQueryWrapper);
+            log.info("queryEquipmentNo equipmentInfo1:{{}}",equipmentInfo1);
             if (equipmentInfo1 != null && "1".equals(equipmentInfo1.getStatus())) {
                 redisClient.set(equipmentNo, JSONObject.toJSONString(equipmentInfo1));
+                log.info("queryEquipmentNo equipmentInfo1:{{}}",equipmentInfo1);
                 return equipmentInfo1;
             } else {
-                if (equipmentInfo1 == null) {
+                if (StringUtils.isEmpty(equipmentInfo1)) {
                     EquipmentInfo newEquipmentInfo = new EquipmentInfo();
                     newEquipmentInfo.setEquipmentNo(equipmentNo);
-                    newEquipmentInfo.setStatus("0");
+                    newEquipmentInfo.setStatus("1");
                     newEquipmentInfo.setCreateBy("");
                     newEquipmentInfo.setCreateDate(LocalDateTime.now());
                     newEquipmentInfo.setLastModifiedBy("");
                     newEquipmentInfo.setLastModifiedDate(LocalDateTime.now());
                     newEquipmentInfo.setDeleted("0");
+                    log.info("queryEquipmentNo newEquipmentInfo:{{}}",newEquipmentInfo);
                     equipmentInfoMapper.insert(newEquipmentInfo);
+                    log.info("--------------------------------获取设备授权码信息结束---------------------------------------");
                 }
                 return null;
             }

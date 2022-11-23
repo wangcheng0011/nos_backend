@@ -42,11 +42,11 @@ public class LiveCourseController {
         return iLiveCourseService.endCourse(id);
     }
 
-    @PostMapping("/course/closeUserCoachTime")
-    @Log("私教关闭直播")
-    @ApiOperation(value = "私教关闭直播", notes = "私教关闭直播")
-    public Result closeUserCoachTime(@ApiParam("主键Id") @RequestParam(required = true, name = "id") String id) {
+ /*   @PostMapping("/course/closeUserCoachTime")
+    @Log("直播关闭房间")
+    @ApiOperation(value = "直播关闭房间", notes = "直播关闭房间")
+    public Result closeUserCoachTime(@ApiParam("timeId") @RequestParam(required = true, name = "timeId") String id) {
         return iLiveCourseService.closeUserCoachTime(id);
-    }
+    }*/
 
 }

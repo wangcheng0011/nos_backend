@@ -58,7 +58,8 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
     private final TrainCourseHeadInfoMapper trainCourseHeadInfoMapper;
     private final TrainFreeHeadMapper trainFreeHeadMapper;
     private final TrainActionArrayHeadMapper trainActionArrayHeadMapper;
-    private final TrainFreeTrainingHeadMapper trainFreeTrainingHeadMapper;
+    private final TrainFreeActHeadMapper trainFreeActHeadMapper;
+    private final TrainFreeTrainHeadMapper trainFreeTrainHeadMapper;
     private final UserActionPowerTestMapper userActionPowerTestMapper;
     private final IUserPayService userPayService;
     private final UserCourseMapper userCourseMapper;
@@ -108,43 +109,53 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
         if(attach!=null){
             headPicUrl = fileImagesPath+attach.getFilePath();
         }
-        QueryWrapper<TrainCourseHeadInfo> trainCourseHeadInfoQueryWrapper = new QueryWrapper<>();
-        trainCourseHeadInfoQueryWrapper.eq("userId", userId);
-        trainCourseHeadInfoQueryWrapper.eq("deleted", 0);
-        trainCourseHeadInfoQueryWrapper.last("limit 1");
-        trainCourseHeadInfoQueryWrapper.select("ifnull(sum(calorie),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalDurationSeconds),0) as totalDurationSeconds", "ifnull(sum(actualTrainSeconds),0)as actualTrainSeconds");
-        TrainCourseHeadInfo trainCourseHeadInfo = trainCourseHeadInfoMapper.selectOne(trainCourseHeadInfoQueryWrapper);
+        //QueryWrapper<TrainCourseHeadInfo> trainCourseHeadInfoQueryWrapper = new QueryWrapper<>();
+        //trainCourseHeadInfoQueryWrapper.eq("userId", userId);
+        //trainCourseHeadInfoQueryWrapper.eq("deleted", 0);
+        //trainCourseHeadInfoQueryWrapper.select("ifnull(sum(ROUND(calorie,2)),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalDurationSeconds),0) as totalDurationSeconds,ifnull(sum(actualTrainSeconds),0)as actualTrainSeconds");
+        //TrainCourseHeadInfo trainCourseHeadInfo = trainCourseHeadInfoMapper.selectOne(trainCourseHeadInfoQueryWrapper);
+        TrainCourseHeadInfoDataDto trainCourseHeadInfo = trainCourseHeadInfoMapper.getUserCourseHeadInfo(userId);
         if (trainCourseHeadInfo==null){
-            trainCourseHeadInfo = new TrainCourseHeadInfo();
+            trainCourseHeadInfo = new TrainCourseHeadInfoDataDto();
         }
+        log.info("getUserCenterInfo trainCourseHeadInfo:{{}}",trainCourseHeadInfo);
         QueryWrapper<TrainFreeHead> trainFreeHeadQueryWrapper = new QueryWrapper<>();
         trainFreeHeadQueryWrapper.eq("userId", userId);
         trainFreeHeadQueryWrapper.eq("deleted", 0);
-        trainFreeHeadQueryWrapper.last("limit 1");
-        trainFreeHeadQueryWrapper.select("ifnull(sum(calorie),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds", "ifnull(sum(actTrainSeconds),0) as actTrainSeconds");
+        trainFreeHeadQueryWrapper.select("ifnull(sum(finishCounts),0) as finishCounts,ifnull(sum(ROUND(calorie,2)),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds,ifnull(sum(actTrainSeconds),0) as actTrainSeconds");
         TrainFreeHead trainFreeHead = trainFreeHeadMapper.selectOne(trainFreeHeadQueryWrapper);
         if (trainFreeHead==null){
             trainFreeHead = new TrainFreeHead();
         }
+        log.info("getUserCenterInfo trainFreeHead:{{}}",trainFreeHead);
         //TODO 唯一索引怎么定
         QueryWrapper<TrainActionArrayHead> trainActionArrayHeadQueryWrapper = new QueryWrapper<>();
         trainActionArrayHeadQueryWrapper.eq("userId", userId);
         trainActionArrayHeadQueryWrapper.eq("deleted", 0);
-        trainActionArrayHeadQueryWrapper.last("limit 1");
-        trainActionArrayHeadQueryWrapper.select("ifnull(sum(calorie),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds", "ifnull(sum(actTrainSeconds),0) as actTrainSeconds");
+        trainActionArrayHeadQueryWrapper.select("ifnull(sum(finishCounts),0) as finishCounts,ifnull(sum(ROUND(calorie,2)),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds,ifnull(sum(actTrainSeconds),0) as actTrainSeconds");
         TrainActionArrayHead trainActionArrayHead = trainActionArrayHeadMapper.selectOne(trainActionArrayHeadQueryWrapper);
         if (trainActionArrayHead==null){
             trainActionArrayHead = new TrainActionArrayHead();
         }
-        QueryWrapper<TrainFreeTrainingHead> trainFreeTrainingHeadInfoQueryWrapper = new QueryWrapper<>();
-        trainFreeTrainingHeadInfoQueryWrapper.eq("userId", userId);
-        trainFreeTrainingHeadInfoQueryWrapper.eq("deleted", 0);
-        trainFreeTrainingHeadInfoQueryWrapper.last("limit 1");
-        trainFreeTrainingHeadInfoQueryWrapper.select("ifnull(sum(calorie),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds", "ifnull(sum(actTrainSeconds),0)as actTrainSeconds");
-        TrainFreeTrainingHead trainFreeTrainingHead= trainFreeTrainingHeadMapper.selectOne(trainFreeTrainingHeadInfoQueryWrapper);
-        if (trainFreeTrainingHead==null){
-            trainFreeTrainingHead = new TrainFreeTrainingHead();
+        log.info("getUserCenterInfo trainActionArrayHead:{{}}",trainActionArrayHead);
+        /*QueryWrapper<TrainFreeActHead> trainFreeActHeadQueryWrapper = new QueryWrapper<>();
+        trainFreeActHeadQueryWrapper.eq("userId", userId);
+        trainFreeActHeadQueryWrapper.eq("deleted", 0);
+        trainFreeActHeadQueryWrapper.select("ifnull(sum(finishCounts),0) as finishCounts,ifnull(sum(ROUND(calorie,2)),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds,ifnull(sum(actTrainSeconds),0)as actTrainSeconds");
+        TrainFreeActHead trainFreeActHead= trainFreeActHeadMapper.selectOne(trainFreeActHeadQueryWrapper);
+        if (trainFreeActHead==null){
+            trainFreeActHead = new TrainFreeActHead();
         }
+        log.info("getUserCenterInfo trainFreeActHead:{{}}",trainFreeActHead);*/
+        QueryWrapper<TrainFreeTrainHead> trainFreeTrainHeadQueryWrapper = new QueryWrapper<>();
+        trainFreeTrainHeadQueryWrapper.eq("userId", userId);
+        trainFreeTrainHeadQueryWrapper.eq("deleted", 0);
+        trainFreeTrainHeadQueryWrapper.select("ifnull(sum(finishCounts),0) as finishCounts,ifnull(sum(ROUND(calorie,2)),0) as calorie,ifnull(sum(finishTotalPower),0) as finishTotalPower,ifnull(sum(totalSeconds),0) as totalSeconds,ifnull(sum(actTrainSeconds),0)as actTrainSeconds");
+        TrainFreeTrainHead trainFreeTrainHead= trainFreeTrainHeadMapper.selectOne(trainFreeTrainHeadQueryWrapper);
+        if (trainFreeTrainHead==null){
+            trainFreeTrainHead = new TrainFreeTrainHead();
+        }
+        log.info("getUserCenterInfo trainFreeTrainHead:{{}}",trainFreeTrainHead);
         //查询用户课程训练总力
         //String courseHeadTotalTrainKg = trainCourseHeadInfoMapper.getCourseHeadTotalTrainKg(userId);
 //        String courseHeadTotalTrainKg = "";
@@ -178,7 +189,8 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
         }
         UserCenterInfoDto userCenterInfoDto = new UserCenterInfoDto();
         //完成总力
-        userCenterInfoDto.setTotalTrainKg((Integer.parseInt(trainCourseHeadInfo.getFinishTotalPower())+Integer.parseInt(trainFreeHead.getFinishTotalPower())+Integer.parseInt(trainActionArrayHead.getFinishTotalPower()))+(Integer.parseInt(trainFreeTrainingHead.getFinishTotalPower())+""));
+        //userCenterInfoDto.setTotalTrainKg(Integer.parseInt(trainCourseHeadInfo.getFinishTotalPower())+Integer.parseInt(trainFreeHead.getFinishTotalPower())+Integer.parseInt(trainActionArrayHead.getFinishTotalPower())+Integer.parseInt(trainFreeActHead.getFinishTotalPower())+Integer.parseInt(trainFreeTrainHead.getFinishTotalPower())+"");
+        userCenterInfoDto.setTotalTrainKg(Integer.parseInt(trainCourseHeadInfo.getFinishTotalPower())+Integer.parseInt(trainFreeHead.getFinishTotalPower())+Integer.parseInt(trainActionArrayHead.getFinishTotalPower())+Integer.parseInt(trainFreeTrainHead.getFinishTotalPower())+"");
         //上一周期
         userCenterInfoDto.setLatestTrainLevel(latestTrainLevel);
 
@@ -188,16 +200,21 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
         userCenterInfoDto.setVipStatus(user.getVipStatus());
         userCenterInfoDto.setVipBeginDate(user.getVipBeginDate());
         userCenterInfoDto.setVipEndDate(user.getVipEndDate());
+        //完成总次数
+        //userCenterInfoDto.setFinishCounts(Integer.parseInt(trainCourseHeadInfo.getFinishCounts())+Integer.parseInt(trainFreeHead.getFinishCounts())+Integer.parseInt(trainActionArrayHead.getFinishCounts())+Integer.parseInt(trainFreeActHead.getFinishCounts())+Integer.parseInt(trainFreeTrainHead.getFinishCounts())+"");
+        userCenterInfoDto.setFinishCounts(Integer.parseInt(trainCourseHeadInfo.getFinishCounts())+Integer.parseInt(trainFreeHead.getFinishCounts())+Integer.parseInt(trainActionArrayHead.getFinishCounts())+Integer.parseInt(trainFreeTrainHead.getFinishCounts())+"");
         if(StringUtils.isEmpty(userDetail.getBmi())){
             userCenterInfoDto.setBmi("0");
         }else {
             userCenterInfoDto.setBmi(new BigDecimal(userDetail.getBmi()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
         }
         userCenterInfoDto.setPerSign(userDetail.getPerSign());
-        String totalSeconds = String.valueOf(StringUtils.StringToDouble(trainFreeHead.getTotalSeconds()) +StringUtils.StringToDouble(trainCourseHeadInfo.getTotalDurationSeconds())+StringUtils.StringToDouble(trainActionArrayHead.getTotalSeconds())+StringUtils.StringToDouble(trainFreeTrainingHead.getTotalSeconds()));
+        //String totalSeconds = StringUtils.StringToDouble(trainFreeHead.getTotalSeconds()) +StringUtils.StringToDouble(trainCourseHeadInfo.getTotalDurationSeconds())+StringUtils.StringToDouble(trainActionArrayHead.getTotalSeconds())+StringUtils.StringToDouble(trainFreeActHead.getTotalSeconds())+StringUtils.StringToDouble(trainFreeTrainHead.getTotalSeconds())+"";
+        String totalSeconds = StringUtils.StringToDouble(trainCourseHeadInfo.getTotalDurationSeconds())+StringUtils.StringToDouble(trainFreeHead.getTotalSeconds()) +StringUtils.StringToDouble(trainActionArrayHead.getTotalSeconds())+StringUtils.StringToDouble(trainFreeTrainHead.getTotalSeconds())+"";
         userCenterInfoDto.setTotalSeconds(totalSeconds);
-        String actTrainSeconds = String.valueOf(StringUtils.StringToDouble(trainFreeHead.getActTrainSeconds()) + StringUtils.StringToDouble(trainCourseHeadInfo.getActualTrainSeconds())+StringUtils.StringToDouble(trainActionArrayHead.getActTrainSeconds())+StringUtils.StringToDouble(trainFreeTrainingHead.getActTrainSeconds()));
-        userCenterInfoDto.setTotalCalorie(String.valueOf(StringUtils.StringToDouble(trainCourseHeadInfo.getCalorie()) + StringUtils.StringToDouble(trainFreeHead.getCalorie())+StringUtils.StringToDouble(trainActionArrayHead.getCalorie())+StringUtils.StringToDouble(trainFreeTrainingHead.getCalorie())));
+        //String actTrainSeconds = String.valueOf(StringUtils.StringToDouble(trainFreeHead.getActTrainSeconds()) + StringUtils.StringToDouble(trainCourseHeadInfo.getActualTrainSeconds())+StringUtils.StringToDouble(trainActionArrayHead.getActTrainSeconds())+StringUtils.StringToDouble(trainFreeActHead.getActTrainSeconds()));
+        //userCenterInfoDto.setTotalCalorie(StringUtils.StringToDouble(trainCourseHeadInfo.getCalorie()) + StringUtils.StringToDouble(trainFreeHead.getCalorie())+StringUtils.StringToDouble(trainActionArrayHead.getCalorie())+StringUtils.StringToDouble(trainFreeActHead.getCalorie())+StringUtils.StringToDouble(trainFreeTrainHead.getCalorie())+"");
+        userCenterInfoDto.setTotalCalorie(new BigDecimal(StringUtils.StringToDouble(trainCourseHeadInfo.getCalorie()) + StringUtils.StringToDouble(trainFreeHead.getCalorie())+StringUtils.StringToDouble(trainActionArrayHead.getCalorie())+StringUtils.StringToDouble(trainFreeTrainHead.getCalorie())+"").setScale(2,BigDecimal.ROUND_HALF_UP).toString());
         QueryWrapper<UserActionPowerTest> userActionPowerTestQueryWrapper = new QueryWrapper<>();
         userActionPowerTestQueryWrapper.eq("userId",userId);
         userActionPowerTestQueryWrapper.eq("deleted","0");
@@ -237,7 +254,7 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
         if (null ==getUserCourseHeadInfo){
             return ResultUtil.success(new TrainCourseHeadInfoDto());
         }
-        TrainCourseHeadInfoDto trainCourseHeadInfoDto = new TrainCourseHeadInfoDto();
+       /* TrainCourseHeadInfoDto trainCourseHeadInfoDto = new TrainCourseHeadInfoDto();
         trainCourseHeadInfoDto.setCourse(getUserCourseHeadInfo.getCourse());
         trainCourseHeadInfoDto.setActualTrainSeconds(getUserCourseHeadInfo.getActualTrainSeconds());
         trainCourseHeadInfoDto.setCommitTrainTime(getUserCourseHeadInfo.getCommitTrainTime());
@@ -246,16 +263,15 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
         trainCourseHeadInfoDto.setMaxExplosiveness(getUserCourseHeadInfo.getMaxExplosiveness());
         trainCourseHeadInfoDto.setAvgExplosiveness(getUserCourseHeadInfo.getAvgExplosiveness());
         trainCourseHeadInfoDto.setCalorie(getUserCourseHeadInfo.getCalorie());
+        trainCourseHeadInfoDto.setFinishCounts(getUserCourseHeadInfo.getFinishCounts());*/
         List<TrainCourseBlockInfoDto> getUserCourseBlockInfoList  = userInfoMapper.getUserCourseBlockInfoList(getUserCourseHeadInfo.getId());
-        trainCourseHeadInfoDto.setBlockList(getUserCourseBlockInfoList);
         for (TrainCourseBlockInfoDto t :getUserCourseBlockInfoList){
            List<TrainCourseActInfoDto> getUserCourseActInfoList =  userInfoMapper.getUserCourseActInfoList(t.getId());
-
            t.setActionList(getUserCourseActInfoList);
-
         }
+        getUserCourseHeadInfo.setBlockList(getUserCourseBlockInfoList);
 //        userInfoMapper.getUserTrainCourseDetail(userId, trainReportId)
-        return ResultUtil.success(trainCourseHeadInfoDto);
+        return ResultUtil.success(getUserCourseHeadInfo);
     }
 
     @Override
@@ -357,8 +373,10 @@ public class IUserInfoServiceImpl extends ServiceImpl<UserInfoMapper, User> impl
 
     @Override
     public Result getUserTrainInfoNew(UserTrainInfoQueryRequest userTrainInfoQueryRequest) {
+        log.info("getUserTrainInfoNew userTrainInfoQueryRequest:{{}}",userTrainInfoQueryRequest);
         Page<TrainListDto> tPage = new Page<>(Long.parseLong(userTrainInfoQueryRequest.getCurrentPage()), PageInfo.pageSize);
         List<TrainListDto> userTrainInfoList = userInfoMapper.getUserTrainInfoNew(tPage, userTrainInfoQueryRequest);
+        log.info("getUserTrainInfoNew userTrainInfoList:{{}}",userTrainInfoList);
         if ("1".equals(userTrainInfoQueryRequest.getTrainType())){
             userTrainInfoList.forEach( item ->{
                 //课程类型得查询，需要增加一些信息

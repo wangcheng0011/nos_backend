@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
-import com.knd.front.entity.Attach;
+import com.knd.front.common.service.impl.AttachServiceImpl;
 import com.knd.front.entity.User;
-import com.knd.front.entity.UserDetail;
-import com.knd.front.login.mapper.UserDetailMapper;
 import com.knd.front.login.mapper.UserMapper;
 import com.knd.front.social.dto.UserFansDto;
 import com.knd.front.social.dto.UserFollowDto;
@@ -18,7 +16,6 @@ import com.knd.front.social.entity.UserSocialRelationEntity;
 import com.knd.front.social.mapper.UserSocialFollowMapper;
 import com.knd.front.social.mapper.UserSocialRelationMapper;
 import com.knd.front.social.service.UserFriendService;
-import com.knd.front.train.mapper.AttachMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,8 +31,7 @@ public class UserFriendServiceImpl implements UserFriendService {
     private final UserSocialRelationMapper userSocialRelationMapper;
     private final UserSocialFollowMapper userSocialFollowMapper;
     private final UserMapper userMapper;
-    private final UserDetailMapper userDetailMapper;
-    private final AttachMapper attachMapper;
+    private final AttachServiceImpl attachServiceImpl;
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
 
@@ -55,9 +51,9 @@ public class UserFriendServiceImpl implements UserFriendService {
             User user = userMapper.selectById(entity.getFriendId());
             dto.setFriendName(user.getNickName());
             if(userId.equals(entity.getUserId())){
-                dto.setHeadPicUrl(getHeadPicUrl(entity.getFriendId()));
+                dto.setHeadPicUrl(attachServiceImpl.getHeadPicUrl(entity.getFriendId()));
             }else {
-                dto.setHeadPicUrl(getHeadPicUrl(entity.getUserId()));
+                dto.setHeadPicUrl(attachServiceImpl.getHeadPicUrl(entity.getUserId()));
             }
 
             dtoList.add(dto);
@@ -96,7 +92,7 @@ public class UserFriendServiceImpl implements UserFriendService {
             }
             User user = userMapper.selectById(entity.getUserId());
             dto.setFansName(user.getNickName());
-            dto.setHeadPicUrl(getHeadPicUrl(entity.getTargetUserId()));
+            dto.setHeadPicUrl(attachServiceImpl.getHeadPicUrl(entity.getTargetUserId()));
             dtoList.add(dto);
         }
         Page<UserFansDto> dto = new Page<>();
@@ -132,7 +128,7 @@ public class UserFriendServiceImpl implements UserFriendService {
             }
             User user = userMapper.selectById(entity.getTargetUserId());
             dto.setFollowName(user.getNickName());
-            dto.setHeadPicUrl(getHeadPicUrl(entity.getTargetUserId()));
+            dto.setHeadPicUrl(attachServiceImpl.getHeadPicUrl(entity.getTargetUserId()));
             dtoList.add(dto);
         }
         Page<UserFollowDto> dto = new Page<>();
@@ -143,13 +139,5 @@ public class UserFriendServiceImpl implements UserFriendService {
         return ResultUtil.success(dto);
     }
 
-    private String getHeadPicUrl(String userId){
-        UserDetail userDetail = userDetailMapper.selectOne(new QueryWrapper<UserDetail>().eq("userId", userId).eq("deleted", "0"));
-        if(userDetail!=null){
-            Attach attach = attachMapper.selectById(userDetail.getHeadPicUrlId());
-            return attach!=null ? fileImagesPath+attach.getFilePath() : "";
-        }else{
-            return "";
-        }
-    }
+
 }

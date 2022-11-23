@@ -1,9 +1,16 @@
 package com.knd.front.common.service;
 
 import com.knd.front.entity.Attach;
+import com.knd.front.pay.dto.ImgDto;
 
 public interface AttachService {
     Attach saveAttach(String userId, String picAttachName, String picAttachNewName, String picAttachSize);
 
     Attach getInfoById(String urlId);
+
+    String getHeadPicUrl(String userId);
+
+    ImgDto getImgDto(String urlId);
+
+    void deleteFile(String attachUrlId, String userId);
 }

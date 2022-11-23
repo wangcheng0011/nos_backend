@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
-import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
 import com.knd.front.live.dto.UserRecordListDto;
@@ -13,6 +12,7 @@ import com.knd.front.live.entity.UserOrderRecordEntity;
 import com.knd.front.live.mapper.UserOrderRecordMapper;
 import com.knd.front.live.service.UserOrderRecordService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +23,9 @@ import java.util.List;
 /**
  * @author zm
  */
-@Service
+@Log4j2
 @RequiredArgsConstructor
+@Service
 public class UserOrderRecordServiceImpl implements UserOrderRecordService {
     private final UserOrderRecordMapper userOrderRecordMapper;
 
@@ -76,6 +77,7 @@ public class UserOrderRecordServiceImpl implements UserOrderRecordService {
         recordEntity.setDeleted("0");
         recordEntity.setLastModifiedBy(userId);
         recordEntity.setLastModifiedDate(LocalDateTime.now());
+        log.info("save recordEntity:{{}}",recordEntity);
         userOrderRecordMapper.insert(recordEntity);
         return ResultUtil.success();
     }

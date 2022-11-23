@@ -68,7 +68,8 @@ spring:
           jobStore:
             class: org.quartz.impl.jdbcjobstore.JobStoreTX
             driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-            tablePrefix: QRTZ_
+            #tablePrefix: QRTZ_
+            tablePrefix: qrtz_
             isClustered: true
             clusterCheckinInterval: 10000
             useProperties: false

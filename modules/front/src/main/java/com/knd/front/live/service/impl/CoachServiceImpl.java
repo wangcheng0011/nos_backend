@@ -71,9 +71,6 @@ public class CoachServiceImpl implements CoachService {
     //图片路径
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     @Override
     public Result getCoachList(CoachRequest request) {
@@ -154,7 +151,7 @@ public class CoachServiceImpl implements CoachService {
             log.info("getCoachList userCoachAttaches:{{}}",userCoachAttaches);
             ArrayList<ImgDto> imgDtos = new ArrayList<>();
             userCoachAttaches.stream().forEach(userCoachAttach -> {
-                imgDtos.add(getImgDto(userCoachAttach.getAttachUrlId()));
+                imgDtos.add(attachService.getImgDto(userCoachAttach.getAttachUrlId()));
             });
             dto.setImageUrl(imgDtos);
             dtoList.add(dto);
@@ -267,7 +264,7 @@ public class CoachServiceImpl implements CoachService {
         log.info("getCoachDetails userCoachAttaches:{{}}",userCoachAttaches);
         ArrayList<ImgDto> imgDtos = new ArrayList<>();
         userCoachAttaches.stream().forEach(userCoachAttach -> {
-            imgDtos.add(getImgDto(userCoachAttach.getAttachUrlId()));
+            imgDtos.add(attachService.getImgDto(userCoachAttach.getAttachUrlId()));
         });
         dto.setImageUrl(imgDtos);
         dto.setFansNum(fansNum);
@@ -439,18 +436,24 @@ public class CoachServiceImpl implements CoachService {
             dto.setLiveStatus(timeEntity.getLiveStatus());
             dto.setCoachUserId(timeEntity.getCoachUserId());
             dto.setCourseId(courseEntity.getId());
+            log.info("getDayOrderList DayOrderListDto:{{}}", dto);
             //预约人的信息
             ArrayList<OrderUser> orderUsers = new ArrayList<OrderUser>();
             userCoachCourseOrderEntities.stream().forEach(userCoachCourseOrderEntity -> {
                 OrderUser orderUser = new OrderUser();
                 User user = userMapper.selectById(userCoachCourseOrderEntity.getOrderUserId());
-                orderUser.setId(userCoachCourseOrderEntity.getCoachUserId());
-                orderUser.setMobile(user.getMobile());
-                orderUser.setNickName(user.getNickName());
-                orderUser.setVipStatus(user.getVipStatus());
-                orderUser.setHeadPicUrl(iUserDetailService.getHeadUrl(user.getId()));
-                orderUsers.add(orderUser);
+                log.info("getDayOrderList user:{{}}", user);
+                if(StringUtils.isNotEmpty(user)){
+                    orderUser.setId(userCoachCourseOrderEntity.getCoachUserId());
+                    orderUser.setMobile(user.getMobile());
+                    orderUser.setNickName(user.getNickName());
+                    orderUser.setVipStatus(user.getVipStatus());
+                    orderUser.setHeadPicUrl(iUserDetailService.getHeadUrl(user.getId()));
+                    orderUsers.add(orderUser);
+                }
+                log.info("getDayOrderList orderUser:{{}}", orderUser);
             });
+            log.info("getDayOrderList orderUsers:{{}}", orderUsers);
             dto.setOrderUsers(orderUsers);
             log.info("getDayOrderList DayOrderListDto:{{}}", dto);
             dtoList.add(dto);
@@ -816,17 +819,5 @@ public class CoachServiceImpl implements CoachService {
         }
     }
 
-    public ImgDto getImgDto(String urlId) {
-        //根据id获取图片信息
-        Attach aPi = attachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

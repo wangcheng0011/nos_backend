@@ -1,12 +1,9 @@
 package com.knd.front.user.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.userutil.UserUtils;
-import com.knd.common.utils.HttpUtils;
 import com.knd.front.entity.AmapAdcodeEntity;
 import com.knd.front.entity.UserReceiveAddressEntity;
 import com.knd.front.pay.request.UserReceiveAddressRequest;
@@ -49,7 +46,9 @@ public class UserReceiveAddressServiceImpl extends ServiceImpl<UserReceiveAddres
     public String add(UserReceiveAddressRequest userReceiveAddressRequest) {
         String longitude = "0";
         String latitude = "0";
-        try {
+        log.info("逆向地理 longitude:{{}}",longitude);
+        log.info("逆向地理 latitude:{{}}",latitude);
+       /* try {
             String addressStr = userReceiveAddressRequest.getProvince()
                     +userReceiveAddressRequest.getCity()+userReceiveAddressRequest.getRegion()
                     +userReceiveAddressRequest.getDetailAddress()+userReceiveAddressRequest.getRoomNo();
@@ -61,7 +60,6 @@ public class UserReceiveAddressServiceImpl extends ServiceImpl<UserReceiveAddres
                 JSONArray geocodes = jsonResult.getJSONArray("geocodes");
                 JSONObject jsonObject = geocodes.getJSONObject(0);
                 String location = jsonObject.getString("location");
-
                 String[] split = location.split(",");
                 longitude = split[0];
                 latitude = split[1];
@@ -72,12 +70,12 @@ public class UserReceiveAddressServiceImpl extends ServiceImpl<UserReceiveAddres
         } catch (Exception e) {
             e.printStackTrace();
             return "-1";
-        }
+        }*/
         UserReceiveAddressEntity userReceiveAddressEntity = new UserReceiveAddressEntity();
         BeanUtils.copyProperties(userReceiveAddressRequest, userReceiveAddressEntity);
         userReceiveAddressEntity.setUserId(UserUtils.getUserId());
-        userReceiveAddressEntity.setLongitude(longitude);
-        userReceiveAddressEntity.setLatitude(latitude);
+        userReceiveAddressEntity.setLongitude(userReceiveAddressRequest.getLongitude());
+        userReceiveAddressEntity.setLatitude(userReceiveAddressRequest.getLatitude());
         Integer count = baseMapper.selectCount(new QueryWrapper<UserReceiveAddressEntity>()
                 .eq("userId", UserUtils.getUserId()));
         if (count <= 0) {

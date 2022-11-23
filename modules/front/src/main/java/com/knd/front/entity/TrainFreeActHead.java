@@ -11,15 +11,15 @@ import lombok.EqualsAndHashCode;
  * <p>
  * 
  * </p>
- *
+ * 动作训练
  * @author llx
  * @since 2020-07-03
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("train_free_training_head")
+@TableName("train_free_act_head")
 @ApiModel(value="TrainFreeHead对象", description="")
-public class TrainFreeTrainingHead extends BaseEntity {
+public class TrainFreeActHead extends BaseEntity {
 
     private static final long serialVersionUID=1L;
 

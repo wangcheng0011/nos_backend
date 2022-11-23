@@ -31,7 +31,6 @@ import com.knd.front.login.mapper.TbOrderMapper;
 import com.knd.front.login.request.ChangeVipTypeRequest;
 import com.knd.front.login.service.IUserService;
 import com.knd.front.login.service.feignInterface.PayFeignClient;
-import com.knd.front.pay.dto.ImgDto;
 import com.knd.front.pay.dto.OrderConsultingDTO;
 import com.knd.front.pay.dto.OrderDto;
 import com.knd.front.pay.dto.OrderItemDto;
@@ -483,7 +482,7 @@ public class OrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> implem
         records.stream().forEach(r->{
             OrderConsultingDTO orderConsultingDTO = new OrderConsultingDTO();
             BeanUtils.copyProperties(r,orderConsultingDTO);
-            orderConsultingDTO.setPicAttachUrl(getImgDto(r.getPicAttachId()));
+            orderConsultingDTO.setPicAttachUrl(attachService.getImgDto(r.getPicAttachId()));
             orderConsultingDTOS.add(orderConsultingDTO);}
         );
         orderConsultingDTOPage.setRecords(orderConsultingDTOS);
@@ -629,27 +628,11 @@ public class OrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> implem
             eq.setLastModifiedBy(userId);
             eq.setLastModifiedDate(currentLocalDateTime);
             baseMapper.updateById(eq);
-
         }
-
-
         //成功
         return ResultUtil.success(eq);
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = attachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
 
 
 

@@ -10,7 +10,7 @@ public interface UserOperationService {
      * @param request
      * @return
      */
-    Result moment(OperationMomentRequest request);
+    Result moment(OperationMomentRequest request) throws Exception;
 
     /**
      * 给动态点赞

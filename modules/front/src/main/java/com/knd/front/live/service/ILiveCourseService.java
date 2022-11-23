@@ -11,13 +11,8 @@ public interface ILiveCourseService {
      * 获取直播课程roomToken
      * @return
      */
-    Result getRoomToken(String timeId,String type);
+    Result getRoomToken(String id,String type);
 
     Result endCourse(String id);
 
-    /**
-     * 关闭直播接口
-     * @return
-     */
-    Result closeUserCoachTime(String id);
 }

@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
-import com.knd.front.entity.Attach;
+import com.knd.front.common.service.impl.AttachServiceImpl;
 import com.knd.front.entity.User;
-import com.knd.front.entity.UserDetail;
-import com.knd.front.login.mapper.UserDetailMapper;
 import com.knd.front.login.mapper.UserMapper;
 import com.knd.front.social.dto.MessageListDto;
 import com.knd.front.social.entity.UserSocialMomentCommentEntity;
@@ -32,7 +30,7 @@ public class UserMessageServiceImpl implements UserMessageService {
     private final UserSocialMomentMapper momentMapper;
     private final UserSocialMomentCommentMapper commentMapper;
     private final UserMapper userMapper;
-    private final UserDetailMapper userDetailMapper;
+    private final AttachServiceImpl attachServiceImpl;
     private final AttachMapper attachMapper;
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
@@ -45,7 +43,7 @@ public class UserMessageServiceImpl implements UserMessageService {
         for(MessageListDto dto : messageList){
             User user = userMapper.selectById(dto.getUserId());
             dto.setUserName(user.getNickName());
-            dto.setUserHeadPicUrl(getHeadPicUrl(dto.getUserId()));
+            dto.setUserHeadPicUrl(attachServiceImpl.getHeadPicUrl(dto.getUserId()));
         }
         partPage.setRecords(messageList);
         return ResultUtil.success(partPage);
@@ -59,7 +57,7 @@ public class UserMessageServiceImpl implements UserMessageService {
         for(MessageListDto dto : commentMessageList){
             User user = userMapper.selectById(dto.getUserId());
             dto.setUserName(user.getNickName());
-            dto.setUserHeadPicUrl(getHeadPicUrl(dto.getUserId()));
+            dto.setUserHeadPicUrl(attachServiceImpl.getHeadPicUrl(dto.getUserId()));
         }
         partPage.setRecords(commentMessageList);
         return ResultUtil.success(partPage);
@@ -84,7 +82,7 @@ public class UserMessageServiceImpl implements UserMessageService {
 
             User user = userMapper.selectById(entity.getUserId());
             dto.setUserName(user.getNickName());
-            dto.setUserHeadPicUrl(getHeadPicUrl(entity.getUserId()));
+            dto.setUserHeadPicUrl(attachServiceImpl.getHeadPicUrl(entity.getUserId()));
 
             UserSocialMomentEntity momentEntity = momentMapper.selectById(entity.getMomentId());
             dto.setTitle(momentEntity.getTitle());
@@ -108,19 +106,11 @@ public class UserMessageServiceImpl implements UserMessageService {
         for(MessageListDto dto : praiseMessageList){
             User user = userMapper.selectById(dto.getUserId());
             dto.setUserName(user.getNickName());
-            dto.setUserHeadPicUrl(getHeadPicUrl(dto.getUserId()));
+            dto.setUserHeadPicUrl(attachServiceImpl.getHeadPicUrl(dto.getUserId()));
         }
         partPage.setRecords(praiseMessageList);
         return ResultUtil.success(partPage);
     }
 
-    private String getHeadPicUrl(String userId){
-        UserDetail userDetail = userDetailMapper.selectOne(new QueryWrapper<UserDetail>().eq("userId", userId).eq("deleted", "0"));
-        if(userDetail!=null){
-            Attach attach = attachMapper.selectById(userDetail.getHeadPicUrlId());
-            return attach!=null ? fileImagesPath+attach.getFilePath() : "";
-        }else{
-            return "";
-        }
-    }
+
 }

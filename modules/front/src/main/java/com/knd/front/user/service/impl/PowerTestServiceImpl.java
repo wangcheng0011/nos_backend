@@ -10,7 +10,6 @@ import com.knd.common.uuid.UUIDUtil;
 import com.knd.front.entity.Attach;
 import com.knd.front.entity.UserDetail;
 import com.knd.front.login.mapper.UserDetailMapper;
-import com.knd.front.pay.dto.ImgDto;
 import com.knd.front.train.dto.FreeTrainDetailDto;
 import com.knd.front.train.mapper.AttachMapper;
 import com.knd.front.train.service.ICourseDetailService;
@@ -149,17 +148,6 @@ public class PowerTestServiceImpl extends ServiceImpl<PowerTestMapper, PowerTest
         return ResultUtil.success();
     }
 
-    private ImgDto getAttachById(String id) {
-        //根据id获取图片信息
-        Attach aPi = attachMapper.selectById(id);
-        if (aPi != null) {
-            ImgDto imgDto = new ImgDto();
-            imgDto.setPicAttachUrl(FileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            return imgDto;
-        }
-        return null;
-    }
     private void calculationPowerTestLevel(List<PowerTestResultEntity> resultEntityList) {
         for(PowerTestResultEntity resultEntity : resultEntityList) {
             PowerTestItemEntity powerTestItemEntity = powerTestItemMapper.selectById(resultEntity.getPowerTestItemId());

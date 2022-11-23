@@ -1,8 +1,5 @@
 package com.knd.front.live.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knd.common.basic.DateUtils;
@@ -15,10 +12,9 @@ import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.userutil.UserUtils;
 import com.knd.common.uuid.UUIDUtil;
-import com.knd.front.entity.Attach;
+import com.knd.front.common.service.impl.AttachServiceImpl;
 import com.knd.front.entity.TbOrder;
 import com.knd.front.entity.User;
-import com.knd.front.entity.UserDetail;
 import com.knd.front.live.dto.CoachOrderListDto;
 import com.knd.front.live.entity.*;
 import com.knd.front.live.mapper.*;
@@ -26,7 +22,6 @@ import com.knd.front.live.request.OrderCoachRequest;
 import com.knd.front.live.service.CoachOrderService;
 import com.knd.front.live.service.UserOrderRecordService;
 import com.knd.front.login.mapper.TbOrderMapper;
-import com.knd.front.login.mapper.UserDetailMapper;
 import com.knd.front.login.mapper.UserMapper;
 import com.knd.front.login.request.GetOrderInfoRequest;
 import com.knd.front.login.request.GoodsRequest;
@@ -35,8 +30,6 @@ import com.knd.front.login.service.feignInterface.PayFeignClient;
 import com.knd.front.pay.dto.OrderDto;
 import com.knd.front.pay.service.IGoodsService;
 import com.knd.front.train.mapper.AttachMapper;
-import com.qiniu.common.QiniuException;
-import com.qiniu.http.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
@@ -70,7 +63,7 @@ public class CoachOrderServiceImpl implements CoachOrderService {
     private final TbOrderMapper orderMapper;
     private final UserOrderRecordMapper userOrderRecordMapper;
     private final UserMapper userMapper;
-    private final UserDetailMapper userDetailMapper;
+    private final AttachServiceImpl attachServiceImpl;
     private final AttachMapper attachMapper;
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
@@ -100,7 +93,7 @@ public class CoachOrderServiceImpl implements CoachOrderService {
             if (StringUtils.isNotEmpty(timeEntity)){
                 User user = userMapper.selectById(timeEntity.getCoachUserId());
                 dto.setCoachName(user!=null ? user.getNickName() : "");
-                dto.setCoachHeadUrl(getHeadPicUrl(timeEntity.getCoachUserId()));
+                dto.setCoachHeadUrl(attachServiceImpl.getHeadPicUrl(timeEntity.getCoachUserId()));
                 dto.setBeginTime(timeEntity.getBeginTime());
                 dto.setEndTime(timeEntity.getEndTime());
             }
@@ -417,51 +410,7 @@ public class CoachOrderServiceImpl implements CoachOrderService {
         return ResultUtil.success();
     }
 
-    @Override
-    public Result closeUserCoachCourseOrder(String id) {
 
-        try {
-            QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
-            userCoachTimeEntityQueryWrapper.eq("coachCourseId",id);
-            userCoachTimeEntityQueryWrapper.eq("deleted",0);
-            UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
-            if(userCoachTimeEntity== null || "2".equals(userCoachTimeEntity.getLiveStatus())) {
-                return ResultUtil.error(ResultEnum.FAIL.getCode(),"私教不存在或已关闭");
-            }
-            userCoachTimeEntity.setLiveStatus("2");
-            userCoachTimeMapper.updateById(userCoachTimeEntity);
-            log.info("closeUserCoachCourseOrder userCoachTimeEntity:{{}}",userCoachTimeEntity);
-            //踢出该房间所有用户
-            Response response = rtcRoomManager.listUser(appId,id);
-//            JSONObject jsonObject = JSON.parseObject(response.getInfo());
-//            JSONArray users = jsonObject.getJSONArray("users");
-            log.info("closeUserCoachCourseOrder response:{{}}",response);
-            JSONObject jsonObject = JSON.parseObject(response.bodyString());
-            JSONArray users = jsonObject.getJSONArray("users");
-            log.info("closeUserCoachCourseOrder users:{{}}",users);
-            users.stream().forEach( e-> {
-                JSONObject jo = (JSONObject)e;
-                String userId = jo.getString("userId");
-                try {
-                    rtcRoomManager.kickUser(appId,id,userId);
-                } catch (QiniuException qiniuException) {
-                    qiniuException.printStackTrace();
-                }
-            });
-        }catch (Exception e) {
-            e.printStackTrace();
-            return ResultUtil.error(ResultEnum.FAIL.getCode(),"系统异常");
-        }
-        return ResultUtil.success();
-    }
 
-    private String getHeadPicUrl(String userId){
-        UserDetail userDetail = userDetailMapper.selectOne(new QueryWrapper<UserDetail>().eq("userId", userId).eq("deleted", "0"));
-        if(userDetail!=null){
-            Attach attach = attachMapper.selectById(userDetail.getHeadPicUrlId());
-            return attach!=null ? fileImagesPath+attach.getFilePath() : "";
-        }else{
-            return "";
-        }
-    }
+
 }

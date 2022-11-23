@@ -15,7 +15,6 @@ import com.knd.common.userutil.UserUtils;
 import com.knd.common.uuid.UUIDUtil;
 import com.knd.manage.admin.entity.Admin;
 import com.knd.manage.admin.mapper.AdminMapper;
-import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.dto.ResponseDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.service.IAttachService;
@@ -32,29 +31,29 @@ import com.knd.manage.mall.mapper.*;
 import com.knd.manage.mall.request.*;
 import com.knd.manage.mall.service.ITbOrderService;
 import com.knd.manage.mall.service.feignInterface.CoachFeignClient;
-import com.knd.manage.mall.service.feignInterface.FrontInfoFeignClient;
 import com.knd.manage.mall.service.feignInterface.PayFeignClient;
 import com.knd.manage.user.entity.User;
 import com.knd.manage.user.service.IUserReceiveAddressService;
 import com.knd.manage.user.service.IUserService;
 import com.knd.permission.bean.Token;
 import lombok.extern.log4j.Log4j2;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -107,7 +106,7 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
     private IUserReceiveAddressService iUserReceiveAddressService;
 
     @Resource
-    private FrontInfoFeignClient frontInfoFeignClient;
+    private IAttachService iAttachService;
 
     @Resource
     private PayFeignClient payFeignClient;
@@ -124,13 +123,6 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
     @Resource
     private OrderConsultingMapper orderConsultingMapper;
 
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
 
     @Override
@@ -653,7 +645,7 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
         records.stream().forEach(r -> {
                     OrderConsultingDTO orderConsultingDTO = new OrderConsultingDTO();
                     BeanUtils.copyProperties(r, orderConsultingDTO);
-                    orderConsultingDTO.setPicAttachUrl(getImgDto(r.getPicAttachId()));
+                    orderConsultingDTO.setPicAttachUrl(iAttachService.getImgDto(r.getPicAttachId()));
                     orderConsultingDTOS.add(orderConsultingDTO);
                 }
         );
@@ -662,19 +654,6 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
         return ResultUtil.success(dto);
     }
 
-    public ImgDto getImgDto(String urlId) {
-        //根据id获取图片信息
-        Attach aPi = attachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
 
     @Transactional
     @Override
@@ -699,8 +678,6 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
                 OrderConsultingEntity.setId(UUIDUtil.getShortUUID());
                 OrderConsultingEntity.setCreateBy(UserUtils.getUserId());
                 OrderConsultingEntity.setCreateDate(LocalDateTime.now());
-                OrderConsultingEntity.setLastModifiedBy(UserUtils.getUserId());
-                OrderConsultingEntity.setLastModifiedDate(LocalDateTime.now());
                 OrderConsultingEntity.setDeleted("0");
                 log.info("saveOrderCousultingByBatch OrderConsultingEntity:{{}}", OrderConsultingEntity);
                 int insert = orderConsultingMapper.insert(OrderConsultingEntity);
@@ -831,13 +808,13 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
             log.info("getListByExcel LastCellNum:{{}}", row.getLastCellNum());
             log.info("getListByExcel UserName:{{}}", row.getCell(0));
             log.info("getListByExcel UserName:{{}}", row.getCell(0).getStringCellValue());
-            for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+        /*    for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
                 if (null != row.getCell(i)) {
                     row.getCell(i).setCellType(CellType.STRING);
                 }
-            }
-            log.info("getListByExcel UserName:{{}}", row.getCell(0));
-            log.info("getListByExcel UserName:{{}}", row.getCell(0).getStringCellValue());
+            }*/
+           // log.info("getListByExcel UserName:{{}}", row.getCell(0));
+          //  log.info("getListByExcel UserName:{{}}", row.getCell(0).getStringCellValue());
             orderConsultingEntity.setUserName(row.getCell(0) == null ? "" : row.getCell(0).getStringCellValue());//用户姓名
             log.info("getListByExcel UserName:{{}}", row.getCell(0));
             orderConsultingEntity.setPhone(row.getCell(1) == null ? "" : row.getCell(1).getStringCellValue());//电话
@@ -857,19 +834,18 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
             log.info("getListByExcel InstallStartTime:{{}}", row.getCell(8));
             DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             //安装开始时间
-            if (row.getCell(8) == null) {
+            if (StringUtils.isEmpty(row.getCell(8))) {
                 orderConsultingEntity.setInstallStartTime(null);
             } else {
                 orderConsultingEntity.setInstallStartTime(LocalDateTime.parse(row.getCell(8).getStringCellValue(),df));
-               // orderConsultingEntity.setInstallStartTime(DateUtils.parseLocalDateTime(row.getCell(8).getStringCellValue()));
                 log.info("getListByExcel InstallStartTime:{{}}", row.getCell(8));
             }
             log.info("getListByExcel InstallEndTime:{{}}", row.getCell(9));
             //安装结束时间
-            if (row.getCell(9) == null) {
+            if (StringUtils.isEmpty(row.getCell(9))) {
                 orderConsultingEntity.setInstallEndTime(null);
             } else {
-                orderConsultingEntity.setInstallStartTime(LocalDateTime.parse(row.getCell(9).getStringCellValue(),df));
+                orderConsultingEntity.setInstallEndTime(LocalDateTime.parse(row.getCell(9).getStringCellValue(),df));
                 //orderConsultingEntity.setInstallEndTime(DateUtils.parseLocalDateTime(row.getCell(9).getStringCellValue()));
                 log.info("getListByExcel InstallEndTime:{{}}", row.getCell(9));
             }
@@ -895,12 +871,15 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
             orderConsultingEntity.setLogisticsSingleNumber(row.getCell(19) == null ? "" : row.getCell(19).getStringCellValue());//物流单号
             log.info("getListByExcel LogisticsCompany:{{}}", row.getCell(20));
             orderConsultingEntity.setLogisticsCompany(row.getCell(20) == null ? "" : row.getCell(20).getStringCellValue());//物流公司
-
+            log.info("getListByExcel DeliveryTime:{{}}", row.getCell(21));
+            log.info("getListByExcel String:{{}}", row.getCell(21).toString());
+            log.info("getListByExcel DeliveryTime:{{}}", getTime(row.getCell(21).toString()));
+            log.info("getListByExcel DeliveryTime:{{}}", LocalDateTime.parse(getTime(row.getCell(21).toString()),df));
             //送货时间
-            if (row.getCell(21) == null) {
+            if (StringUtils.isEmpty(row.getCell(21))) {
                 orderConsultingEntity.setDeliveryTime(null);
             } else {
-                orderConsultingEntity.setInstallStartTime(LocalDateTime.parse(row.getCell(21).getStringCellValue(),df));
+                orderConsultingEntity.setDeliveryTime(LocalDateTime.parse(getTime(row.getCell(21).toString()),df));
                 log.info("getListByExcel DeliveryTime:{{}}", row.getCell(21));
                 //orderConsultingEntity.setDeliveryTime(DateUtils.parseLocalDateTime(row.getCell(21).getStringCellValue()));
             }
@@ -908,11 +887,13 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
             orderConsultingEntity.setInstallPlatform(row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());//安装平台
             log.info("getListByExcel InstallPerson:{{}}", row.getCell(23));
             orderConsultingEntity.setInstallPerson(row.getCell(23) == null ? "" : row.getCell(23).getStringCellValue());//安装人员
+            log.info("getListByExcel InstallTime:{{}}", row.getCell(24));
+            log.info("getListByExcel InstallTime:{{}}", row.getCell(24).toString());
             //安装时间
-            if (row.getCell(24) == null) {
+            if (StringUtils.isEmpty(row.getCell(24))) {
                 orderConsultingEntity.setInstallTime(null);
             } else {
-                orderConsultingEntity.setInstallStartTime(LocalDateTime.parse(row.getCell(24).getStringCellValue(),df));
+                orderConsultingEntity.setInstallTime(LocalDateTime.parse(getTime(row.getCell(24).toString()),df));
                 log.info("getListByExcel InstallTime:{{}}", row.getCell(24));
                 //orderConsultingEntity.setInstallTime(DateUtils.parseLocalDateTime(row.getCell(24).getStringCellValue()));
 
@@ -969,8 +950,15 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
             one.setDefaultStatus("0");
             iUserReceiveAddressService.updateById(one);
         }
+    }
 
-
+    public String getTime(String date) {
+        Date setupTime = HSSFDateUtil.getJavaDate(Double.valueOf(date));
+        log.info("getTime setupTime:{{}}",setupTime);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String format = dateFormat.format(setupTime);
+        log.info("getTime format:{{}}",format);
+        return format;
     }
 
 

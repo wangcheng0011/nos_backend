@@ -12,13 +12,13 @@ import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.userutil.UserUtils;
 import com.knd.front.common.service.AttachService;
+import com.knd.front.common.util.JPushUtil;
 import com.knd.front.dto.VoUrl;
 import com.knd.front.entity.*;
 import com.knd.front.home.mapper.CourseHeadMapper;
 import com.knd.front.live.entity.BaseDifficulty;
 import com.knd.front.live.mapper.BaseDifficultyMapper;
 import com.knd.front.live.service.UserOrderRecordService;
-import com.knd.front.pay.dto.ImgDto;
 import com.knd.front.train.dto.*;
 import com.knd.front.train.mapper.*;
 import com.knd.front.train.request.GetTrainProgramRequest;
@@ -67,6 +67,7 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
     private final TrainProgramMapper trainProgramMapper;
     private final AttachService attachService;
     private final UserOrderRecordService userOrderRecordService;
+    private final JPushUtil jPushUtil;
     @Resource
     private BaseDifficultyMapper baseDifficultyMapper;
 
@@ -201,19 +202,17 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
                             programPlanGenerationEntity.setTrainItemId(z.getItemId());
                             programPlanGenerationEntityList.add(programPlanGenerationEntity);
                             log.info("saveTrainProgram programPlanGenerationEntityList:{{}}", programPlanGenerationEntityList);
-                            userOrderRecordService.save(UserUtils.getUserId(), "4",
-                                    "训练计划预约通知",
-                                    "您已安排训练计划,时间为：" + DateUtils.formatLocalDateTime(programPlanGenerationEntity.getTrainDate(), "yyyy-MM-dd"),
-                                    programPlanGenerationEntity.getTrainDate(),
-                                    programEntity.getId());
                         });
                     }
                 }
                 tempBeginTime = tempBeginTime.plusDays(1);
-
             }
             programPlanGenerationService.saveBatch(programPlanGenerationEntityList);
-
+            userOrderRecordService.save(UserUtils.getUserId(), "4",
+                    programEntity.getProgramName(),
+                    "您已安排训练计划,时间为：" + DateUtils.formatLocalDateTime(programEntity.getBeginTime(), "yyyy-MM-dd") + "到" + DateUtils.formatLocalDateTime(programEntity.getEndTime(), "yyyy-MM-dd"),
+                    programEntity.getBeginTime(),
+                    programEntity.getId());
         } else {
             //后台添加
             ProgramEntity programEntity = new ProgramEntity();
@@ -287,8 +286,8 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
             queryWrapper.ge("date_format(trainDate ,'%Y-%m-%d')", getTrainProgramRequest.getBeginDate());
         }
         // queryWrapper.le("date_format(date_add(trainDate ,interval 7 day),'%Y-%m-%d')",DateUtils.getCurrentDateStr());
-        if(StringUtils.isNotEmpty(getTrainProgramRequest.getTrainProgramId())){
-            queryWrapper.eq("trainProgramId",getTrainProgramRequest.getTrainProgramId());
+        if (StringUtils.isNotEmpty(getTrainProgramRequest.getTrainProgramId())) {
+            queryWrapper.eq("trainProgramId", getTrainProgramRequest.getTrainProgramId());
         }
         queryWrapper.select("id", "userId", "trainProgramId", "date_format(trainDate ,'%Y-%m-%d') trainDate", "trainItemType", "trainItemId", "trainFinishFlag");
         List<ProgramPlanGenerationEntity> programPlanGenerationEntities = programPlanGenerationDao.selectList(queryWrapper);
@@ -307,9 +306,11 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
             countsize++;
             System.out.println(countsize);
             String programId = j.getKey();
+            log.info("getTrainProgram programId:{{}}", programId);
             ProgramEntity programEntity = baseMapper.selectById(programId);
+            log.info("getTrainProgram programEntity:{{}}", programEntity);
             TrainProgramQueryDto trainProgramQueryDto = new TrainProgramQueryDto();
-            if (StringUtils.isNotEmpty(programEntity) && programEntity.getEndTime().isAfter(LocalDateTime.now())) {
+            if (StringUtils.isNotEmpty(programEntity) && StringUtils.isNotEmpty(programEntity.getEndTime()) && programEntity.getEndTime().isAfter(LocalDateTime.now())) {
                 trainProgramQueryDto.setId(programEntity.getId());
                 trainProgramQueryDto.setProgramName(programEntity.getProgramName());
                 trainProgramQueryDto.setBeginTime(programEntity.getBeginTime());
@@ -317,14 +318,15 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
                 Collection<ProgramPlanGenerationEntity> programPlanGenerationEntitys0 = j.getValue();
                 log.info("getTrainProgram programPlanGenerationEntitys0:{{}}", programPlanGenerationEntitys0);
                 ArrayListMultimap<String, ProgramPlanGenerationDto> multimap = ArrayListMultimap.create();
-                log.info("getTrainProgram multimap:{{}}", multimap);
                 for (ProgramPlanGenerationEntity i : programPlanGenerationEntitys0) {
                     ProgramPlanGenerationDto programPlanGenerationDto = new ProgramPlanGenerationDto();
                     BeanUtils.copyProperties(i, programPlanGenerationDto);
                     DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                     programPlanGenerationDto.setTrainDate(i.getTrainDate().format(df));
+                    log.info("getTrainProgram programPlanGenerationDto:{{}}", programPlanGenerationDto);
                     multimap.put(i.getTrainDate().format(df), programPlanGenerationDto);
                 }
+                log.info("getTrainProgram multimap:{{}}", multimap);
                 List<TrainProgramPlanDto> trainProgramPlanDtoList = new ArrayList<>();
                 Map<String, Collection<ProgramPlanGenerationDto>> map1 = multimap.asMap();
                 log.info("getTrainProgram map1.entrySet:{{}}", map1.entrySet());
@@ -444,7 +446,7 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
                             programPlanGenerationEntity.setTrainDate(localDateTime);
                             programPlanGenerationEntity.setTrainItemType(p.getTrainItemType());
                             programPlanGenerationEntity.setTrainItemId(p.getTrainItemId());
-                            programPlanGenerationEntity.setTrainFinishFlag("1");
+                            programPlanGenerationEntity.setTrainFinishFlag("2");
                             log.info("takeRestTrainProgram programPlanGenerationEntity:{{}}", programPlanGenerationEntity);
                             programPlanGenerationDao.update(programPlanGenerationEntity, programPlanGenerationEntityQueryWrapper);
                         }
@@ -480,7 +482,7 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
                                     programPlanGenerationEntity.setTrainDate(localDateTime);
                                     programPlanGenerationEntity.setTrainItemType(p.getTrainItemType());
                                     programPlanGenerationEntity.setTrainItemId(p.getTrainItemId());
-                                    programPlanGenerationEntity.setTrainFinishFlag("1");
+                                    programPlanGenerationEntity.setTrainFinishFlag("2");
                                     log.info("takeRestTrainProgram programPlanGenerationEntity:{{}}", programPlanGenerationEntity);
                                     programPlanGenerationDao.update(programPlanGenerationEntity, programPlanGenerationEntityQueryWrapper);
                                 }
@@ -519,7 +521,7 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
             baseMapper.deleteById(id);
         }
         programPlanGenerationDao.delete(new QueryWrapper<ProgramPlanGenerationEntity>().eq("trainProgramId", id).eq("deleted", 0));
-        userOrderRecordService.remove(userId, id);
+        //   userOrderRecordService.remove(userId, id);
         return ResultUtil.success();
     }
 
@@ -538,7 +540,7 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
             TrainDetailDto dto = new TrainDetailDto();
             List<TrainWeekDetailDto> detail = trainProgramMapper.getDetail(programEntity.getId());
             BeanUtils.copyProperties(programEntity, dto);
-            dto.setPicAttach(getImgDto(programEntity.getPicAttachId()));
+            dto.setPicAttach(attachService.getImgDto(programEntity.getPicAttachId()));
             dto.setTrainDetailList(detail);
             Long weekdaynum = 0l;
             if (detail.size() > 0) {
@@ -555,19 +557,52 @@ public class ProgramServiceImpl extends ServiceImpl<ProgramDao, ProgramEntity> i
 
     }
 
-
-    public ImgDto getImgDto(String urlId) {
-        //根据id获取图片信息
-        Attach aPi = attachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
+    @Override
+    public Result trainProgramPush() {
+        System.err.println("执行静态定时任务时间: " + LocalDateTime.now());
+        log.info("定时任务 trainProgramPush--------------------执行静态定时任务--------------------------------");
+        log.info("--------------------训练计划推送-----------------------");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime now = LocalDateTime.now();
+        String formatDate = dtf.format(now);
+        System.out.println("trainProgramPush:" + formatDate);
+        QueryWrapper<ProgramPlanGenerationEntity> programPlanGenerationEntityQueryWrapper = new QueryWrapper<>();
+        programPlanGenerationEntityQueryWrapper.eq("date_format(trainDate ,'%Y-%m-%d')", formatDate);
+        programPlanGenerationEntityQueryWrapper.eq("trainFinishFlag", "0");
+        programPlanGenerationEntityQueryWrapper.eq("deleted", "0");
+        programPlanGenerationEntityQueryWrapper.groupBy("trainDate", "userId");
+        List<ProgramPlanGenerationEntity> programPlanGenerationEntities = programPlanGenerationDao.selectList(programPlanGenerationEntityQueryWrapper);
+        log.info("trainProgramPush programPlanGenerationEntities:{{}}", programPlanGenerationEntities);
+        programPlanGenerationEntities.stream().forEach(programPlanGenerationEntity -> {
+            log.info("定时任务 trainProgramPush programPlanGenerationEntity:{{}}", programPlanGenerationEntity);
+            QueryWrapper<ProgramEntity> programEntityQueryWrapper = new QueryWrapper<>();
+            programEntityQueryWrapper.eq("id", programPlanGenerationEntity.getTrainProgramId());
+            programEntityQueryWrapper.eq("deleted", 0);
+            ProgramEntity programEntity = trainProgramMapper.selectOne(programEntityQueryWrapper);
+            log.info("定时任务 trainProgramPush programEntity:{{}}", programEntity);
+            // 设置推送参数
+            // 这里可以自定义推送参数了
+            Map<String, String> parm = new HashMap<>();
+            // 设置提示信息,内容是文章标题
+            parm.put("title", "待接受任务");
+            parm.put("alias", programEntity.getUserId());
+            parm.put("msg", programEntity.getProgramName());
+            parm.put("trainProgramId", programEntity.getId());
+            log.info("定时任务 trainProgramPush parm:{{}}", parm);
+            jPushUtil.jpushAll(parm);
+            log.info("定时任务 trainProgramPush parm:{{}}", parm);
+            log.info("定时任务 trainProgramPush userId:{{}}", programEntity.getUserId());
+            log.info("定时任务 trainProgramPush content:{{}}", programEntity.getProgramName() + "开始时间为：" + DateUtils.formatLocalDateTime(programPlanGenerationEntity.getTrainDate(), "yyyy年MM月dd日 HH时"));
+            log.info("定时任务 trainProgramPush userId:{{}}", programPlanGenerationEntity.getUserId());
+            userOrderRecordService.save(programEntity.getUserId(), "5",
+                    "计划提醒",
+                    //"您已安排训练计划,时间为：" + DateUtils.formatLocalDateTime(LocalDateTime.now(), "yyyy-MM-dd"),
+                    //"您已安排训练计划,时间为：" + DateUtils.formatLocalDateTime(programPlanGenerationEntity.getTrainDate(),"yyyy-MM-dd") + "到" + DateUtils.formatLocalDateTime(programEntity.getEndTime(),"yyyy-MM-dd"),
+                    programEntity.getProgramName() + "开始时间为：" + DateUtils.formatLocalDateTime(LocalDateTime.now(), "yyyy年MM月dd日HH时"),
+                    programPlanGenerationEntity.getTrainDate(),
+                    programEntity.getId());
+        });
+        return ResultUtil.success();
     }
 
     private LocalDateTime getLocalDateTime(DateTime dateTime) {

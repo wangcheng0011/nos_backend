@@ -19,11 +19,11 @@ public class ManageReportFeignFeignFallback implements FallbackFactory<FrontRepo
                 return ResultUtil.error(ResultEnum.SERVICE_FUSE);
             }
             @Override
-            public Result closeUserCoachTime(@RequestParam("id") String id) {
+            public Result coachTimeCloseRoom(@RequestParam("timeId") String timeId) {
                 return ResultUtil.error(ResultEnum.SERVICE_FUSE);
             }
             @Override
-            public Result closeUserCoachCourseOrder(@RequestParam("id") String id) {
+            public Result userCoachCloseRoom(@RequestParam("courseId") String courseId) {
                 return ResultUtil.error(ResultEnum.SERVICE_FUSE);
             }
             @Override

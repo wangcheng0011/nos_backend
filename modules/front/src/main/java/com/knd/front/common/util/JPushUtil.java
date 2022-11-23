@@ -125,6 +125,7 @@ public class JPushUtil {
                 // registrationId指定用户
 //                .setAudience(Audience.registrationId(param.get("id")))
                 .setAudience(Audience.alias(param.get("alias")))
+                //.setAudience(Audience.all())
                 .setOptions(Options.newBuilder()
                         .setTimeToLive(864000l)//10天
                         .setApnsProduction(true)
@@ -148,7 +149,7 @@ public class JPushUtil {
                                 .setAlert(param.get("msg"))
                                 .build())
                         .build())
-                // 指定开发环境 true为生产模式 false 为测试模式 (android不区分模式,ios区分模式)
+                // 指定开发环境 true为生产模式 false为测试模式 (android不区分模式,ios区分模式)
                 .setOptions(Options.newBuilder().setApnsProduction(Boolean.parseBoolean(judge)).build())
                 // 自定义信息
                 .setMessage(Message.newBuilder().setMsgContent(param.get("msg")).addExtras(param).build())

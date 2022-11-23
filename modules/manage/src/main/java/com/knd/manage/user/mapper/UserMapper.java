@@ -207,7 +207,7 @@ public interface UserMapper extends BaseMapper<User> {
             "FROM view_record where createDate >=str_to_date(#{beginDate},'%Y-%m-%d') and createDate<=str_to_date(#{endDate},'%Y-%m-%d')")
     List<Map<String, Object>> getViewRecords(String beginDate, String endDate);
 
-    @Select(" select c.goodsName partsName,count(c.id) count from (SELECT a.id,a.equipmentId,b.goodsName from base_action_equipment a,pms_goods b where a.equipmentId=b.id and a.deleted='0') c  GROUP BY c.goodsName")
+    @Select("select c.equipment partsName,count(c.id) count from (SELECT a.id,a.equipmentId,b.equipment from base_action_equipment a,base_equipment b where a.equipmentId=b.id and a.deleted='0') c  GROUP BY c.equipment")
     List<Map<String, Object>> getPartsUsageAnalysis();
 
 

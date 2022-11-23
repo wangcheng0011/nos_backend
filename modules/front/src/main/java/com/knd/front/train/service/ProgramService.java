@@ -43,5 +43,7 @@ public interface ProgramService extends IService<ProgramEntity> {
 
     //查询历史训练计划
     Result queryHistoryTrainProgram(String userId,String current);
+
+    Result trainProgramPush();
 }
 

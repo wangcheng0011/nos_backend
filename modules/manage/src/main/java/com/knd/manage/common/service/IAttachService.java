@@ -1,6 +1,7 @@
 package com.knd.manage.common.service;
 
 import com.knd.common.response.Result;
+import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.vo.VoUploadInfo;
 import com.knd.mybatis.SuperService;
@@ -29,4 +30,6 @@ public interface IAttachService extends SuperService<Attach> {
     void deleteFile(String id,String userid);
 
     Attach saveAttach(String userId, String picAttachName, String picAttachNewName, String picAttachSize);
+
+     ImgDto getImgDto(String urlId);
 }

@@ -3,6 +3,7 @@ package com.knd.front.train.service;
 import com.knd.common.response.Result;
 import com.knd.front.entity.TrainFreeHead;
 import com.knd.front.train.request.FreeTrainInfoRequest;
+import com.knd.front.train.request.FreeTrainRequest;
 import com.knd.front.train.request.FreeTrainingInfoRequest;
 import com.knd.mybatis.SuperService;
 
@@ -17,5 +18,7 @@ import com.knd.mybatis.SuperService;
 public interface ITrainFreeHeadService extends SuperService<TrainFreeHead> {
     Result commitFreeTrainInfo(FreeTrainInfoRequest freeTrainInfoRequest);
 
-    Result commitFreeTrainingInfo(FreeTrainingInfoRequest freeTrainingInfoRequest);
+    Result commitFreeTrainAct(FreeTrainingInfoRequest freeTrainingInfoRequest);
+
+    Result commitFreeTrain(FreeTrainRequest freeTrainRequest);
 }

@@ -90,4 +90,11 @@ public class TrainProgramController {
         return programService.queryHistoryTrainProgram(userId,current);
     }
 
+    @Log("I045-训练计划推送")
+    @ApiOperation(value = "I045-训练计划推送", notes = "I045-训练计划推送")
+    @PostMapping("/trainProgramPush")
+    public Result trainProgramPush() {
+        return ResultUtil.success(programService.trainProgramPush());
+    }
+
 }

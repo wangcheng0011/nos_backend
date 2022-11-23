@@ -7,7 +7,6 @@ import com.knd.common.qiniu.RtcRoomManager;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
 import com.knd.front.live.dto.RoomListDto;
-import com.knd.front.live.mapper.RoomMapper;
 import com.knd.front.live.request.CreateOrUpdateRoomRequest;
 import com.knd.front.live.request.QueryLiveRoomRequest;
 import com.knd.front.live.request.ReportRoomRequest;
@@ -38,9 +37,6 @@ public class RoomController {
 
     @Autowired
     private IRoomService iRoomService;
-
-    @Autowired
-    private RoomMapper roomMapper;
 
 
     @PostMapping("/room/createRoom")
@@ -84,14 +80,14 @@ public class RoomController {
     @Log("关闭房间")
     @Deprecated
     @ApiOperation(value = "关闭房间 只有房主才能关闭房间", notes = "关闭房间 只有房主才能关闭房间")
-    public Result closeRoom(@ApiParam("主键Id") @RequestParam(required = true, name = "id") String id) {
+    public Result closeRoom(@ApiParam("主键roomId") @RequestParam(required = true, name = "roomId") String id) {
 
         return iRoomService.closeRoom(id);
     }
 
     @PostMapping("/trainGroup/closeRoomForManage")
-    @Log("管理员关闭房间")
-    @ApiOperation(value = "管理员关闭房间 管理员和创建人关闭房间", notes = "管理员关闭房间 管理员和创建人关闭房间")
+    @Log("训练小组 管理员关闭房间")
+    @ApiOperation(value = "训练小组 管理员关闭房间 管理员和创建人关闭房间", notes = "训练小组 管理员关闭房间 管理员和创建人关闭房间")
     public Result closeRoomForManage(@ApiParam("主键Id") @RequestParam(required = true, name = "id") String id) {
         return iRoomService.closeRoomForManage(id);
     }

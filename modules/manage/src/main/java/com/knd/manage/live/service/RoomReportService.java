@@ -26,8 +26,8 @@ public interface RoomReportService {
     Result closeRoom(String id);
 
     //关闭直播
-    Result closeUserCoachTime(String id);
+    Result closeUserCoachTime(String timeId);
 
     //关闭私教
-    Result closeUserCoachCourseOrder(String id);
+    Result closeUserCoachCourseOrder(String courseId);
 }

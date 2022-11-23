@@ -50,9 +50,7 @@ public class BasePageServiceImpl extends ServiceImpl<BasePageMapper, BasePage> i
     //图片路径
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
+
 
     @Override
     public Result getPageList(VoGetPageList vo) {
@@ -84,10 +82,10 @@ public class BasePageServiceImpl extends ServiceImpl<BasePageMapper, BasePage> i
 
         BeanUtils.copyProperties(basePage,dto);
 
-        ImgDto selectImgDto = getImgDto(basePage.getImageUrlId());
+        ImgDto selectImgDto = iAttachService.getImgDto(basePage.getImageUrlId());
         dto.setImageUrl(selectImgDto);
 
-        ImgDto unSelectImgDto = getImgDto(basePage.getBackgroundUrlId());
+        ImgDto unSelectImgDto = iAttachService.getImgDto(basePage.getBackgroundUrlId());
         dto.setBackgroundUrl(unSelectImgDto);
 
         List<BaseFloorSortDto> floorList = basePageFloorMapper.getFloorList(id);
@@ -96,7 +94,7 @@ public class BasePageServiceImpl extends ServiceImpl<BasePageMapper, BasePage> i
         }
         dto.setFloorList(floorList);
 
-        ImgDto showUrlDto = getImgDto(basePage.getShowUrlId());
+        ImgDto showUrlDto = iAttachService.getImgDto(basePage.getShowUrlId());
         dto.setShowUrl(showUrlDto);
 
         //成功
@@ -142,15 +140,15 @@ public class BasePageServiceImpl extends ServiceImpl<BasePageMapper, BasePage> i
         VoUrl showUrl = vo.getShowUrl();
         if(imgUrl != null && imgUrl.getPicAttachSize()!=null){
             //保存选中图片
-            Attach imgAttach = goodsService.saveAttach(vo.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
+            Attach imgAttach = iAttachService.saveAttach(vo.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
             bp.setImageUrlId(imgAttach.getId());
         }
         if(backgroundUrl != null && backgroundUrl.getPicAttachSize()!=null){
-            Attach backgroundAttach = goodsService.saveAttach(vo.getUserId(), backgroundUrl.getPicAttachName(), backgroundUrl.getPicAttachNewName(), backgroundUrl.getPicAttachSize());
+            Attach backgroundAttach = iAttachService.saveAttach(vo.getUserId(), backgroundUrl.getPicAttachName(), backgroundUrl.getPicAttachNewName(), backgroundUrl.getPicAttachSize());
             bp.setBackgroundUrlId(backgroundAttach.getId());
         }
         if(showUrl != null && showUrl!=null){
-            Attach showAttach = goodsService.saveAttach(vo.getUserId(), showUrl.getPicAttachName(), showUrl.getPicAttachNewName(), showUrl.getPicAttachSize());
+            Attach showAttach = iAttachService.saveAttach(vo.getUserId(), showUrl.getPicAttachName(), showUrl.getPicAttachNewName(), showUrl.getPicAttachSize());
             bp.setShowUrlId(showAttach.getId());
         }
         baseMapper.insert(bp);
@@ -223,15 +221,15 @@ public class BasePageServiceImpl extends ServiceImpl<BasePageMapper, BasePage> i
         VoUrl showUrl = vo.getShowUrl();
         if(imgUrl != null && imgUrl.getPicAttachSize()!=null){
             //保存选中图片
-            Attach imgAttach = goodsService.saveAttach(vo.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
+            Attach imgAttach = iAttachService.saveAttach(vo.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
             b.setImageUrlId(imgAttach.getId());
         }
         if(backgroundUrl != null && backgroundUrl.getPicAttachSize()!=null){
-            Attach backgroundAttach = goodsService.saveAttach(vo.getUserId(), backgroundUrl.getPicAttachName(), backgroundUrl.getPicAttachNewName(), backgroundUrl.getPicAttachSize());
+            Attach backgroundAttach = iAttachService.saveAttach(vo.getUserId(), backgroundUrl.getPicAttachName(), backgroundUrl.getPicAttachNewName(), backgroundUrl.getPicAttachSize());
             b.setBackgroundUrlId(backgroundAttach.getId());
         }
         if(showUrl != null&& showUrl.getPicAttachSize()!=null){
-            Attach showAttach = goodsService.saveAttach(vo.getUserId(), showUrl.getPicAttachName(), showUrl.getPicAttachNewName(), showUrl.getPicAttachSize());
+            Attach showAttach = iAttachService.saveAttach(vo.getUserId(), showUrl.getPicAttachName(), showUrl.getPicAttachNewName(), showUrl.getPicAttachSize());
             b.setShowUrlId(showAttach.getId());
         }
         baseMapper.updateById(b);
@@ -263,17 +261,5 @@ public class BasePageServiceImpl extends ServiceImpl<BasePageMapper, BasePage> i
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

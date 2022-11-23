@@ -11,8 +11,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -31,7 +29,7 @@ public class UserOrderRecordEntity extends BaseEntity {
     @ApiModelProperty(value = "是否已读0否 1是")
     private String isRead;
 
-    @ApiModelProperty(value = "预约类别0课前咨询 1私教课程 2团课直播 3小组 4训练计划")
+    @ApiModelProperty(value = "预约类别0课前咨询 1私教课程 2团课直播 3小组 4预约计划 5计划提醒")
     private String orderType;
 
     @ApiModelProperty(value = "预约名称")

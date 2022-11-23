@@ -4,6 +4,7 @@ import com.knd.common.log.Log;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
 import com.knd.front.train.request.FreeTrainInfoRequest;
+import com.knd.front.train.request.FreeTrainRequest;
 import com.knd.front.train.request.FreeTrainingInfoRequest;
 import com.knd.front.train.request.TrainCourseInfoRequest;
 import com.knd.front.train.service.IBaseBodyPartService;
@@ -60,8 +61,8 @@ public class FreeTrainController {
     public Result getFilterFreeTrainLabelSettings(@RequestParam(value = "userId",required = false) String userId){
         return iBaseBodyPartService.getFilterFreeTrainLabelSettings(userId);
     }
-    @ApiOperation(value = "I083-提交动作结果",notes = "I083-提交动作结果")
-    @Log("I083-提交动作结果")
+    @ApiOperation(value = "I083-提交动作序列结果",notes = "I083-提交动作序列结果")
+    @Log("I083-提交动作库结果")
     @PostMapping(value = "/commitFreeTrainInfo")
     public Result commitFreeTrainInfo(@RequestBody @Valid FreeTrainInfoRequest freeTrainInfoRequest,BindingResult bindingResult){
         if (bindingResult.hasErrors()){
@@ -71,14 +72,26 @@ public class FreeTrainController {
         return iTrainFreeHeadService.commitFreeTrainInfo(freeTrainInfoRequest);
     }
 
-    @ApiOperation(value = "I083-提交自由训练结果",notes = "I083-提交自由训练结果")
-    @Log("I083-提交自由训练结果")
-    @PostMapping(value = "/commitFreeTrainingInfo")
-    public Result commitFreeTrainingInfo(@RequestBody @Valid FreeTrainingInfoRequest freeTrainingInfoRequest, BindingResult bindingResult){
+    @ApiOperation(value = "I084-提交动作训练结果",notes = "I084-提交动作训练结果")
+    @Log("I083-提交动作训练结果")
+   // @PostMapping(value = "/commitFreeTrainingInfo")
+    @PostMapping(value = "/commitFreeTrainAct")
+    public Result commitFreeTrainAct(@RequestBody @Valid FreeTrainingInfoRequest freeTrainingInfoRequest, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             String error = bindingResult.getFieldError().getDefaultMessage();
             return ResultUtil.error("U0995", error);
         }
-        return iTrainFreeHeadService.commitFreeTrainingInfo(freeTrainingInfoRequest);
+        return iTrainFreeHeadService.commitFreeTrainAct(freeTrainingInfoRequest);
+    }
+
+    @ApiOperation(value = "I085-提交自由训练结果",notes = "I085-提交自由训练结果")
+    @Log("I083-提交自由训练结果")
+    @PostMapping(value = "/commitFreeTrainningInfo")
+    public Result commitFreeTrainningInfo(@RequestBody @Valid FreeTrainRequest freeTrainRequest, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            String error = bindingResult.getFieldError().getDefaultMessage();
+            return ResultUtil.error("U0995", error);
+        }
+        return iTrainFreeHeadService.commitFreeTrain(freeTrainRequest);
     }
 }

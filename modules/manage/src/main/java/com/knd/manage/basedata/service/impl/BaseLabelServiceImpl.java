@@ -106,7 +106,7 @@ public class BaseLabelServiceImpl implements IBaseLabelService {
 
         }
 
-        ImgDto imgUrlDto = getImgDto(baseLabel.getImageUrlId());
+        ImgDto imgUrlDto = iAttachService.getImgDto(baseLabel.getImageUrlId());
 
         LabelDto dto = new LabelDto();
         BeanUtils.copyProperties(baseLabel,dto);
@@ -135,7 +135,7 @@ public class BaseLabelServiceImpl implements IBaseLabelService {
         if(StringUtils.isNotEmpty(vo.getImageUrl())
                 && StringUtils.isNotEmpty(vo.getImageUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
                     , vo.getImageUrl().getPicAttachNewName(), vo.getImageUrl().getPicAttachSize());
             imageUrlId = imgAPi.getId();
         }
@@ -233,7 +233,7 @@ public class BaseLabelServiceImpl implements IBaseLabelService {
         if(StringUtils.isNotEmpty(vo.getImageUrl())
                 && StringUtils.isNotEmpty(vo.getImageUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
                     , vo.getImageUrl().getPicAttachNewName(), vo.getImageUrl().getPicAttachSize());
             imageUrlId = imgAPi.getId();
         }
@@ -358,17 +358,4 @@ public class BaseLabelServiceImpl implements IBaseLabelService {
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
 }

@@ -10,7 +10,7 @@ import com.knd.common.response.ResultUtil;
 import com.knd.common.userutil.UserUtils;
 import com.knd.common.uuid.UUIDUtil;
 import com.knd.manage.basedata.dto.ImgDto;
-import com.knd.manage.basedata.vo.VoUrl;
+import com.knd.manage.basedata.vo.VoUrlSort;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.service.IAttachService;
 import com.knd.manage.help.dto.HelpDto;
@@ -20,10 +20,8 @@ import com.knd.manage.help.mapper.HelpAttachMapper;
 import com.knd.manage.help.mapper.HelpMapper;
 import com.knd.manage.help.request.HelpRequest;
 import com.knd.manage.help.service.IHelpService;
-import com.knd.manage.mall.service.IGoodsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,20 +34,10 @@ import java.util.List;
 public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> implements IHelpService {
 
     @Resource
-    private IGoodsService goodsService;
-
-    @Resource
     private IAttachService iAttachService;
 
     @Resource
     private HelpAttachMapper helpAttachMapper;
-
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     //新增
     @Override
@@ -58,18 +46,21 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         HelpEntity helpEntity = new HelpEntity();
         BeanUtils.copyProperties(helpRequest, helpEntity);
         helpEntity.setId(UUIDUtil.getShortUUID());
-        List<VoUrl> imageUrls = helpRequest.getImageUrls();
+        List<VoUrlSort> imageUrls = helpRequest.getImageUrls();
+        log.info("add imageUrls:{{}}", imageUrls);
         imageUrls.stream().forEach(url -> {
             if (StringUtils.isNotEmpty(url.getPicAttachName())
                     && StringUtils.isNotEmpty(url.getPicAttachNewName())
                     && StringUtils.isNotEmpty(url.getPicAttachSize())) {
                 //保存选中图片
-                Attach imgAPi = goodsService.saveAttach(UserUtils.getUserId(), url.getPicAttachName()
+                log.info("add sort:{{}}", url.getSort());
+                Attach imgAPi = iAttachService.saveAttach(UserUtils.getUserId(), url.getPicAttachName()
                         , url.getPicAttachNewName(), url.getPicAttachSize());
                 HelpAttachEntity helpAttachEntity = new HelpAttachEntity();
                 helpAttachEntity.setId(UUIDUtil.getShortUUID());
                 helpAttachEntity.setHelpId(helpEntity.getId());
                 helpAttachEntity.setAttachUrlId(imgAPi.getId());
+                helpAttachEntity.setSort(url.getSort());
                 helpAttachEntity.setCreateBy(UserUtils.getUserId());
                 helpAttachEntity.setCreateDate(LocalDateTime.now());
                 helpAttachEntity.setDeleted("0");
@@ -86,24 +77,28 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
     //修改
     @Override
     public Result edit(HelpRequest helpRequest) {
+        log.info("add helpRequest:{{}}", helpRequest);
         HelpEntity helpEntity = new HelpEntity();
         BeanUtils.copyProperties(helpRequest, helpEntity);
         QueryWrapper<HelpAttachEntity> helpAttachEntityQueryWrapper = new QueryWrapper<HelpAttachEntity>();
         helpAttachEntityQueryWrapper.eq("helpId", helpRequest.getId());
         helpAttachEntityQueryWrapper.eq("deleted", "0");
         helpAttachMapper.delete(helpAttachEntityQueryWrapper);
-        List<VoUrl> imageUrls = helpRequest.getImageUrls();
+        List<VoUrlSort> imageUrls = helpRequest.getImageUrls();
+        log.info("add imageUrls:{{}}", imageUrls);
         imageUrls.stream().forEach(url -> {
             if (StringUtils.isNotEmpty(url.getPicAttachName())
                     && StringUtils.isNotEmpty(url.getPicAttachNewName())
                     && StringUtils.isNotEmpty(url.getPicAttachSize())) {
                 //保存选中图片
-                Attach imgAPi = goodsService.saveAttach(UserUtils.getUserId(), url.getPicAttachName()
+                log.info("add sort:{{}}", url.getSort());
+                Attach imgAPi = iAttachService.saveAttach(UserUtils.getUserId(), url.getPicAttachName()
                         , url.getPicAttachNewName(), url.getPicAttachSize());
                 HelpAttachEntity helpAttachEntity = new HelpAttachEntity();
                 helpAttachEntity.setId(UUIDUtil.getShortUUID());
                 helpAttachEntity.setHelpId(helpRequest.getId());
                 helpAttachEntity.setAttachUrlId(imgAPi.getId());
+                helpAttachEntity.setSort(url.getSort());
                 helpAttachEntity.setCreateBy(UserUtils.getUserId());
                 helpAttachEntity.setCreateDate(LocalDateTime.now());
                 helpAttachEntity.setDeleted("0");
@@ -141,11 +136,11 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         QueryWrapper<HelpAttachEntity> helpEntityQueryWrapper = new QueryWrapper<>();
         helpEntityQueryWrapper.eq("helpId", id);
         helpEntityQueryWrapper.eq("deleted", "0");
-        helpEntityQueryWrapper.orderByDesc("createDate");
+        helpEntityQueryWrapper.orderByAsc("sort");
         List<HelpAttachEntity> helpAttachEntities = helpAttachMapper.selectList(helpEntityQueryWrapper);
         ArrayList<ImgDto> imgDtos = new ArrayList<>();
         helpAttachEntities.stream().forEach(helpAttach -> {
-            imgDtos.add(getImgDto(helpAttach.getAttachUrlId()));
+            imgDtos.add(iAttachService.getImgDto(helpAttach.getAttachUrlId()));
         });
         helpDto.setImageUrl(imgDtos);
         return ResultUtil.success(helpDto);
@@ -169,17 +164,20 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         List<HelpEntity> helpEntityList = partPage.getRecords();
         Page<HelpDto> helpDtoPage = new Page<>(Long.parseLong(current), size);
         List<HelpDto> helpDtoList = new ArrayList<HelpDto>();
+        log.info("getHelpList helpDtoList:{{}}",helpDtoList);
         helpEntityList.stream().forEach(helpEntity -> {
             HelpDto helpDto = new HelpDto();
             BeanUtils.copyProperties(helpEntity, helpDto);
             QueryWrapper<HelpAttachEntity> helpEntityQueryWrapper = new QueryWrapper<>();
             helpEntityQueryWrapper.eq("helpId", helpEntity.getId());
             helpEntityQueryWrapper.eq("deleted", "0");
-            helpEntityQueryWrapper.orderByDesc("createDate");
+            helpEntityQueryWrapper.orderByAsc("sort");
             List<HelpAttachEntity> helpAttachEntities = helpAttachMapper.selectList(helpEntityQueryWrapper);
             ArrayList<ImgDto> imgDtos = new ArrayList<>();
+            log.info("getHelpList helpAttachEntities:{{}}",helpAttachEntities);
             helpAttachEntities.stream().forEach(helpAttach -> {
-                imgDtos.add(getImgDto(helpAttach.getAttachUrlId()));
+                log.info("getHelpList sort:{{}}",helpAttach.getSort());
+                imgDtos.add(iAttachService.getImgDto(helpAttach.getAttachUrlId()));
             });
             helpDto.setImageUrl(imgDtos);
             helpDtoList.add(helpDto);
@@ -191,18 +189,6 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         return ResultUtil.success(helpDtoPage);
     }
 
-    public ImgDto getImgDto(String urlId) {
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 
 }

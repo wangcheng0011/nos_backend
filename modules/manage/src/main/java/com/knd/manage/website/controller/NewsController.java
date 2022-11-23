@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
-@Api(tags = "云端管理-website")
+@Api(tags = "云端管理-system")
 @RestController
 @CrossOrigin
 @RequestMapping("/admin/website")

@@ -223,7 +223,7 @@ public class OrderController {
 
     @Log("新增或更新订单咨询")
     @ApiOperation(value = "新增或更新订单咨询")
-    @PostMapping("/addOrUpddateOrderCousulting")
+    @PostMapping("/addOrUpdateOrderCousulting")
     public Result addOrUpdateOrderCousulting(@Valid @RequestBody OrderConsultingRequest orderConsultingRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String error = bindingResult.getFieldError().getDefaultMessage();

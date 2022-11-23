@@ -18,11 +18,11 @@ import java.util.List;
 public interface IEquipmentInfoService extends SuperService<EquipmentInfo> {
 
     //新增
-    Result add(String userId, String equipmentNo, String remark,String courseHeadId);
+    Result add(String userId, String equipmentNo, String serialNo,String remark,String courseHeadId);
 
 
     //更新
-    Result edit(String userId, String equipmentNo, String remark, String id,String courseHeadId);
+    Result edit(String userId, String equipmentNo,String serialNo, String remark, String id,String courseHeadId);
 
     //更新状态
     Result changeStatus(String userId,String status,String id,String equipmentNo);
@@ -34,7 +34,7 @@ public interface IEquipmentInfoService extends SuperService<EquipmentInfo> {
     Result getEquipment(String id);
 
     //获取列表
-    Result getEquipmentList(String equipmentNo,String status, String currentPage);
+    Result getEquipmentList(String equipmentNo,String serialNo,String status, String currentPage);
 
     //根据课程Id获取列表
     List<EquipmentInfo> getEquipmentListByCourseId(String courseId);

@@ -9,7 +9,6 @@ import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
-import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.service.IAttachService;
 import com.knd.manage.food.dto.BaseFoodTypeDto;
@@ -24,7 +23,6 @@ import com.knd.manage.food.vo.VoSaveFoodType;
 import com.knd.manage.mall.service.IGoodsService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,15 +34,6 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
 
     @Autowired
     private IAttachService iAttachService;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
-
-    @Autowired
-    private IGoodsService goodsService;
 
     @Autowired
     private FoodMapper foodMapper;
@@ -69,7 +58,7 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
         if(StringUtils.isNotEmpty(vo.getPicAttachUrl())
                 && StringUtils.isNotEmpty(vo.getPicAttachUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
                     , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
             musicUrlId = imgAPi.getId();
         }
@@ -140,7 +129,7 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
         if(StringUtils.isNotEmpty(vo.getPicAttachUrl())
                 && StringUtils.isNotEmpty(vo.getPicAttachUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
                     , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
             musicUrlId = imgAPi.getId();
         }
@@ -198,7 +187,7 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
         });
         dto.setItemList(foodDtos);
         if(StringUtils.isNotEmpty(b.getFoodUrlId())){
-            dto.setPicAttachUrl(getImgDto(b.getFoodUrlId()));
+            dto.setPicAttachUrl(iAttachService.getImgDto(b.getFoodUrlId()));
         }
         //成功
         return ResultUtil.success(dto);
@@ -235,7 +224,7 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
             });
             dto.setItemList(foodDtos);
             if(StringUtils.isNotEmpty(entity.getFoodUrlId())){
-                dto.setPicAttachUrl(getImgDto(entity.getFoodUrlId()));
+                dto.setPicAttachUrl(iAttachService.getImgDto(entity.getFoodUrlId()));
             }
             dtoList.add(dto);
         }
@@ -246,22 +235,6 @@ public class BaseFoodTypeServiceImpl extends ServiceImpl<BaseFoodTypeMapper, Bas
         dtoPage.setRecords(dtoList);
         //成功
         return ResultUtil.success(dtoPage);
-
-
-    }
-
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
     }
 
     @Override

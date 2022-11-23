@@ -87,7 +87,7 @@ public class RoomReportController {
     }
 
     @PostMapping("/trainGroup/closeRoom")
-    @Log("关闭私教")
+    @Log("关闭房间")
     @ApiOperation(value = "关闭房间",notes = "关闭房间")
     public Result closeRoom(@RequestBody @Validated VoId vo, BindingResult bindingResult){
         if(StringUtils.isEmpty(vo.getUserId())){

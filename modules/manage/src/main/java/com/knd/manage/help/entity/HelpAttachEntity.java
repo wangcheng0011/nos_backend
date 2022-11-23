@@ -23,5 +23,8 @@ public class HelpAttachEntity extends BaseEntity {
 	@ApiModelProperty(value = "图片Id")
 	private String attachUrlId;
 
+	@ApiModelProperty(value = "排序")
+	private String sort;
+
 
 }

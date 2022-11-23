@@ -43,7 +43,7 @@ public class ProgramPlanGenerationEntity extends BaseEntity {
 	 */
 	private String trainItemId;
 	/**
-	 * 训练完成标识 0未完成1完成
+	 * 训练完成标识 0未完成1完成2请假
 	 */
 	private String trainFinishFlag;
 	/**

@@ -41,8 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -404,19 +402,19 @@ public class TrainGroupServiceImpl extends ServiceImpl<TrainGroupMapper, TrainGr
         if (date == null) {
             date = LocalDate.now();
         }
-        //本月开始时间
+      /*  //本月开始时间
         LocalDate firstday = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDateTime month_start = LocalDateTime.of(firstday, LocalTime.MIN);
         //本月结束时间
         LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-        LocalDateTime month_end = LocalDateTime.of(lastDay, LocalTime.MAX);
+        LocalDateTime month_end = LocalDateTime.of(lastDay, LocalTime.MAX);*/
 
         List<UserTrainDto> userTrainList;
         UserTrainDto userTrainDto;
 
         ////毅力得字段存在不一样，所以无法统一使用
         if (type.equals(RankingTypeEnum.WILL)) {
-            userTrainList = trainGroupRankMapper.getWill(userId, groupId, month_start, month_end);
+            userTrainList = trainGroupRankMapper.getWill(userId, groupId, date);
             for (UserTrainDto dto : userTrainList) {
                 if (StringUtils.isEmpty(dto.getTrainNum())) {
                     dto.setTrainNum("0");
@@ -425,7 +423,7 @@ public class TrainGroupServiceImpl extends ServiceImpl<TrainGroupMapper, TrainGr
                     dto.setHeadPicUrl(fileImagesPath + dto.getHeadPicUrl());
                 }
             }
-            userTrainDto = userTrainByUserMapper.getUserWill(userId, month_start, month_end);
+            userTrainDto = userTrainByUserMapper.getUserWill(userId, date);
             userTrainDto = StringUtils.isNotEmpty(userTrainDto) ? userTrainDto : new UserTrainDto();
             if (StringUtils.isNotEmpty(userTrainDto.getHeadPicUrl())) {
                 userTrainDto.setHeadPicUrl(fileImagesPath + userTrainDto.getHeadPicUrl());
@@ -436,7 +434,7 @@ public class TrainGroupServiceImpl extends ServiceImpl<TrainGroupMapper, TrainGr
             wrapper.eq("gp.joinStatus", 1);
             wrapper.groupBy("u.id");
             wrapper.orderByDesc("trainNum", "praiseNum");
-            userTrainList = trainGroupRankMapper.getGroupTrainByParam(userId, groupId, type.getParamType(), type.getPraiseType(), month_start, month_end, wrapper);
+            userTrainList = trainGroupRankMapper.getGroupTrainByParam(userId, groupId, type.getParamType(), type.getPraiseType(), date, wrapper);
             for (UserTrainDto dto : userTrainList) {
                 if (StringUtils.isEmpty(dto.getTrainNum())) {
                     dto.setTrainNum("0");
@@ -447,7 +445,7 @@ public class TrainGroupServiceImpl extends ServiceImpl<TrainGroupMapper, TrainGr
             }
             wrapper.clear();
             wrapper.eq("u.id", userId);
-            List<UserTrainDto> userTrainListByUser = userTrainMapper.getUserTrainByParam(userId, month_start, month_end, type.getParamType(), type.getPraiseType(), wrapper);
+            List<UserTrainDto> userTrainListByUser = userTrainMapper.getUserTrainByParam(userId, date, type.getParamType(), type.getPraiseType(), wrapper);
             userTrainDto = StringUtils.isNotEmpty(userTrainListByUser) ? userTrainListByUser.get(0) : new UserTrainDto();
             if (StringUtils.isNotEmpty(userTrainDto.getHeadPicUrl())) {
                 userTrainDto.setHeadPicUrl(fileImagesPath + userTrainDto.getHeadPicUrl());

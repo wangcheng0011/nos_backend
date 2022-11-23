@@ -1,8 +1,5 @@
 package com.knd.front.live.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.knd.common.basic.DateUtils;
 import com.knd.common.basic.StringUtils;
@@ -23,8 +20,6 @@ import com.knd.front.live.mapper.UserCoachCourseMapper;
 import com.knd.front.live.mapper.UserCoachCourseOrderMapper;
 import com.knd.front.live.mapper.UserCoachTimeMapper;
 import com.knd.front.live.service.ILiveCourseService;
-import com.qiniu.common.QiniuException;
-import com.qiniu.http.Response;
 import com.qiniu.pili.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,18 +55,18 @@ public class ILiveCourseServiceImpl implements ILiveCourseService {
     private String appId;
 
     @Override
-    public Result getRoomToken(String timeId,String type) {
+    public Result getRoomToken(String id,String type) {
         log.info("----------我要开始获取直播课程roomToken啦------------------");
-        log.info("getRoomToken roomId:{{}}",timeId);
+        log.info("getRoomToken roomId:{{}}",id);
         log.info("getRoomToken type:{{}}",type);
         try {
             Map<String,String> map = new HashMap<>();
             //判断身份
-            UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectById(timeId);
+            UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectById(id);
             //timeId查不到用courseid查
             if(StringUtils.isEmpty(userCoachTimeEntity)){
                 QueryWrapper<UserCoachTimeEntity> userCoachTimeEntityQueryWrapper = new QueryWrapper<>();
-                userCoachTimeEntityQueryWrapper.eq("coachCourseId",timeId);
+                userCoachTimeEntityQueryWrapper.eq("coachCourseId",id);
                 userCoachTimeEntityQueryWrapper.eq("deleted",0);
                 userCoachTimeEntity = userCoachTimeMapper.selectOne(userCoachTimeEntityQueryWrapper);
             }
@@ -90,7 +85,7 @@ public class ILiveCourseServiceImpl implements ILiveCourseService {
                 //观看的时候创建新的用户id
                 userId = "1".equals(type) ? userId + UUIDUtil.getShortUUID() : userId;
                 log.info("getRoomToken newCoachUserId:{{}}",userId);
-                String roomToken = rtcRoomManager.getRoomToken(appId,timeId,userId,DateUtils.addDate(new Date(), 30).getTime(),"admin");
+                String roomToken = rtcRoomManager.getRoomToken(appId,id,userId,DateUtils.addDate(new Date(), 30).getTime(),"admin");
                 log.info("教练获取签发roomToken："+roomToken);
                 map.put("roomToken",roomToken);
                 String rtmpPublishURL = LiveManager.getRTMPPublishURL(coachUserId);
@@ -118,7 +113,7 @@ public class ILiveCourseServiceImpl implements ILiveCourseService {
                 //观看的时候创建新的用户id
                 userId = "1".equals(type) ? userId + UUIDUtil.getShortUUID() : userId;
                 log.info("getRoomToken coachUserId:{{}}",coachUserId);
-                roomToken = rtcRoomManager.getRoomToken(appId,timeId,userId,DateUtils.addDate(new Date(), 30).getTime(),"user");
+                roomToken = rtcRoomManager.getRoomToken(appId,id,userId,DateUtils.addDate(new Date(), 30).getTime(),"user");
 
                 log.info("预约用户获取签发roomToken："+roomToken);
                 map.put("roomToken",roomToken);
@@ -152,7 +147,7 @@ public class ILiveCourseServiceImpl implements ILiveCourseService {
         return ResultUtil.success();
     }
 
-    @Override
+  /*  @Override
     public Result closeUserCoachTime(String id) {
         UserCoachTimeEntity userCoachTimeEntity = new UserCoachTimeEntity();
         try {
@@ -187,5 +182,5 @@ public class ILiveCourseServiceImpl implements ILiveCourseService {
             return ResultUtil.error(ResultEnum.FAIL.getCode(),"系统异常");
         }
         return ResultUtil.success();
-    }
+    }*/
 }

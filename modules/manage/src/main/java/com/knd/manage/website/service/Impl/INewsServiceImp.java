@@ -13,7 +13,6 @@ import com.knd.manage.basedata.dto.ImgDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.mapper.AttachMapper;
 import com.knd.manage.common.service.IAttachService;
-import com.knd.manage.mall.service.IGoodsService;
 import com.knd.manage.website.dto.NewsDto;
 import com.knd.manage.website.entity.ClassifyEntity;
 import com.knd.manage.website.entity.NewsEntity;
@@ -22,10 +21,8 @@ import com.knd.manage.website.mapper.NewsMapper;
 import com.knd.manage.website.request.ClassifyRequest;
 import com.knd.manage.website.request.NewsRequest;
 import com.knd.manage.website.service.INewsService;
-import com.knd.redis.jedis.RedisClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -37,9 +34,6 @@ import java.util.List;
 public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> implements INewsService {
 
     @Resource
-    private IGoodsService goodsService;
-
-    @Resource
     private ClassifyMapper classifyMapper;
 
     @Resource
@@ -47,15 +41,7 @@ public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> impleme
     
     @Resource
     private IAttachService iAttachService;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
-    @Resource
-    private RedisClient redisClient;
 
     @Override
     public Result add(NewsRequest newsRequest) {
@@ -66,7 +52,7 @@ public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> impleme
         ImgDto imgUrl = newsRequest.getPicAttach();
         if(imgUrl != null && imgUrl.getPicAttachSize()!=null){
             //保存选中图片
-            Attach imgAttach = goodsService.saveAttach(newsRequest.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
+            Attach imgAttach = iAttachService.saveAttach(newsRequest.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
             newsEntity.setAttachId(imgAttach.getId());
         }
         newsEntity.setPublishTime(LocalDateTime.now());
@@ -88,7 +74,7 @@ public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> impleme
         ImgDto imgUrl = newsRequest.getPicAttach();
         if(imgUrl != null && imgUrl.getPicAttachSize()!=null){
             //保存选中图片
-            Attach imgAttach = goodsService.saveAttach(newsRequest.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
+            Attach imgAttach = iAttachService.saveAttach(newsRequest.getUserId(), imgUrl.getPicAttachName(), imgUrl.getPicAttachNewName(), imgUrl.getPicAttachSize());
             newsEntity.setAttachId(imgAttach.getId());
         }
         newsEntity.setPublishTime(LocalDateTime.now());
@@ -121,7 +107,7 @@ public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> impleme
         NewsDto newsDto = new NewsDto();
         BeanUtils.copyProperties(newsEntity,newsDto);
         //成功
-        ImgDto imgDto = getImgDto(newsEntity.getAttachId());
+        ImgDto imgDto = iAttachService.getImgDto(newsEntity.getAttachId());
         newsDto.setPicAttach(imgDto);
         Integer count =1;
         if (StringUtils.isNotEmpty(newsEntity.getReadCount())){
@@ -164,7 +150,7 @@ public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> impleme
             NewsDto newsDto = new NewsDto();
             BeanUtils.copyProperties(i,newsDto);
             if(StringUtils.isNotEmpty(i.getAttachId())){
-                ImgDto imgDto = getImgDto(i.getAttachId());
+                ImgDto imgDto = iAttachService.getImgDto(i.getAttachId());
                 newsDto.setPicAttach(imgDto);
             }
             QueryWrapper<ClassifyEntity> eq = new QueryWrapper<ClassifyEntity>().eq("id", i.getClassify()).eq("deleted", "0");
@@ -176,19 +162,7 @@ public class INewsServiceImp extends ServiceImpl<NewsMapper, NewsEntity> impleme
         return ResultUtil.success(newsDtoList);
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 
 
     @Override

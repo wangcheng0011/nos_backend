@@ -105,7 +105,7 @@ public class CoachCourseServiceImpl implements CoachCourseService {
             UserCoachTimeEntity userCoachTimeEntity = userCoachTimeMapper.selectOne(new QueryWrapper<UserCoachTimeEntity>().eq("coachCourseId", userCoachCourseEntity.getId()).eq("deleted", "0"));
             BeanUtils.copyProperties(userCoachTimeEntity,dto);
             dto.setId(userCoachCourseEntity.getId());
-            ImgDto imgUrlDto = getImgDto(userCoachCourseEntity.getPicAttachId());
+            ImgDto imgUrlDto = iAttachService.getImgDto(userCoachCourseEntity.getPicAttachId());
             dto.setPicAttach(imgUrlDto);
         }
         return ResultUtil.success(dto);
@@ -149,7 +149,7 @@ public class CoachCourseServiceImpl implements CoachCourseService {
         }
 
 
-        Attach picAttachUrl = goodsService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
+        Attach picAttachUrl = iAttachService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
                 , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
 
 
@@ -234,7 +234,7 @@ public class CoachCourseServiceImpl implements CoachCourseService {
                 }
 
                 //保存选中图片
-                Attach picAttachUrl = goodsService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
+                Attach picAttachUrl = iAttachService.saveAttach(vo.getUserId(), vo.getPicAttachUrl().getPicAttachName()
                         , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
 
                 BeanUtils.copyProperties(vo,userCoachCourseEntity);
@@ -278,17 +278,4 @@ public class CoachCourseServiceImpl implements CoachCourseService {
         return ResultUtil.success();
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
 }

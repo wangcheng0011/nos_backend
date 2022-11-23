@@ -21,19 +21,19 @@ public interface FrontReportFeign {
 
     /**
      * 关闭直播
-     * @param id
+     * @param timeId
      * @return
      */
-    @PostMapping("/front/live//course/closeUserCoachTime")
-    Result closeUserCoachTime(@RequestParam("id") String id);
+    @PostMapping("/front/live/course/coachTimeCloseRoom")
+    Result coachTimeCloseRoom(@RequestParam("timeId") String timeId);
 
     /**
      * 关闭私教
-     * @param id
+     * @param courseId
      * @return
      */
-    @PostMapping("/front/live/coachOrder/closeUserCoachCourseOrder")
-    Result closeUserCoachCourseOrder(@RequestParam("id") String id);
+    @PostMapping("/front/live/coachOrder/userCoachCloseRoom")
+    Result userCoachCloseRoom(@RequestParam("courseId") String courseId);
 
     /**
      * 移出小组

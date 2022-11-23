@@ -29,7 +29,6 @@ import com.knd.manage.common.vo.VoId;
 import com.knd.manage.mall.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,12 +49,6 @@ public class PowerTestServiceImpl implements PowerTestService {
     private final IGoodsService goodsService;
     private final IAttachService iAttachService;
     private final AttachMapper attachMapper;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     @Override
     public Result getPowerTestList(String gender, String difficultyId, String current) {
@@ -102,7 +95,7 @@ public class PowerTestServiceImpl implements PowerTestService {
             itemDtoList.add(itemDto);
         }
         dto.setItemDtoList(itemDtoList);
-        ImgDto imgDto = getImgDto(entity.getPicAttachId());
+        ImgDto imgDto = iAttachService.getImgDto(entity.getPicAttachId());
         dto.setPicAttach(imgDto);
         return ResultUtil.success(dto);
     }
@@ -123,7 +116,7 @@ public class PowerTestServiceImpl implements PowerTestService {
         if(StringUtils.isNotEmpty(vo.getPicAttachUrl())
                 && StringUtils.isNotEmpty(vo.getPicAttachUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(userId, vo.getPicAttachUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(userId, vo.getPicAttachUrl().getPicAttachName()
                     , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
             imageUrlId = imgAPi.getId();
         }
@@ -184,7 +177,7 @@ public class PowerTestServiceImpl implements PowerTestService {
         if(StringUtils.isNotEmpty(vo.getPicAttachUrl())
                 && StringUtils.isNotEmpty(vo.getPicAttachUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(userId, vo.getPicAttachUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(userId, vo.getPicAttachUrl().getPicAttachName()
                     , vo.getPicAttachUrl().getPicAttachNewName(), vo.getPicAttachUrl().getPicAttachSize());
             imageUrlId = imgAPi.getId();
         }
@@ -225,18 +218,6 @@ public class PowerTestServiceImpl implements PowerTestService {
         return ResultUtil.success();
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 
 }

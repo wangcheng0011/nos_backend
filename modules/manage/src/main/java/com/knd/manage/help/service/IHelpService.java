@@ -5,11 +5,11 @@ import com.knd.manage.help.request.HelpRequest;
 
 
 public interface IHelpService {
-    Result add(HelpRequest newsRequest);
+    Result add(HelpRequest helpRequest);
 
-    Result edit(HelpRequest newsRequest);
+    Result edit(HelpRequest helpRequest);
 
-    Result delete(HelpRequest newsRequest);
+    Result delete(HelpRequest helpRequest);
 
     Result getHelp(String id);
 

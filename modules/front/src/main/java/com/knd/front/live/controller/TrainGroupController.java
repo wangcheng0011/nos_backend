@@ -190,8 +190,8 @@ public class TrainGroupController {
     }
 
 
-    @Log("获取小组爆发力,总力量,毅力排行榜")
-    @ApiOperation(value = "获取小组爆发力,总力量,毅力排行榜",notes = "获取小组爆发力,总力量,毅力排行榜")
+    @Log("获取小组卡路里,总力量,毅力排行榜")
+    @ApiOperation(value = "获取小组卡路里,总力量,毅力排行榜",notes = "获取小组卡路里,总力量,毅力排行榜")
     @GetMapping("/getGroupRankingList")
     public Result<RankingListDto> getGroupRankingList(@RequestParam(required = true) String userId,
                                                       @RequestParam(required = true) String groupId,

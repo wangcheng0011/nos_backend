@@ -20,4 +20,5 @@ public class TrainCourseActInfoDto {
     private String actAimSets;
     private String actAimDuration;
     private String actTotalPower;
+    private String finishCounts;
 }

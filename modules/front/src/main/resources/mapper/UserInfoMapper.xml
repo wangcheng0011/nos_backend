@@ -127,29 +127,53 @@ FROM
 		train_free_head tfh
 	WHERE
 		tfh.deleted = 0
-		AND tfh.userId = #{userId}
+		AND tfh.userId = #{userId} UNION
+	SELECT
+		3 AS trainType,
+		taah.id AS trainReportId,
+		taah.actionArrayName AS trainName,
+		taah.trainEndTime AS trainTime,
+		taah.actTrainSeconds AS actualTrainSeconds
+	FROM
+		train_action_array_head taah
+	WHERE
+		taah.deleted = 0
+		AND taah.userId = #{userId} UNION
+	SELECT
+		4 AS trainType,
+		tfth.id AS trainReportId,
+		"自由训练" AS trainName,
+		tfth.createDate AS trainTime,
+		tfth.actTrainSeconds AS actualTrainSeconds
+	FROM
+		train_free_train_head tfth
+	WHERE
+		tfth.deleted = 0
+		AND tfth.userId = #{userId}
 	) a
 ORDER BY
  str_to_date(trainTime,'%Y-%m-%d %H:%i:%s') DESC
 	</select>
     <select id="getUserCourseHeadInfo" resultType="com.knd.front.user.dto.TrainCourseHeadInfoDto">
 		SELECT
-	id,
-	createDate AS commitTrainTime,
-	course,
-	totalDurationSeconds,
-	actualTrainSeconds,
-	finishTotalPower,
-	maxExplosiveness,
-	avgExplosiveness,
-	calorie
-
+	tchi.id id,
+	tchi.createDate AS commitTrainTime,
+	tchi.course course,
+	tchi.totalDurationSeconds totalDurationSeconds,
+	tchi.actualTrainSeconds actualTrainSeconds,
+	tchi.finishTotalPower finishTotalPower,
+	tchi.maxExplosiveness maxExplosiveness,
+	tchi.avgExplosiveness avgExplosiveness,
+	tchi.calorie calorie,
+	tcai.finishCounts finishCounts
 FROM
-	train_course_head_info
+	train_course_head_info tchi
+				LEFT JOIN train_course_block_info tcbi ON tcbi.trainCourseHeadInfoId = tchi.id AND tcbi.deleted = 0
+				LEFT JOIN train_course_act_info	tcai on tcai.trainCourseBlockInfoId = tcbi.id AND tcai.deleted = 0
 WHERE
-	deleted = 0
-	AND userId = #{userId}
-	AND id = #{trainReportId}
+	tchi.deleted = 0
+	AND tchi.userId = #{userId}
+	AND tchi.id = #{trainReportId} GROUP BY tchi.id
 	</select>
     <select id="getUserCourseBlockInfoList" resultType="com.knd.front.user.dto.TrainCourseBlockInfoDto">
 		SELECT
@@ -176,7 +200,8 @@ WHERE
 		tcai.actFinishSets,
 		tcai.actAimSets,
 		tcai.actAimDuration,
-		tcai.actTotalPower
+		tcai.actTotalPower,
+		tcai.finishCounts
 		FROM
 		train_course_act_info tcai
 		where
@@ -188,88 +213,124 @@ WHERE
 	</select>
     <select id="getUserTrainData" resultType="com.knd.front.user.dto.UserTrainDataDto">
         select
-        SUM(case when trainType = "3" then 1 else 0 end) as finishCourseCount ,
+        SUM(finishCounts) as finishCounts,
         case when LENGTH(trim(MAX(maxExplosiveness)))=0 then 0 else MAX(maxExplosiveness) END maxExplosiveness,
         ROUND(AVG(avgExplosiveness),2) avgExplosiveness,
         SUM(totalTrainSeconds) totalTrainSeconds,
-        SUM(calorie) totalCalorie
+        SUM(case when trainType = "3" then 1 else 0 end) as finishCourseCount,
+        ROUND(SUM(calorie),2) totalCalorie
         from
         (
         select
-        id,
+        taah.id,
         "1" as trainType,
-        userId,
-        actTrainSeconds totalTrainSeconds,
-        maxExplosiveness,
-        avgExplosiveness,
-        ROUND(calorie,2) calorie
-        from train_action_array_head
-        where userId = #{userId} and deleted ='0'
+        taah.userId,
+        taah.actTrainSeconds totalTrainSeconds,
+        taah.maxExplosiveness,
+        taah.avgExplosiveness,
+        taah.finishCounts,
+        taah.calorie calorie,
+        taah.trainEndTime trainTime
+        from train_action_array_head taah
+        where taah.userId = #{userId} and taah.deleted ='0'
         <if test="month != null and month != ''">
-            and date_format(createDate ,'%Y-%m') = #{month}
+            and date_format(taah.trainEndTime ,'%Y-%m') = #{month}
         </if>
         <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
-            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+            and date_format(taah.trainEndTime ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
         </if>
         <if test="chooseDay != null and chooseDay != ''">
-            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+            and date_format(taah.trainEndTime ,'%Y-%m-%d') = #{chooseDay}
         </if>
         UNION
         select
-        id,
+        tfh.id,
         "2" as trainType,
-        userId,
-        actTrainSeconds totalTrainSeconds,
-        maxExplosiveness,
-        avgExplosiveness,
-        ROUND(calorie,2) calorie
-        from train_free_head where userId = #{userId} and deleted ='0'
+        tfh.userId,
+        tfh.actTrainSeconds totalTrainSeconds,
+        tfh.maxExplosiveness,
+        tfh.avgExplosiveness,
+        tfh.finishCounts,
+        tfh.calorie calorie,
+        tfh.vedioEndTime trainTime
+        from train_free_head tfh
+        where tfh.userId = #{userId} and tfh.deleted ='0'
         <if test="month != null and month != ''">
-            and date_format(createDate ,'%Y-%m') = #{month}
+            and date_format(tfh.vedioEndTime ,'%Y-%m') = #{month}
         </if>
         <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
-            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+            and date_format(tfh.vedioEndTime ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
         </if>
         <if test="chooseDay != null and chooseDay != ''">
-            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+            and date_format(tfh.vedioEndTime ,'%Y-%m-%d') = #{chooseDay}
         </if>
         UNION
         select
-        id,
+        tchi.id,
         "3" as trainType,
-        userId,
-        actualTrainSeconds totalTrainSeconds,
-        maxExplosiveness,
-        avgExplosiveness,
-        ROUND(calorie,2) calorie
-        from train_course_head_info where userId = #{userId} and deleted ='0'
+        tchi.userId,
+        tchi.actualTrainSeconds totalTrainSeconds,
+        tchi.maxExplosiveness maxExplosiveness,
+        tchi.avgExplosiveness avgExplosiveness,
+        sum(tcai.finishCounts) as finishCounts,
+        tchi.calorie calorie,
+        tchi.vedioEndTime trainTime
+        from train_course_head_info tchi
+        LEFT JOIN train_course_block_info tcbi ON tcbi.trainCourseHeadInfoId = tchi.id AND tcbi.deleted = 0
+        LEFT JOIN train_course_act_info	tcai on tcai.trainCourseBlockInfoId = tcbi.id AND tcai.deleted = 0
+        where tchi.userId = #{userId} and tchi.deleted ='0'
         <if test="month != null and month != ''">
-            and date_format(createDate ,'%Y-%m') = #{month}
+            and date_format(tchi.vedioEndTime ,'%Y-%m') = #{month}
         </if>
         <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
-            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+            and date_format(tchi.vedioEndTime ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
         </if>
         <if test="chooseDay != null and chooseDay != ''">
-            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+            and date_format(tchi.vedioEndTime ,'%Y-%m-%d') = #{chooseDay}
         </if>
+        GROUP BY tchi.id
+        <!--UNION
+        select
+        tfah.id,
+        "4" as trainType,
+        tfah.userId,
+        tfah.actTrainSeconds totalTrainSeconds,
+        tfah.maxExplosiveness,
+        tfah.avgExplosiveness,
+        tfah.finishCounts,
+        ROUND(tfah.calorie,2) calorie
+        from train_free_act_head tfah
+        where tfah.userId = #{userId} and tfah.deleted ='0'
+        <if test="month != null and month != ''">
+            and date_format(tfah.createDate ,'%Y-%m') = #{month}
+        </if>
+        <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
+            and date_format(tfah.createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+        </if>
+        <if test="chooseDay != null and chooseDay != ''">
+            and date_format(tfah.createDate ,'%Y-%m-%d') = #{chooseDay}
+        </if>-->
         UNION
         select
-        id,
+        tfth.id,
         "4" as trainType,
-        userId,
-        actTrainSeconds totalTrainSeconds,
-        maxExplosiveness,
-        avgExplosiveness,
-        ROUND(calorie,2) calorie
-        from train_free_training_head where userId = #{userId} and deleted ='0'
+        tfth.userId,
+        tfth.actTrainSeconds totalTrainSeconds,
+        tfth.maxExplosiveness,
+        tfth.avgExplosiveness,
+        tfth.finishCounts,
+        tfth.calorie calorie,
+        tfth.createDate trainTime
+        from train_free_train_head tfth
+        where tfth.userId = #{userId} and tfth.deleted ='0'
         <if test="month != null and month != ''">
-            and date_format(createDate ,'%Y-%m') = #{month}
+            and date_format(tfth.createDate ,'%Y-%m') = #{month}
         </if>
         <if test="beginWeekDate != null and beginWeekDate != '' and endWeekDate != null and endWeekDate != ''">
-            and date_format(createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
+            and date_format(tfth.createDate ,'%Y-%m-%d') BETWEEN #{beginWeekDate} AND #{endWeekDate}
         </if>
         <if test="chooseDay != null and chooseDay != ''">
-            and date_format(createDate ,'%Y-%m-%d') = #{chooseDay}
+            and date_format(tfth.createDate ,'%Y-%m-%d') = #{chooseDay}
         </if>
         ) a
     </select>
@@ -283,11 +344,19 @@ WHERE
 					from
 						(select date_format(createDate ,'%Y-%m-%d') createDate
 							from (SELECT createDate
-									from train_action_array_head
+									from train_course_head_info
 									where userId=#{userId}
 								  UNION ALL
 								  SELECT createDate
 									from train_free_head
+									where userId=#{userId}
+								  UNION ALL
+								  SELECT createDate
+									from train_action_array_head
+									where userId=#{userId}
+								  UNION ALL
+								  SELECT createDate
+									from train_free_train_head
 									where userId=#{userId}
 								 ) a
 							GROUP BY
@@ -301,12 +370,20 @@ WHERE
 					select date_format(createDate ,'%Y-%m-%d') createDate
 						from
 							(SELECT createDate
-								from train_action_array_head
+								from train_course_head_info
 								where userId=#{userId}
 							UNION ALL
 							SELECT createDate
 								from train_free_head
 								where userId=#{userId}
+							UNION ALL
+							SELECT createDate
+									from train_action_array_head
+									where userId=#{userId}
+							UNION ALL
+							SELECT createDate
+									from train_free_train_head
+									where userId=#{userId}
 							) a
 					GROUP BY date_format(createDate ,'%Y-%m-%d')
 				) a
@@ -314,16 +391,19 @@ WHERE
 		group by a.id1-a.id2
 	</select>
     <select id="getUserTrainInfoNew" resultType="com.knd.front.user.dto.TrainListDto">
-        SELECT
+        /* SELECT
+        SUM(finishCounts) as finishCounts,
         trainType,
         trainReportId,
         trainName,
         trainTime,
         actualTrainSeconds,
         finishTotalPower,
+        SUM(case when trainType = "1" then 1 else 0 end) as finishCourseCount,
         calorie
         FROM
-        (
+        (*/
+        <!--课程-->
         SELECT
         1 AS trainType,
         tchi.id AS trainReportId,
@@ -331,12 +411,31 @@ WHERE
         tchi.vedioEndTime AS trainTime,
         tchi.actualTrainSeconds AS actualTrainSeconds,
         tchi.finishTotalPower AS finishTotalPower,
+        sum(tcai.finishCounts) as finishCounts,
         ROUND(tchi.calorie,2) calorie
         FROM
         train_course_head_info tchi
+        LEFT JOIN train_course_block_info tcbi ON tcbi.trainCourseHeadInfoId = tchi.id AND tcbi.deleted = 0
+        LEFT JOIN train_course_act_info	tcai on tcai.trainCourseBlockInfoId = tcbi.id AND tcai.deleted = 0
         WHERE
         tchi.deleted = 0
-        AND tchi.userId = #{userTrainInfoQueryRequest.userId} UNION
+        AND tchi.userId = #{userTrainInfoQueryRequest.userId}
+        <if test="userTrainInfoQueryRequest.trainType != null and userTrainInfoQueryRequest.trainType != ''">
+            and 1 = #{userTrainInfoQueryRequest.trainType}
+        </if>
+        <if test="userTrainInfoQueryRequest.month != null and userTrainInfoQueryRequest.month != ''">
+            and date_format(tchi.vedioEndTime,'%Y-%m') = #{userTrainInfoQueryRequest.month}
+        </if>
+        <if test="userTrainInfoQueryRequest.beginWeekDate != null and userTrainInfoQueryRequest.beginWeekDate != '' and userTrainInfoQueryRequest.endWeekDate != null and userTrainInfoQueryRequest.endWeekDate != ''">
+            and date_format(tchi.vedioEndTime,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
+            #{userTrainInfoQueryRequest.endWeekDate}
+        </if>
+        <if test="userTrainInfoQueryRequest.chooseDay != null and userTrainInfoQueryRequest.chooseDay != ''">
+            and date_format(tchi.vedioEndTime,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
+        </if>
+        GROUP BY tchi.id
+        <!--动作库-->
+        UNION
         SELECT
         2 AS trainType,
         tfh.id AS trainReportId,
@@ -344,54 +443,117 @@ WHERE
         tfh.vedioEndTime AS trainTime,
         tfh.actTrainSeconds AS actualTrainSeconds,
         tfh.finishTotalPower AS finishTotalPower,
+        tfh.finishCounts,
         ROUND(tfh.calorie,2) calorie
         FROM
         train_free_head tfh
         WHERE
         tfh.deleted = 0
-        AND tfh.userId = #{userTrainInfoQueryRequest.userId} UNION
+        AND tfh.userId = #{userTrainInfoQueryRequest.userId}
+        <if test="userTrainInfoQueryRequest.trainType != null and userTrainInfoQueryRequest.trainType != ''">
+            and 2 = #{userTrainInfoQueryRequest.trainType}
+        </if>
+        <if test="userTrainInfoQueryRequest.month != null and userTrainInfoQueryRequest.month != ''">
+            and date_format(tfh.vedioEndTime,'%Y-%m') = #{userTrainInfoQueryRequest.month}
+        </if>
+        <if test="userTrainInfoQueryRequest.beginWeekDate != null and userTrainInfoQueryRequest.beginWeekDate != '' and userTrainInfoQueryRequest.endWeekDate != null and userTrainInfoQueryRequest.endWeekDate != ''">
+            and date_format(tfh.vedioEndTime,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
+            #{userTrainInfoQueryRequest.endWeekDate}
+        </if>
+        <if test="userTrainInfoQueryRequest.chooseDay != null and userTrainInfoQueryRequest.chooseDay != ''">
+            and date_format(tfh.vedioEndTime,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
+        </if>
+
+        <!--动作序列-->
+        UNION
         SELECT
         3 AS trainType,
         taah.id AS trainReportId,
         taah.actionArrayName AS trainName,
-        taah.trainBeginTime AS trainTime,
+        taah.trainEndTime AS trainTime,
         taah.actTrainSeconds AS actualTrainSeconds,
         taah.finishTotalPower AS finishTotalPower,
+        taah.finishCounts,
         ROUND(taah.calorie,2) calorie
         FROM
         train_action_array_head taah
         where
         taah.deleted = 0
-        and taah.userId=#{userTrainInfoQueryRequest.userId} UNION
-        SELECT
-        4 AS trainType,
-        tfth.id AS trainReportId,
-        tfth.action AS trainName,
-        tfth.vedioEndTime AS trainTime,
-        tfth.actTrainSeconds AS actualTrainSeconds,
-        tfth.finishTotalPower AS finishTotalPower,
-        ROUND(tfth.calorie,2) calorie
-        FROM
-        train_free_training_head tfth
-        WHERE
-        tfth.deleted = 0
-        AND tfth.userId = #{userTrainInfoQueryRequest.userId}
-        ) a
-        WHERE
+        and taah.userId=#{userTrainInfoQueryRequest.userId}
         <if test="userTrainInfoQueryRequest.trainType != null and userTrainInfoQueryRequest.trainType != ''">
-            a.trainType = #{userTrainInfoQueryRequest.trainType}
+            and 3 = #{userTrainInfoQueryRequest.trainType}
         </if>
         <if test="userTrainInfoQueryRequest.month != null and userTrainInfoQueryRequest.month != ''">
-            and date_format(a.trainTime ,'%Y-%m') = #{userTrainInfoQueryRequest.month}
+            and date_format(taah.trainEndTime,'%Y-%m') = #{userTrainInfoQueryRequest.month}
         </if>
         <if test="userTrainInfoQueryRequest.beginWeekDate != null and userTrainInfoQueryRequest.beginWeekDate != '' and userTrainInfoQueryRequest.endWeekDate != null and userTrainInfoQueryRequest.endWeekDate != ''">
-            and date_format(a.trainTime ,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
+            and date_format(taah.trainEndTime,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
             #{userTrainInfoQueryRequest.endWeekDate}
         </if>
         <if test="userTrainInfoQueryRequest.chooseDay != null and userTrainInfoQueryRequest.chooseDay != ''">
-            and date_format(a.trainTime ,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
+            and date_format(taah.trainEndTime,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
         </if>
-        ORDER BY
-        str_to_date(trainTime,'%Y-%m-%d %H:%i:%s') DESC
+
+        <!--UNION
+          动作训练
+        SELECT
+        4 AS trainType,
+        tfah.id AS trainReportId,
+        tfah.action AS trainName,
+        tfah.vedioEndTime AS trainTime,
+        tfah.actTrainSeconds AS actualTrainSeconds,
+        tfah.finishTotalPower AS finishTotalPower,
+        tfah.finishCounts,
+        ROUND(tfah.calorie,2) calorie
+        FROM
+        train_free_act_head tfah
+        WHERE
+        tfah.deleted = 0
+        AND tfah.userId = #{userTrainInfoQueryRequest.userId}
+        <if test="userTrainInfoQueryRequest.trainType != null and userTrainInfoQueryRequest.trainType != ''">
+            and 4 = #{userTrainInfoQueryRequest.trainType}
+        </if>
+        <if test="userTrainInfoQueryRequest.month != null and userTrainInfoQueryRequest.month != ''">
+            and date_format(tfah.vedioEndTime ,'%Y-%m') = #{userTrainInfoQueryRequest.month}
+        </if>
+        <if test="userTrainInfoQueryRequest.beginWeekDate != null and userTrainInfoQueryRequest.beginWeekDate != '' and userTrainInfoQueryRequest.endWeekDate != null and userTrainInfoQueryRequest.endWeekDate != ''">
+            and date_format(tfah.vedioEndTime ,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
+            #{userTrainInfoQueryRequest.endWeekDate}
+        </if>
+        <if test="userTrainInfoQueryRequest.chooseDay != null and userTrainInfoQueryRequest.chooseDay != ''">
+            and date_format(tfah.vedioEndTime ,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
+        </if>-->
+        UNION
+        <!--自由训练-->
+        SELECT
+        4 AS trainType,
+        tfth.id AS trainReportId,
+        "自由训练" AS trainName,
+        tfth.createDate AS trainTime,
+        tfth.actTrainSeconds AS actualTrainSeconds,
+        tfth.finishTotalPower AS finishTotalPower,
+        tfth.finishCounts finishCounts,
+        ROUND(tfth.calorie,2) calorie
+        FROM
+        train_free_train_head tfth
+        WHERE
+        tfth.deleted = 0
+        AND tfth.userId = #{userTrainInfoQueryRequest.userId}
+        <if test="userTrainInfoQueryRequest.trainType != null and userTrainInfoQueryRequest.trainType != ''">
+            and 4 = #{userTrainInfoQueryRequest.trainType}
+        </if>
+        <if test="userTrainInfoQueryRequest.month != null and userTrainInfoQueryRequest.month != ''">
+            and date_format(tfth.createDate,'%Y-%m') = #{userTrainInfoQueryRequest.month}
+        </if>
+        <if test="userTrainInfoQueryRequest.beginWeekDate != null and userTrainInfoQueryRequest.beginWeekDate != '' and userTrainInfoQueryRequest.endWeekDate != null and userTrainInfoQueryRequest.endWeekDate != ''">
+            and date_format(tfth.createDate,'%Y-%m-%d') BETWEEN #{userTrainInfoQueryRequest.beginWeekDate} AND
+            #{userTrainInfoQueryRequest.endWeekDate}
+        </if>
+        <if test="userTrainInfoQueryRequest.chooseDay != null and userTrainInfoQueryRequest.chooseDay != ''">
+            and date_format(tfth.createDate,'%Y-%m-%d') = #{userTrainInfoQueryRequest.chooseDay}
+        </if>
+        ORDER BY str_to_date(trainTime,'%Y-%m-%d %H:%i:%s') DESC
+
+
     </select>
 </mapper>

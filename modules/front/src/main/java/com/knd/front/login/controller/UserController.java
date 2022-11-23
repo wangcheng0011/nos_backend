@@ -16,8 +16,8 @@ import com.knd.common.uuid.UUIDUtil;
 import com.knd.front.common.service.IVerifyCodeService;
 import com.knd.front.common.util.JPushUtil;
 import com.knd.front.entity.*;
+import com.knd.front.live.service.UserOrderRecordService;
 import com.knd.front.login.handler.LoginHandlerFactory;
-import com.knd.front.login.handler.LoginHandlerFactoryV2;
 import com.knd.front.login.mapper.UserMapper;
 import com.knd.front.login.request.*;
 import com.knd.front.login.service.IUserLoginInfoService;
@@ -72,7 +72,7 @@ public class UserController {
     @Resource
     private IGoodsService iGoodsService;
     @Resource
-    private LoginHandlerFactoryV2 loginHandlerFactoryV2;
+    private UserOrderRecordService userOrderRecordService;
     @Resource
     private UserMapper userMapper;
     @Autowired
@@ -238,43 +238,8 @@ public class UserController {
         return ResultUtil.success(iUserService.logout(logoutRequest));
     }
 
-    @PostMapping("/trainProgramPush")
-    @Log("I045-训练计划推送")
-    @ApiOperation(value = "I045-训练计划推送", notes = "I045-训练计划推送")
-    public Result trainProgramPush() {
-        System.err.println("执行静态定时任务时间: " + LocalDateTime.now());
-        log.info("定时任务 trainProgramPush--------------------执行静态定时任务--------------------------------");
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime now = LocalDateTime.now();
-        String formatDate = dtf.format(now);
-        System.out.println("trainProgramPush:"+formatDate);
-        QueryWrapper<ProgramPlanGenerationEntity> programPlanGenerationEntityQueryWrapper = new QueryWrapper<>();
-        programPlanGenerationEntityQueryWrapper.eq("date_format(trainDate ,'%Y-%m-%d')",formatDate);
-        programPlanGenerationEntityQueryWrapper.eq("trainFinishFlag","0");
-        programPlanGenerationEntityQueryWrapper.eq("deleted","0");
-        List<ProgramPlanGenerationEntity> programPlanGenerationEntities = programPlanGenerationDao.selectList(programPlanGenerationEntityQueryWrapper);
 
-        programPlanGenerationEntities.stream().forEach(i->{
-            log.info("定时任务 trainProgramPush programPlanGenerationEntity:{{}}",i);
-            QueryWrapper<ProgramEntity> programEntityQueryWrapper = new QueryWrapper<>();
-            programEntityQueryWrapper.eq("id",i.getTrainProgramId());
-            programEntityQueryWrapper.eq("deleted",0);
-            ProgramEntity programEntity = trainProgramMapper.selectOne(programEntityQueryWrapper);
-            log.info("定时任务 trainProgramPush programEntity:{{}}",programEntity);
-            // 设置推送参数
-            // 这里可以自定义推送参数了
-            Map<String, String> parm = new HashMap<>();
-            // 设置提示信息,内容是文章标题
-            parm.put("title","待接受任务");
-            parm.put("alias",programEntity.getUserId());
-            parm.put("msg",programEntity.getProgramName());
-            parm.put("trainProgramId",programEntity.getId());
-            log.info("定时任务 trainProgramPush parm:{{}}",parm);
-            jPushUtil.jpushAll(parm);
-            System.out.println("定时任务 trainProgramPush parm"+parm);
-        });
-        return ResultUtil.success();
-    }
+
 
     @PostMapping("/loginOut")
     @Log("I045-退出登录")

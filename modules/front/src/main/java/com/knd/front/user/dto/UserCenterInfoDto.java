@@ -30,4 +30,5 @@ public class UserCenterInfoDto {
     private LocalDate vipEndDate;
     private String headPicUrl;
     private String isCoach;
+    private String finishCounts;
 }

@@ -56,7 +56,7 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
 
     //新增
     @Override
-    public Result add(String userId, String equipmentNo, String remark,String courseHeadId) {
+    public Result add(String userId, String equipmentNo,String serialNo, String remark,String courseHeadId) {
         //查重
         QueryWrapper<EquipmentInfo> qw = new QueryWrapper<>();
         qw.eq("equipmentNo", equipmentNo);
@@ -72,6 +72,7 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
         e.setEquipmentNo(equipmentNo);
         e.setStatus(OrderStatusEnum.WAIT_FOR_PAY.getCode());
         e.setRemark(remark);
+        e.setSerialNo(serialNo);
         e.setCreateBy(userId);
         e.setCreateDate(LocalDateTime.now());
         e.setLastModifiedBy(userId);
@@ -85,7 +86,7 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
 
     //更新
     @Override
-    public Result edit(String userId, String equipmentNo, String remark, String id,String courseHeadId) {
+    public Result edit(String userId, String equipmentNo,String serialNo, String remark, String id,String courseHeadId) {
         //根据id获取名称
         QueryWrapper<EquipmentInfo> qw = new QueryWrapper<>();
         qw.eq("id", id);
@@ -113,6 +114,7 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
         EquipmentInfo e = new EquipmentInfo();
         e.setId(id);
         e.setEquipmentNo(equipmentNo);
+        e.setSerialNo(serialNo);
         e.setRemark(remark);
         e.setLastModifiedBy(userId);
         e.setLastModifiedDate(LocalDateTime.now());
@@ -180,7 +182,7 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
     public Result getEquipment(String id) {
         QueryWrapper<EquipmentInfo> qw = new QueryWrapper<>();
         qw.eq("id", id);
-        qw.select("id", "equipmentNo","status", "remark");
+        qw.select("id", "equipmentNo","serialNo","status", "remark");
         qw.eq("deleted", "0");
         EquipmentInfo b = baseMapper.selectOne(qw);
         //成功
@@ -189,7 +191,7 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
 
     //获取设备信息列表
     @Override
-    public Result getEquipmentList(String equipmentNo, String status,String currentPage) {
+    public Result getEquipmentList(String equipmentNo,String serialNo, String status,String currentPage) {
         QueryWrapper<EquipmentInfo> qw = new QueryWrapper<>();
         if (StringUtils.isNotEmpty(equipmentNo)) {
             qw.like("equipmentNo", equipmentNo);
@@ -197,7 +199,10 @@ public class EquipmentInfoServiceImpl extends ServiceImpl<EquipmentInfoMapper, E
         if (StringUtils.isNotEmpty(status)) {
             qw.like("status", status);
         }
-        qw.select("id", "equipmentNo", "status","remark", "createDate");
+        if (StringUtils.isNotEmpty(serialNo)) {
+            qw.like("serialNo", serialNo);
+        }
+        qw.select("id", "equipmentNo", "serialNo","status","remark", "createDate");
         qw.eq("deleted", "0");
         qw.orderByDesc("createDate");
         List<EquipmentInfo> equipmentList;

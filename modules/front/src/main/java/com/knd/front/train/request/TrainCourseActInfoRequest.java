@@ -1,6 +1,7 @@
 package com.knd.front.train.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -33,4 +34,6 @@ public class TrainCourseActInfoRequest {
     private String actAimDuration;
     @NotBlank(message = "动作总力不能为空")
     private String actTotalPower;
+    @ApiModelProperty(value = "完成总次数")
+    private String finishCounts;
 }

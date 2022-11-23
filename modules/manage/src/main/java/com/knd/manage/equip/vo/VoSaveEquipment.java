@@ -1,6 +1,6 @@
 package com.knd.manage.equip.vo;
 
-import com.knd.common.userutil.UserUtils;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -14,6 +14,8 @@ public class VoSaveEquipment {
     @NotBlank
     @Size(max = 64)
     private String equipmentNo;
+    @ApiModelProperty(value = "序列号")
+    private String serialNo;
     @NotBlank
     @Size(max = 256)
     private String remark;

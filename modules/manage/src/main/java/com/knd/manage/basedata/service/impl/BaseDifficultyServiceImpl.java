@@ -20,10 +20,8 @@ import com.knd.manage.common.dto.ResponseDto;
 import com.knd.manage.common.entity.Attach;
 import com.knd.manage.common.mapper.AttachMapper;
 import com.knd.manage.common.service.IAttachService;
-import com.knd.manage.mall.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,16 +35,9 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class BaseDifficultyServiceImpl extends ServiceImpl<BaseDifficultyMapper, BaseDifficulty> implements IBaseDifficultyService {
-
-    private final IGoodsService goodsService;
     private final IAttachService iAttachService;
     private final AttachMapper attachMapper;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
+
 
     @Override
     public Result getDifficultyList(VoGetDifficultyList vo) {
@@ -88,7 +79,7 @@ public class BaseDifficultyServiceImpl extends ServiceImpl<BaseDifficultyMapper,
         BaseDifficulty baseDifficulty = baseMapper.selectOne(wrapper);
         BeanUtils.copyProperties(baseDifficulty,dto);
 
-        ImgDto imgDto = getImgDto(baseDifficulty.getImageUrlId());
+        ImgDto imgDto = iAttachService.getImgDto(baseDifficulty.getImageUrlId());
         dto.setImageUrl(imgDto);
 
         return ResultUtil.success(dto);
@@ -111,7 +102,7 @@ public class BaseDifficultyServiceImpl extends ServiceImpl<BaseDifficultyMapper,
         if(StringUtils.isNotEmpty(vo.getImageUrl())
             && StringUtils.isNotEmpty(vo.getImageUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
                     , vo.getImageUrl().getPicAttachNewName(), vo.getImageUrl().getPicAttachSize());
             imageUrlId = imgAPi.getId();
         }
@@ -161,7 +152,7 @@ public class BaseDifficultyServiceImpl extends ServiceImpl<BaseDifficultyMapper,
         if(StringUtils.isNotEmpty(vo.getImageUrl())
                 && StringUtils.isNotEmpty(vo.getImageUrl().getPicAttachName())){
             //保存选中图片
-            Attach imgAPi = goodsService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
+            Attach imgAPi = iAttachService.saveAttach(userId, vo.getImageUrl().getPicAttachName()
                     , vo.getImageUrl().getPicAttachNewName(), vo.getImageUrl().getPicAttachSize());
             imageUrlId = imgAPi.getId();
         }
@@ -196,17 +187,5 @@ public class BaseDifficultyServiceImpl extends ServiceImpl<BaseDifficultyMapper,
         return null;
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = iAttachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

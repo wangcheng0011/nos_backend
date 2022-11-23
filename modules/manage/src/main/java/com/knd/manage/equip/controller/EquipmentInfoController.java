@@ -50,7 +50,7 @@ public class EquipmentInfoController {
         //判断操作类型
         if (vo.getPostType().equals("1")) {
             //新增
-            return iEquipmentInfoService.add(vo.getUserId(), vo.getEquipmentNo(), vo.getRemark(),null);
+            return iEquipmentInfoService.add(vo.getUserId(), vo.getEquipmentNo(),vo.getSerialNo(), vo.getRemark(),null);
         } else {
             //更新
             //数据检查
@@ -58,7 +58,7 @@ public class EquipmentInfoController {
                 //参数校验失败
                 return ResultUtil.error(ResultEnum.PARAM_ERROR);
             }
-            return iEquipmentInfoService.edit(vo.getUserId(), vo.getEquipmentNo(), vo.getRemark(), vo.getId(),null);
+            return iEquipmentInfoService.edit(vo.getUserId(), vo.getEquipmentNo(),vo.getSerialNo(), vo.getRemark(), vo.getId(),null);
         }
 
     }
@@ -123,8 +123,8 @@ public class EquipmentInfoController {
     @Log("I260-获取设备列表")
     @ApiOperation(value = "I260-获取设备列表")
     @GetMapping("/getEquipmentList")
-    public Result getEquipmentList(String equipmentNo, String status,String current) {
-        return iEquipmentInfoService.getEquipmentList(equipmentNo,status, current);
+    public Result getEquipmentList(String equipmentNo, String serialNo,String status,String current) {
+        return iEquipmentInfoService.getEquipmentList(equipmentNo,serialNo,status, current);
     }
 
     @Log("I26X-更新设备激活状态")

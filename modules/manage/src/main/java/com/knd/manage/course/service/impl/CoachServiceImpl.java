@@ -27,7 +27,6 @@ import com.knd.manage.mall.service.IGoodsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,15 +43,9 @@ import java.util.List;
 @Log4j2
 public class CoachServiceImpl implements CoachService {
     private final UserCoachMapper userCoachMapper;
-    private final IAttachService attachService;
+    private final IAttachService iAttachService;
     private final IGoodsService goodsService;
     private final UserCoachAttachMapper userCoachAttachMapper;
-    //图片路径
-    @Value("${upload.FileImagesPath}")
-    private String fileImagesPath;
-    //图片文件夹路径
-    @Value("${OBS.imageFoldername}")
-    private String imageFoldername;
 
     @Override
     public Result getCoachList(VoGetCoachList vo) {
@@ -74,7 +67,7 @@ public class CoachServiceImpl implements CoachService {
             List<UserCoachAttach> userCoachAttaches = userCoachAttachMapper.selectList(userCoachAttachQueryWrapper);
             ArrayList<ImgDto> imgDtos = new ArrayList<>();
             userCoachAttaches.stream().forEach(userCoachAttach -> {
-                imgDtos.add(getImgDto(userCoachAttach.getAttachUrlId()));
+                imgDtos.add(iAttachService.getImgDto(userCoachAttach.getAttachUrlId()));
             });
             dto.setImageUrl(imgDtos);
             coachListDtos.add(dto);
@@ -95,7 +88,7 @@ public class CoachServiceImpl implements CoachService {
             List<UserCoachAttach> userCoachAttaches = userCoachAttachMapper.selectList(userCoachAttachQueryWrapper);
             ArrayList<ImgDto> imgDtos = new ArrayList<>();
             userCoachAttaches.stream().forEach(userCoachAttach -> {
-                imgDtos.add(getImgDto(userCoachAttach.getAttachUrlId()));
+                imgDtos.add(iAttachService.getImgDto(userCoachAttach.getAttachUrlId()));
             });
             dto.setImageUrl(imgDtos);
         }
@@ -119,7 +112,7 @@ public class CoachServiceImpl implements CoachService {
                         && StringUtils.isNotEmpty(url.getPicAttachNewName())
                         && StringUtils.isNotEmpty(url.getPicAttachSize())){
                 //保存选中图片
-                Attach imgAPi = goodsService.saveAttach(UserUtils.getUserId(), url.getPicAttachName()
+                Attach imgAPi = iAttachService.saveAttach(UserUtils.getUserId(), url.getPicAttachName()
                         , url.getPicAttachNewName(), url.getPicAttachSize());
                 UserCoachAttach userCoachAttach = new UserCoachAttach();
                 userCoachAttach.setId(UUIDUtil.getShortUUID());
@@ -139,17 +132,5 @@ public class CoachServiceImpl implements CoachService {
         return ResultUtil.success();
     }
 
-    public ImgDto getImgDto(String urlId){
-        //根据id获取图片信息
-        Attach aPi = attachService.getInfoById(urlId);
-        ImgDto imgDto = new ImgDto();
-        if (aPi != null) {
-            imgDto.setPicAttachUrl(fileImagesPath + aPi.getFilePath());
-            imgDto.setPicAttachSize(aPi.getFileSize());
-            String[] strs = (aPi.getFilePath()).split("\\?");
-            imgDto.setPicAttachNewName(imageFoldername + strs[0]);
-            imgDto.setPicAttachName(aPi.getFileName());
-        }
-        return imgDto;
-    }
+
 }

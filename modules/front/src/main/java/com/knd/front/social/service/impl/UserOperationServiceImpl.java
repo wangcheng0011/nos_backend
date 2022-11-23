@@ -39,7 +39,7 @@ public class UserOperationServiceImpl implements UserOperationService {
     private final MomentAddressService addressService;
 
     @Override
-    public Result moment(OperationMomentRequest request) {
+    public Result moment(OperationMomentRequest request) throws Exception {
         UserSocialMomentEntity entity = new UserSocialMomentEntity();
         BeanUtils.copyProperties(request,entity);
         entity.setId(UUIDUtil.getShortUUID());

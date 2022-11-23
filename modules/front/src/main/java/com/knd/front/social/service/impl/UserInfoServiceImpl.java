@@ -8,10 +8,9 @@ import com.knd.common.em.LabelTypeEnum;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
+import com.knd.front.common.service.impl.AttachServiceImpl;
 import com.knd.front.entity.Attach;
 import com.knd.front.entity.User;
-import com.knd.front.entity.UserDetail;
-import com.knd.front.login.mapper.UserDetailMapper;
 import com.knd.front.login.mapper.UserMapper;
 import com.knd.front.pay.dto.ImgDto;
 import com.knd.front.social.dto.*;
@@ -52,7 +51,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final UserSocialMomentCommentMapper userSocialMomentCommentMapper;
     private final UserSocialMomentAttachMapper userSocialMomentAttachMapper;
     private final UserSocialMomentPraiseMapper userSocialMomentPraiseMapper;
-    private final UserDetailMapper userDetailMapper;
+    private final AttachServiceImpl attachServiceImpl;
     @Value("${upload.FileImagesPath}")
     private String fileImagesPath;
 
@@ -62,7 +61,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         User user = userMapper.selectById(friendId);
         dto.setName(user!=null ? user.getNickName() : "");
-        dto.setHeadPicUrl(getHeadPicUrl(friendId));
+        dto.setHeadPicUrl(attachServiceImpl.getHeadPicUrl(friendId));
 
         QueryWrapper<UserSocialFollowEntity> followWrapper = new QueryWrapper<>();
         followWrapper.eq("deleted","0");
@@ -266,7 +265,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 //            dto.setMomentCommentDtoList(commentList);
             User user = userMapper.selectById(moment.getUserId());
             dto.setUserName(user!=null ? user.getNickName() : "");
-            dto.setUserHeadUrl(getHeadPicUrl(moment.getUserId()));
+            dto.setUserHeadUrl(attachServiceImpl.getHeadPicUrl(moment.getUserId()));
             int praise = userSocialMomentPraiseMapper.selectCount(new QueryWrapper<UserSocialMomentPraiseEntity>()
                     .eq("deleted", "0")
                     .eq("userId", userId)
@@ -291,7 +290,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         User momentUser = userMapper.selectById(moment.getUserId());
         if(momentUser!=null){
             dto.setUserName(momentUser.getNickName());
-            dto.setUserHeadUrl(getHeadPicUrl(moment.getUserId()));
+            dto.setUserHeadUrl(attachServiceImpl.getHeadPicUrl(moment.getUserId()));
         }
 
         int praise = userSocialMomentPraiseMapper.selectCount(new QueryWrapper<UserSocialMomentPraiseEntity>()
@@ -328,7 +327,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             User user = userMapper.selectById(entity.getUserId());
             if(user!=null){
                 momentCommentDto.setUserName(user.getNickName());
-                momentCommentDto.setUserHeadUrl(getHeadPicUrl(entity.getUserId()));
+                momentCommentDto.setUserHeadUrl(attachServiceImpl.getHeadPicUrl(entity.getUserId()));
             }
 
             if(StringUtils.isNotEmpty(momentCommentDto.getCallUserId())){
@@ -362,7 +361,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     User user = userMapper.selectById(entity.getUserId());
                     if(user!=null){
                         dto.setUserName(user.getNickName());
-                        dto.setUserHeadUrl(getHeadPicUrl(entity.getUserId()));
+                        dto.setUserHeadUrl(attachServiceImpl.getHeadPicUrl(entity.getUserId()));
                     }
                     if(StringUtils.isNotEmpty(dto.getCallUserId())){
                         User callUser = userMapper.selectById(dto.getCallUserId());
@@ -378,14 +377,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         return list;
     }
 
-    private String getHeadPicUrl(String userId){
-        UserDetail userDetail = userDetailMapper.selectOne(new QueryWrapper<UserDetail>().eq("userId", userId).eq("deleted", "0"));
-        if(userDetail!=null && userDetail.getHeadPicUrlId()!=null){
-            Attach attach = attachMapper.selectById(userDetail.getHeadPicUrlId());
-            return attach!=null ? fileImagesPath+attach.getFilePath() : "";
-        }else{
-            return "";
-        }
-    }
+
 
 }
