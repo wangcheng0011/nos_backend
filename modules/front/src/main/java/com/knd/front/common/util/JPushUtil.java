@@ -96,7 +96,7 @@ public class JPushUtil {
                                 .addExtras(parm)
                                 .build())
                         .build())
-                .setOptions(Options.newBuilder().setApnsProduction(false).build())
+                .setOptions(Options.newBuilder().setApnsProduction(true).build())
                 // 自定义信息
                 .setMessage(Message.newBuilder().setMsgContent(parm.get("msg")).addExtras(parm).build())
                 .build();
@@ -150,7 +150,7 @@ public class JPushUtil {
                                 .build())
                         .build())
                 // 指定开发环境 true为生产模式 false为测试模式 (android不区分模式,ios区分模式)
-                .setOptions(Options.newBuilder().setApnsProduction(Boolean.parseBoolean(judge)).build())
+                .setOptions(Options.newBuilder().setApnsProduction(true).build())
                 // 自定义信息
                 .setMessage(Message.newBuilder().setMsgContent(param.get("msg")).addExtras(param).build())
                 .build();

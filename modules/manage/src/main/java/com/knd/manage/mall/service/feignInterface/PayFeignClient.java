@@ -3,10 +3,8 @@ package com.knd.manage.mall.service.feignInterface;
 import com.knd.common.response.Result;
 import com.knd.manage.mall.service.feignInterface.fallbackFactory.PayFeignClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-@Component
 @FeignClient(value = "pay",fallbackFactory = PayFeignClientFallback.class)
 public interface PayFeignClient {
 

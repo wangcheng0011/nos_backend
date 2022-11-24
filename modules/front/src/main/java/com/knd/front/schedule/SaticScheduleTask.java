@@ -7,11 +7,8 @@ import com.knd.front.common.util.JPushUtil;
 import com.knd.front.entity.User;
 import com.knd.front.live.entity.RoomEntity;
 import com.knd.front.live.mapper.RoomMapper;
-import com.knd.front.live.service.UserOrderRecordService;
 import com.knd.front.live.service.impl.RoomServiceImpl;
 import com.knd.front.login.mapper.UserMapper;
-import com.knd.front.train.mapper.ProgramPlanGenerationDao;
-import com.knd.front.train.mapper.TrainProgramMapper;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -35,14 +32,8 @@ public class SaticScheduleTask {
     private RoomMapper roomMapper;
     @Autowired
     private RoomServiceImpl roomServiceImpl;
-    @Autowired
-    private TrainProgramMapper trainProgramMapper;
-    @Autowired
-    private ProgramPlanGenerationDao programPlanGenerationDao;
-    /*    @Autowired
-    private UserOrderRecordService userOrderRecordService;*/
-    //注入方式不用@Autowired，改成下面的代码注入
-    private final UserOrderRecordService userOrderRecordService= ApplicationContextUtil.getBean(UserOrderRecordService.class);
+
+
 
 
 

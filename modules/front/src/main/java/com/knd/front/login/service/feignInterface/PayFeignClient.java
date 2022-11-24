@@ -5,13 +5,13 @@ import com.knd.front.login.request.CreateOrderRequest;
 import com.knd.front.login.service.feignInterface.fallbackFactory.PayFeignClientFallback;
 import com.knd.front.pay.request.ParseOrderNotifyRequest;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 
-@Component
+
 @FeignClient(value = "pay",fallbackFactory = PayFeignClientFallback.class)
 public interface PayFeignClient {
 

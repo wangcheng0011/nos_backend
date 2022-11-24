@@ -29,9 +29,13 @@ public class UserRecordListDto {
     private String orderType;
 
     @ApiModelProperty(value = "时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    protected LocalDateTime orderTime;
+  /*  @ApiModelProperty(value = "时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    protected LocalDateTime orderTime;
+    protected LocalDateTime orderTime;*/
 
     @ApiModelProperty(value = "关联id")
     private String relevancyId;

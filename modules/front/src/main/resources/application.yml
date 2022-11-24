@@ -224,4 +224,4 @@ ane:
   secretKey: b5e05c75028ba56ab60bf5629862299a
   trajectoryUrl: http://122.144.220.210:20245/aneop/services/logisticsQuery/new/query
 
-judge: false
+judge: true
