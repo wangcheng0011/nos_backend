@@ -7,12 +7,10 @@ import com.knd.common.basic.StringUtils;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultUtil;
-import com.knd.manage.mall.dto.GoodsDto;
 import com.knd.manage.mall.entity.AttrEntity;
 import com.knd.manage.mall.entity.CategoryEntity;
 import com.knd.manage.mall.mapper.AttrMapper;
 import com.knd.manage.mall.mapper.CategoryMapper;
-import com.knd.manage.mall.request.CreateAttrRequest;
 import com.knd.manage.mall.request.UpdateAttrRequest;
 import com.knd.manage.mall.service.ICategoryService;
 import org.springframework.stereotype.Service;
@@ -62,7 +60,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, CategoryEnt
     @Override
     public Result getAttrByCategoryId(String categoryId) {
         List<AttrEntity> attrEntities = attrMapper.selectList(new QueryWrapper<AttrEntity>().eq("categoryId", categoryId)
-                .eq("deleted", "0").orderByAsc("sort"));
+                .eq("deleted", "0").orderByAsc("length(sort)","sort"));
         return ResultUtil.success(attrEntities);
     }
 

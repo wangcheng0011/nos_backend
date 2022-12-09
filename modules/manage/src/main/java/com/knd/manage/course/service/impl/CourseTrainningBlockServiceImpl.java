@@ -1,18 +1,17 @@
 package com.knd.manage.course.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
-import com.knd.manage.basedata.entity.BaseBodyPart;
 import com.knd.manage.course.dto.CourseBlockInfoDto;
 import com.knd.manage.course.entity.CourseTrainningBlock;
 import com.knd.manage.course.entity.CourseTrainningNodeInfo;
 import com.knd.manage.course.mapper.CourseTrainningBlockMapper;
 import com.knd.manage.course.mapper.CourseTrainningNodeInfoMapper;
 import com.knd.manage.course.service.ICourseTrainningBlockService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.manage.course.vo.BlockSort;
 import com.knd.manage.course.vo.VoSaveCourseBlockInfo;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -56,7 +53,7 @@ public class CourseTrainningBlockServiceImpl extends ServiceImpl<CourseTrainning
         QueryWrapper<CourseTrainningBlock> qw = new QueryWrapper<>();
         qw.eq("courseId", id);
         qw.eq("deleted", "0");
-        qw.orderByAsc("sort + 0");
+        qw.orderByAsc("length(sort + 0)","sort + 0");
         return baseMapper.selectList(qw);
     }
 

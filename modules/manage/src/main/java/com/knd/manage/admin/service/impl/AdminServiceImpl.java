@@ -404,7 +404,7 @@ public class AdminServiceImpl extends SuperServiceImpl<AdminMapper, Admin> imple
         }
         qw.select("id", "userName", "nickName", "mobile", "frozenFlag");
         qw.eq("deleted", "0");
-        qw.orderByAsc("userName");
+        qw.orderByAsc("length(userName)","userName");
         List<Admin> list;
         AdminListDto adminListDto = new AdminListDto();
         if (StringUtils.isEmpty(current)) {

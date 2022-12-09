@@ -2,6 +2,7 @@ package com.knd.manage.basedata.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
@@ -13,17 +14,13 @@ import com.knd.manage.basedata.entity.BaseTarget;
 import com.knd.manage.basedata.mapper.BaseActionMapper;
 import com.knd.manage.basedata.mapper.BaseTargetMapper;
 import com.knd.manage.basedata.service.IBaseTargetService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.manage.course.mapper.CourseTargetMapper;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -162,7 +159,8 @@ public class BaseTargetServiceImpl extends ServiceImpl<BaseTargetMapper, BaseTar
         }
         qw.select("id", "target", "remark");
         qw.eq("deleted", "0");
-        qw.orderByAsc("target");
+        qw.orderByAsc("length(target)","target");
+
         List<BaseTarget> list;
         TargetListDto targetListDto = new TargetListDto();
         if (StringUtils.isEmpty(currentPage)) {

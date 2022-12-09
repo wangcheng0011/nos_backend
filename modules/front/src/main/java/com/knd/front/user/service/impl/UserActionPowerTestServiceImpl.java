@@ -195,7 +195,7 @@ public class UserActionPowerTestServiceImpl extends ServiceImpl<UserActionPowerT
         QueryWrapper<UserActionPowerTest> userActionPowerTestQueryWrapper = new QueryWrapper<>();
         userActionPowerTestQueryWrapper.eq("userId",userId);
         userActionPowerTestQueryWrapper.eq("deleted","0");
-        userActionPowerTestQueryWrapper.orderByAsc("actionType");
+        userActionPowerTestQueryWrapper.orderByAsc("length(actionType)","actionType");
         List<UserActionPowerTest> userActionPowerTest = userActionPowerTestMapper.selectList(userActionPowerTestQueryWrapper);
         return ResultUtil.success(userActionPowerTest);
     }
@@ -210,7 +210,7 @@ public class UserActionPowerTestServiceImpl extends ServiceImpl<UserActionPowerT
         QueryWrapper<ActionType> actionTypeQueryWrapper = new QueryWrapper<>();
         actionTypeQueryWrapper.ne("id","0");
         actionTypeQueryWrapper.eq("deleted","0");
-        actionTypeQueryWrapper.orderByAsc("id");
+        actionTypeQueryWrapper.orderByAsc("length(id)","id");
         actionTypeQueryWrapper.select("id","name");
         List<ActionType> actionTypes = actionTypeMapper.selectList(actionTypeQueryWrapper);
         actionTypes.forEach(e ->{

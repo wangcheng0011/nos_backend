@@ -142,7 +142,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
                     goodsAttrValueMapper.selectList(
                             new QueryWrapper<GoodsAttrValueEntity>()
                                     .select("attrName", "attrValue", "sort")
-                                    .eq("goodsId", goodsId).orderByAsc("sort"));
+                                    .eq("goodsId", goodsId).orderByAsc("length(sort)","sort"));
             List<GoodsAttrValueDto> goodsAttrValueDtoList = new ArrayList<>();
             for (GoodsAttrValueEntity g : goodsAttrValueEntitys) {
                 GoodsAttrValueDto goodsAttrValueDto = new GoodsAttrValueDto();

@@ -87,7 +87,7 @@ public class PowerTestServiceImpl extends ServiceImpl<PowerTestMapper, PowerTest
         List<PowerTestEntity> powerTestEntities = baseMapper.selectList(
                 new QueryWrapper<PowerTestEntity>()
                         .eq("deleted","0")
-                        .eq("gender", gender).orderByAsc("sort"));
+                        .eq("gender", gender).orderByAsc("length(sort)","sort"));
         List<PowerTestDto> powerTestDtos = new ArrayList<>();
         powerTestEntities.forEach(e->{
             PowerTestDto powerTestDto = new PowerTestDto();
@@ -100,7 +100,7 @@ public class PowerTestServiceImpl extends ServiceImpl<PowerTestMapper, PowerTest
             ArrayList<PowerTestItemDto> powerTestItemDtos = new ArrayList<>();
             List<PowerTestItemEntity> powerTestItemEntities = powerTestItemMapper.selectList(new QueryWrapper<PowerTestItemEntity>()
                     .eq("deleted", "0")
-                    .eq("powerTestId", e.getId()).orderByAsc("sort"));
+                    .eq("powerTestId", e.getId()).orderByAsc("length(sort)","sort"));
             powerTestItemEntities.forEach(g->{
                 PowerTestItemDto powerTestItemDto = new PowerTestItemDto();
                 BeanUtils.copyProperties(g,powerTestItemDto);

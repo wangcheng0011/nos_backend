@@ -1,31 +1,24 @@
 package com.knd.manage.course.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.knd.common.basic.DateUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.response.Result;
 import com.knd.common.response.ResultEnum;
 import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
-import com.knd.manage.course.dto.BlockDataDto;
 import com.knd.manage.course.entity.CourseHead;
 import com.knd.manage.course.entity.CourseTrainningNodeInfo;
 import com.knd.manage.course.mapper.CourseHeadMapper;
 import com.knd.manage.course.mapper.CourseTrainningNodeInfoMapper;
-import com.knd.manage.course.service.ICourseHeadService;
 import com.knd.manage.course.service.ICourseTrainningNodeInfoService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.knd.manage.course.dto.NodeDto;
 import com.knd.manage.course.vo.VoSaveCourseNodeInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -89,7 +82,7 @@ public class CourseTrainningNodeInfoServiceImpl extends ServiceImpl<CourseTrainn
         qw.select("nodeSort", "blockId");
         qw.eq("deleted", "0");
         qw.eq("courseId", vo.getCourseId());
-        qw.orderByAsc("nodeSort + 0");
+        qw.orderByAsc("length(nodeSort + 0)","nodeSort + 0");
         if (vo.getPostType().equals("2")) {
             //更新
             //去掉自己的小节序号

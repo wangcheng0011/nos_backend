@@ -231,7 +231,7 @@ public class IWallPaperServiceImp extends ServiceImpl<WallPaperAttachMapper, Wal
         }
         qw.eq("uw.deleted", 0);
         qw.eq("uw.userId", UserUtils.getUserId());
-        qw.orderByAsc("wa.type","wa.createDate");
+        qw.orderByAsc("length(wa.type)","wa.type","wa.createDate");
         //分页
         if (StringUtils.isEmpty(size)) {
             size = PageInfo.pageSize;

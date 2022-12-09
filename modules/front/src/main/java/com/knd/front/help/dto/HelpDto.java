@@ -25,6 +25,15 @@ public class HelpDto {
     @ApiModelProperty(value = "图片")
     private List<ImgDto> imageUrl;
 
+    //介绍视频Url
+    private String videoAttachUrl;
+    //介绍视频原名称
+    private String videoAttachName;
+    //介绍视频新名称
+    private String videoAttachNewName;
+    //介绍视频大小
+    private String videoAttachSize;
+
     @ApiModelProperty(value = "作成时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

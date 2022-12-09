@@ -120,7 +120,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
         }
         qw.select("id", "agreementName", "agreementContent","createDate");
         qw.eq("deleted", "0");
-        qw.orderByAsc("agreementName");
+        qw.orderByAsc("length(agreementName)","agreementName");
         List<Agreement> agreementList;
         AgreementListDto agreementListDto = new AgreementListDto();
         if (StringUtils.isEmpty(currentPage)) {

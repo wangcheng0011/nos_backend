@@ -418,7 +418,6 @@ public class BaseActionServiceImpl extends ServiceImpl<BaseActionMapper, BaseAct
         }
         //将原文件标识设为删除
         iAttachService.deleteFile(ta.getVideoAttachId(),vo.getUserId());
-        iAttachService.deleteFile(ta.getPicAttachId(),vo.getUserId());
         BaseAction b = new BaseAction();
         b.setDeleted("1");
         b.setId(vo.getId());

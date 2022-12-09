@@ -101,11 +101,11 @@ public class WallPaperController {
     }
 */
 
-    @Log("I26X3-获取壁纸列表")
-    @ApiOperation(value = "I26X3-获取壁纸列表")
+    @Log("I26X3-获取壁纸列表 type=1系统壁纸 type=2自定义壁纸 type=3运动数据壁纸")
+    @ApiOperation(value = "I26X3-获取壁纸列表 type=1系统壁纸 type=2自定义壁纸 type=3运动数据壁纸")
     @GetMapping("/getWallPaperList")
     public Result getWallPaperList(
-                                   @ApiParam("类型 1系统壁纸 2自定义壁纸") @RequestParam(required = false, name = "type") String type,
+                                   @ApiParam("类型 1系统壁纸 2自定义壁纸 3运动数据壁纸") @RequestParam(required = false, name = "type") String type,
                                    @ApiParam("每页条数") @RequestParam(required = false, name = "size") Integer size,
                                    @ApiParam("当前请求页") @RequestParam(required = true, name = "current") String current) {
         if (StringUtils.isEmpty(current)) {
@@ -161,7 +161,7 @@ public class WallPaperController {
     @ApiOperation(value = "I26X7-获取我的壁纸列表")
     @GetMapping("/getUserWallPaperList")
     public Result getUserWallPaperList(
-                                   @ApiParam("类型 1系统壁纸 2自定义壁纸 不传全部") @RequestParam(required = false, name = "type") String type,
+                                   @ApiParam("类型 1系统壁纸 2自定义壁纸 3运动数据壁纸 不传全部") @RequestParam(required = false, name = "type") String type,
                                    @ApiParam("每页条数") @RequestParam(required = false, name = "size") Integer size,
                                    @ApiParam("当前请求页") @RequestParam(required = true, name = "current") String current) {
         if (StringUtils.isEmpty(current)) {

@@ -156,7 +156,8 @@ public class BaseCourseTypeServiceImpl extends ServiceImpl<BaseCourseTypeMapper,
         }
         qw.select("id", "type", "remark", "appHomeFlag", "sort", "createDate", "lastModifiedDate");
         qw.eq("deleted", "0");
-        qw.orderByAsc("sort+0","lastModifiedDate");
+        qw.orderByAsc("length(sort+0)","sort+0","lastModifiedDate");
+
         List<BaseCourseType> list;
 //        Map<String, Object> map = new HashMap<>();
         CourseTypeListDto courseTypeListDto = new CourseTypeListDto();

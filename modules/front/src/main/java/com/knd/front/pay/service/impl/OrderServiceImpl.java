@@ -168,7 +168,7 @@ public class OrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> implem
             orderItemDto.setQuantity(tbOrderItem.getQuantity());
             List<GoodsAttrValueEntity> goodsAttrValueEntities = goodsAttrValueMapper.selectList(
                     new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", tbOrderItem.getGoodsId())
-                            .orderByAsc("sort"));
+                            .orderByAsc("length(sort)","sort"));
             GoodsEntity goodsEntity = goodsMapper.selectById(tbOrderItem.getGoodsId());
             BeanUtils.copyProperties(goodsEntity, orderItemDto);
             if (StringUtils.isNotEmpty(goodsEntity.getCoverAttachId())){

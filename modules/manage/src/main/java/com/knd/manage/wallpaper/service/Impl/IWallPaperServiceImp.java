@@ -49,12 +49,13 @@ public class IWallPaperServiceImp extends ServiceImpl<WallPaperAttachMapper, Wal
             //保存选中图片
             Attach imgAPi = attachService.saveAttach(UserUtils.getUserId(), wallPaperRequest.getPicAttachUrl().getPicAttachName()
                     , wallPaperRequest.getPicAttachUrl().getPicAttachNewName(), wallPaperRequest.getPicAttachUrl().getPicAttachSize());
+
             WallPaperAttachEntity wallPaperAttachEntity = new WallPaperAttachEntity();
             wallPaperAttachEntity.setId(UUIDUtil.getShortUUID());
             wallPaperAttachEntity.setWallpaperName(wallPaperRequest.getWallpaperName());
             wallPaperAttachEntity.setAttachUrlId(imgAPi.getId());
-            //系统壁纸
-            wallPaperAttachEntity.setType("1");
+            //壁纸
+            wallPaperAttachEntity.setType(wallPaperRequest.getType());
             wallPaperAttachEntity.setSort(wallPaperRequest.getSort());
             wallPaperAttachEntity.setSelected(wallPaperRequest.getSelected());
             wallPaperAttachEntity.setUserId(UserUtils.getUserId());
@@ -82,8 +83,8 @@ public class IWallPaperServiceImp extends ServiceImpl<WallPaperAttachMapper, Wal
             wallPaperAttachEntity.setId(wallPaperRequest.getId());
             wallPaperAttachEntity.setWallpaperName(wallPaperRequest.getWallpaperName());
             wallPaperAttachEntity.setAttachUrlId(imgAPi.getId());
-            //系统壁纸
-            wallPaperAttachEntity.setType("1");
+            //壁纸
+            wallPaperAttachEntity.setType(wallPaperRequest.getType());
             wallPaperAttachEntity.setSort(wallPaperRequest.getSort());
             wallPaperAttachEntity.setSelected(wallPaperRequest.getSelected());
             wallPaperAttachEntity.setUserId(UserUtils.getUserId());

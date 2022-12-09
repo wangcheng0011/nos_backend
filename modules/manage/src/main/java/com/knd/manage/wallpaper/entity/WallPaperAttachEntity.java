@@ -23,7 +23,7 @@ public class WallPaperAttachEntity extends BaseEntity {
 	@ApiModelProperty(value = "图片Id")
 	private String attachUrlId;
 
-	@ApiModelProperty(value = "排序 1系统壁纸 2自定义壁纸")
+	@ApiModelProperty(value = "排序 1系统壁纸 2自定义壁纸 3运动数据壁纸")
 	private String type;
 
 	@ApiModelProperty(value = "壁纸名称")

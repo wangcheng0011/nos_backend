@@ -23,6 +23,12 @@ public class HelpEntity extends BaseEntity {
 	@ApiModelProperty(value = "标题排序")
 	private String titleSort;
 
+	@ApiModelProperty(value = "视频附件id")
+	private String videoAttachId;
+
+	@ApiModelProperty(value = "视频名称")
+	private String videoAttachName;
+
 
 
 

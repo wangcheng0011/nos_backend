@@ -162,7 +162,7 @@ public class BaseBodyPartServiceImpl extends ServiceImpl<BaseBodyPartMapper, Bas
         }
         qw.select("id", "part", "remark");
         qw.eq("deleted", "0");
-        qw.orderByAsc("part");
+        qw.orderByAsc("length(part)","part");
         List<BaseBodyPart> list;
         PartListDto partListDto = new PartListDto();
         if (StringUtils.isEmpty(currentPage)) {

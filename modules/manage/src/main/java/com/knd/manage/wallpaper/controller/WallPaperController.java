@@ -28,8 +28,8 @@ public class WallPaperController {
     @Resource
     private IWallPaperService iWallPaperService;
 
-    @Log("I26X1-新增更新系统壁纸")
-    @ApiOperation(value = "I26X1-新增更新系统壁纸")
+    @Log("I26X1-新增更新系统壁纸或运动数据壁纸")
+    @ApiOperation(value = "I26X1-新增更新系统壁纸或运动数据壁纸")
     @PostMapping("/saveUpdateWallPaper")
     public Result saveUpdateWallPaper(@RequestBody @Validated WallPaperRequest wallPaperRequest, BindingResult bindingResult) {
         //参数校验
@@ -42,7 +42,7 @@ public class WallPaperController {
                 && StringUtils.isNotEmpty(wallPaperRequest.getPicAttachUrl().getPicAttachNewName())
                 && StringUtils.isNotEmpty(wallPaperRequest.getPicAttachUrl().getPicAttachSize()))) {
             //参数校验失败
-            return ResultUtil.error(ResultEnum.PARAM_ERROR.getCode(), "系统壁纸必须上传图片");
+            return ResultUtil.error(ResultEnum.PARAM_ERROR.getCode(), "壁纸必须上传图片");
         }
         //判断操作类型
         if ("1".equals(wallPaperRequest.getPostType())) {
@@ -57,7 +57,7 @@ public class WallPaperController {
     }
 
 
-    @Log("I261-删除系统壁纸")
+    @Log("I261-删除壁纸")
     @ApiOperation(value = "I261-删除系统壁纸")
     @PostMapping("/deleteWallPaper")
     public Result deleteWallPaper(@RequestBody @Validated WallPaperDelRequest wallPaperDelRequest, BindingResult bindingResult) {
@@ -82,11 +82,11 @@ public class WallPaperController {
     }
 
 
-    @Log("I260-获取壁纸列表 type=1系统壁纸 type=2自定义壁纸")
-    @ApiOperation(value = "I260-获取壁纸列表 type=1系统壁纸 type=2自定义壁纸")
+    @Log("I260-获取壁纸列表 type=1系统壁纸 type=2自定义壁纸 type=3运动数据壁纸")
+    @ApiOperation(value = "I260-获取壁纸列表 type=1系统壁纸 type=3运动数据壁纸")
     @GetMapping("/getWallPaperList")
     public Result getWallPaperList(@ApiParam("名称") @RequestParam(required = false, name = "name") String name,
-                                   @ApiParam("类型 1系统壁纸 2自定义壁纸") @RequestParam(required = false, name = "type") String type,
+                                   @ApiParam("类型 1系统壁纸 2自定义壁纸 3运动数据壁纸") @RequestParam(required = false, name = "type") String type,
                                    @ApiParam("每页条数") @RequestParam(required = false, name = "size") Integer size,
                                    @ApiParam("当前请求页") @RequestParam(required = true, name = "current") String current) {
         if (StringUtils.isEmpty(current)) {

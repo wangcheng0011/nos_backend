@@ -37,10 +37,10 @@ public class HelpController {
         }
 
         //帮助必须上传图片
-        if (helpRequest.getImageUrls().size()==0){
+        /*if (helpRequest.getImageUrls().size()==0){
             //参数校验失败
             return ResultUtil.error("U0995", "帮助必须上传图片");
-        }
+        }*/
         //判断操作类型
         if ("1".equals(helpRequest.getPostType())) {
             //新增

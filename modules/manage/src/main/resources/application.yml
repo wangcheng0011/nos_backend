@@ -25,7 +25,7 @@ spring:
     #url: jdbc:mysql://124.70.213.14:3306/vitadb_dev?useSSL=false&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
     #username: vitadb_dev
     #password: vitadba@KLD2020
-    url: jdbc:mysql://124.70.213.14:3306/vitadb_test?useSSL=false&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://124.70.213.14:3306/vitadb_new?useSSL=false&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
     username: vitadba
     password: vitadba@KLD2020
     #url: jdbc:mysql://121.36.42.111:3306/knd_dev?useSSL=false&characterEncoding=UTF-8

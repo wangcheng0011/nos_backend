@@ -444,7 +444,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public Result getSportAndFrequency() {
         List<SportDto> sportList = new ArrayList<>();
         List<FrequencyDto> frequencyList = new ArrayList<>();
-        List<BaseFrequencyEntity> baseFrequencyEntities = frequencyMapper.selectList(new QueryWrapper<BaseFrequencyEntity>().eq("deleted", "0").orderByAsc("frequency"));
+        List<BaseFrequencyEntity> baseFrequencyEntities = frequencyMapper.selectList(new QueryWrapper<BaseFrequencyEntity>().eq("deleted", "0").orderByAsc("length(frequency)","frequency"));
         for (BaseFrequencyEntity entity : baseFrequencyEntities) {
             FrequencyDto frequencyDto = new FrequencyDto();
             BeanUtils.copyProperties(entity, frequencyDto);

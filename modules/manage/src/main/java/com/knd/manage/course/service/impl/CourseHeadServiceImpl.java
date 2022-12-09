@@ -910,7 +910,7 @@ public class CourseHeadServiceImpl extends ServiceImpl<CourseHeadMapper, CourseH
         qw.eq("deleted", 0);
         qw.eq("courseId", vo.getId());
         qw.select("nodeEndMinutes", "nodeEndSeconds");
-        qw.orderByDesc("nodeSort + 0");
+        qw.orderByDesc("length(nodeSort + 0)","nodeSort + 0");
         qw.last("limit 0,1");
         CourseTrainningNodeInfo ct = courseTrainningNodeInfoMapper.selectOne(qw);
         if (ct != null) {

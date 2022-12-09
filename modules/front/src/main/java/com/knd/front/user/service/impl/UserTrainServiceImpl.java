@@ -80,7 +80,7 @@ public class UserTrainServiceImpl implements UserTrainService {
             wrapper.eq("u.deleted","0");
             wrapper.groupBy("u.id");
 //            wrapper.orderBy(true,false,"trainNum","praiseNum");
-            wrapper.orderByDesc("trainNum","praiseNum");
+            wrapper.orderByDesc("length(trainNum)","trainNum","length(praiseNum)","praiseNum");
             wrapper.last("limit "+size);
             userTrainList = userTrainMapper.getUserTrainByParam(userId,date,type.getParamType(),type.getPraiseType(),wrapper);
             log.info("getRankingList userTrainList:{{}}",userTrainList);

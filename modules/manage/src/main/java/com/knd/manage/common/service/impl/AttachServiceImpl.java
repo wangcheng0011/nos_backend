@@ -66,6 +66,8 @@ public class AttachServiceImpl extends ServiceImpl<AttachMapper, Attach> impleme
     @Value("${OBS.bucketname}")
     private String bucketname;
 
+    long expireSeconds =  365 * 24 * 3600L;
+
 
     @Override
     public Attach insertReturnEntity(Attach entity) {
@@ -237,6 +239,40 @@ public class AttachServiceImpl extends ServiceImpl<AttachMapper, Attach> impleme
         }
         return aPi;
     }
+
+    @Override
+    public Attach saveVedioAttach(String userId, String videoAttachName, String videoAttachNewName, String videoAttachSize) {
+        Attach aVi2 = new Attach();
+        if (StringUtils.isNotEmpty(videoAttachName) && StringUtils.isNotEmpty(videoAttachNewName) && StringUtils.isNotEmpty(videoAttachSize)) {
+            //存储文件信息
+            ObsConfiguration config = new ObsConfiguration();
+            config.setSocketTimeout(30000);
+            config.setConnectionTimeout(10000);
+            config.setEndPoint(endPoint);
+            // 创建ObsClient实例
+            ObsClient obsClient = new ObsClient(ak, sk, config);
+            //获取视频访问的路径
+            String videoUrl = ObsObjectUtil.getUrl(obsClient, videoAttachNewName, bucketname, expireSeconds);
+            String[] strs11 = videoUrl.split("\\/");
+            videoUrl = strs11[strs11.length - 1];
+            //存储到数据库
+            aVi2.setId(UUIDUtil.getShortUUID());
+            aVi2.setFileName(videoAttachName);
+            aVi2.setFilePath(videoUrl);
+            aVi2.setFileSize(videoAttachSize);
+            aVi2.setFileType(videoAttachName.substring(videoAttachName.lastIndexOf(".") + 1));
+            aVi2.setCreateDate(LocalDateTime.now());
+            aVi2.setCreateBy(userId);
+            aVi2.setLastModifiedDate(LocalDateTime.now());
+            aVi2.setLastModifiedBy(userId);
+            aVi2.setDeleted("0");
+            baseMapper.insert(aVi2);
+        }
+        return aVi2;
+    }
+
+
+
 
     @Override
     public ImgDto getImgDto(String urlId) {

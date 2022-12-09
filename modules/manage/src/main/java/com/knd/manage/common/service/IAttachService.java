@@ -31,5 +31,7 @@ public interface IAttachService extends SuperService<Attach> {
 
     Attach saveAttach(String userId, String picAttachName, String picAttachNewName, String picAttachSize);
 
+    Attach saveVedioAttach(String userId, String videoAttachName, String videoAttachNewName, String videoAttachSize);
+
      ImgDto getImgDto(String urlId);
 }

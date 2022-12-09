@@ -47,10 +47,10 @@ public class CourseHeadServiceImpl extends ServiceImpl<CourseHeadMapper, CourseH
 
         if(StringUtils.isNotEmpty(request.getSortContent()) && StringUtils.isNotEmpty(request.getSortOrder())){
             if("desc".equals(request.getSortOrder().toLowerCase())){
-                qw.orderByDesc("a."+request.getSortContent());
+                qw.orderByDesc("length(a."+request.getSortContent()+")","a."+request.getSortContent());
             }
             if("asc".equals(request.getSortOrder().toLowerCase())){
-                qw.orderByAsc("a."+request.getSortContent());
+                qw.orderByAsc("length(a."+request.getSortContent()+")","a."+request.getSortContent());
             }
         }
         List<UserCourseEntity> list ;
@@ -99,10 +99,10 @@ public class CourseHeadServiceImpl extends ServiceImpl<CourseHeadMapper, CourseH
 
         if(StringUtils.isNotEmpty(request.getSortContent()) && StringUtils.isNotEmpty(request.getSortOrder())){
             if("desc".equals(request.getSortOrder().toLowerCase())){
-                qw.orderByDesc("a."+request.getSortContent());
+                qw.orderByDesc("length(a."+request.getSortContent()+")","a."+request.getSortContent());
             }
             if("asc".equals(request.getSortOrder().toLowerCase())){
-                qw.orderByAsc("a."+request.getSortContent());
+                qw.orderByAsc("length(a."+request.getSortContent()+")","a."+request.getSortContent());
             }
         }
         List<UserCourseEntity> list ;

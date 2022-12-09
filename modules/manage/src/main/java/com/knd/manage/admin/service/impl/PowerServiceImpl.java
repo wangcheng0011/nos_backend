@@ -50,7 +50,7 @@ public class PowerServiceImpl extends ServiceImpl<PowerMapper, Power> implements
         QueryWrapper<Power> qw = new QueryWrapper<>();
         qw.eq("deleted", "0");
         qw.select("moduleName", "moduleId", "pageName", "pageId");
-        qw.orderByAsc("moduleId", "pageName");
+        qw.orderByAsc("length(moduleId)","moduleId","length(pageName)", "pageName");
         qw.groupBy("pageId");
         List<Power> lp = baseMapper.selectList(qw);
         PowerListDto powerListDto = new PowerListDto();
@@ -77,7 +77,7 @@ public class PowerServiceImpl extends ServiceImpl<PowerMapper, Power> implements
                 qw.eq("deleted", "0");
                 qw.eq("pageId", p.getPageId());
                 qw.select("buttonName", "buttonId", "id");
-                qw.orderByAsc("id + 0");
+                qw.orderByAsc("length(id + 0)","id + 0");
                 List<Power> lb = baseMapper.selectList(qw);
                 //拼接出参格式
                 MpowerDto m = new MpowerDto();

@@ -25,6 +25,9 @@ public class WallPaperRequest {
     @ApiModelProperty(value = "用户id")
     private String userId;
 
+    @ApiModelProperty(value = "type=1系统壁纸 type=2自定义壁纸 type=3运动数据壁纸")
+    private String type;
+
     //1新增 2修改
     @NotBlank
     @Pattern(regexp = "^(1|2)$")

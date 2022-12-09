@@ -301,7 +301,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
     public Result getGoodsAttrValueList(String goodsId, String categoryId) {
         Result attrByCategoryId = iCategoryService.getAttrByCategoryId(categoryId);
         List<AttrEntity> attrEntities = (List<AttrEntity>) attrByCategoryId.getData();
-        List<GoodsAttrValueEntity> goodsAttrValueEntitys = goodsAttrValueMapper.selectList(new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", goodsId).orderByAsc("sort"));
+        List<GoodsAttrValueEntity> goodsAttrValueEntitys = goodsAttrValueMapper.selectList(new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", goodsId).orderByAsc("length(sort)","sort"));
         List<GoodsAttrRequest> attrList = new ArrayList<>();
         for (AttrEntity e: attrEntities
              ) {
@@ -337,7 +337,7 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, GoodsEntity> impl
         GoodsInfoDto goodsInfoDto = new GoodsInfoDto();
         BeanUtils.copyProperties(goodsEntity,goodsInfoDto);
         if (goodsEntity != null) {
-            List<GoodsAttrValueEntity> goodsAttrValueEntitys = goodsAttrValueMapper.selectList(new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", goodsId).orderByAsc("sort"));
+            List<GoodsAttrValueEntity> goodsAttrValueEntitys = goodsAttrValueMapper.selectList(new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", goodsId).orderByAsc("length(sort)","sort"));
             goodsInfoDto.setAttrList(goodsAttrValueEntitys);
             List<GoodsImgEntity> goodsHeadImgEntities = goodsImgMapper.selectList(new QueryWrapper<GoodsImgEntity>()
                     .eq("goodsId", goodsId).eq("imgType", "0"));

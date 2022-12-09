@@ -2,6 +2,7 @@ package com.knd.manage.basedata.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
@@ -10,20 +11,15 @@ import com.knd.common.response.ResultUtil;
 import com.knd.common.uuid.UUIDUtil;
 import com.knd.manage.basedata.dto.EquipmentListDto;
 import com.knd.manage.basedata.entity.BaseEquipment;
-import com.knd.manage.basedata.entity.GoodEquipment;
 import com.knd.manage.basedata.mapper.BaseActionEquipmentMapper;
 import com.knd.manage.basedata.mapper.BaseEquipmentMapper;
-import com.knd.manage.basedata.mapper.GoodEquipmentMapper;
 import com.knd.manage.basedata.service.IBaseEquipmentService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -154,7 +150,7 @@ public class BaseEquipmentServiceImpl extends ServiceImpl<BaseEquipmentMapper, B
         }
         qw.select("id", "equipment", "remark");
         qw.eq("deleted", "0");
-        qw.orderByAsc("equipment");
+        qw.orderByAsc("length(equipment)","equipment");
         List<BaseEquipment> list;
         EquipmentListDto equipmentListDto = new EquipmentListDto();
         if (StringUtils.isEmpty(currentPage)) {

@@ -36,7 +36,8 @@ public class UserOrderRecordServiceImpl implements UserOrderRecordService {
         QueryWrapper wrapper = new QueryWrapper();
         wrapper.eq("deleted","0");
         wrapper.eq("userId",userId);
-        wrapper.orderBy(true,false,"isRead","orderTime");
+        //wrapper.orderBy(true,false,"isRead","orderTime");
+        wrapper.orderByDesc("createDate");
         Page pageList = userOrderRecordMapper.selectPage(page, wrapper);
         List<UserOrderRecordEntity> list = pageList.getRecords();
         for (UserOrderRecordEntity entity: list){

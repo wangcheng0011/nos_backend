@@ -3,6 +3,7 @@ package com.knd.manage.admin.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
@@ -16,10 +17,8 @@ import com.knd.manage.admin.mapper.AdminRoleMapper;
 import com.knd.manage.admin.mapper.RoleMapper;
 import com.knd.manage.admin.mapper.RolePowerMapper;
 import com.knd.manage.admin.service.IRoleService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.manage.admin.vo.VoSaveRole;
 import com.knd.manage.admin.vo.VoSaveRolePower;
-import com.knd.manage.basedata.entity.BaseBodyPart;
 import com.knd.manage.common.vo.VoId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,7 +178,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         }
         qw.select("id", "name", "memo");
         qw.eq("deleted", "0");
-        qw.orderByAsc("name");
+        qw.orderByAsc("length(name)","name");
+
         List<Role> list;
         RoleListDto roleListDto = new RoleListDto();
         if (StringUtils.isEmpty(current)) {

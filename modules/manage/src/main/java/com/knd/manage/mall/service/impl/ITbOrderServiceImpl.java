@@ -140,13 +140,11 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
             OrderItemDto orderItemDto = new OrderItemDto();
             List<GoodsAttrValueEntity> goodsAttrValueEntities = goodsAttrValueMapper.selectList(
                     new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", tbOrderItem.getGoodsId())
-                            .orderByAsc("sort"));
+                            .orderByAsc("length(sort)","sort"));
             GoodsEntity goodsEntity = goodsMapper.selectById(tbOrderItem.getGoodsId());
             copyProperties(goodsEntity, orderItemDto);
             orderItemDto.setGoodsAttrValueEntityList(goodsAttrValueEntities);
             orderItemDtoList.add(orderItemDto);
-
-
         }
         orderDto.setOrderItemDtoList(orderItemDtoList);
         OrderIcEntity orderIcEntity = orderIcMapper.selectOne(new QueryWrapper<OrderIcEntity>()
@@ -215,7 +213,7 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
                 if ("2".equals(order.getOrderType()) || "4".equals(order.getOrderType())) {
                     List<GoodsAttrValueEntity> goodsAttrValueEntities = goodsAttrValueMapper.selectList(
                             new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", tbOrderItem.getGoodsId())
-                                    .orderByAsc("sort"));
+                                    .orderByAsc("length(sort)","sort"));
                     UserReceiveAddressEntity userReceiveAddressEntity = userReceiveAddressMapper.selectById(order.getUserReceiveAddressId());
                     orderDto.setUserReceiveAddressEntity(userReceiveAddressEntity);
                     GoodsEntity goodsEntity = goodsMapper.selectById(tbOrderItem.getGoodsId());
@@ -490,7 +488,7 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
                 OrderItemDto orderItemDto = new OrderItemDto();
                 List<GoodsAttrValueEntity> goodsAttrValueEntities = goodsAttrValueMapper.selectList(
                         new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", tbOrderItem.getGoodsId())
-                                .orderByAsc("sort"));
+                                .orderByAsc("length(sort)","sort"));
                 GoodsEntity goodsEntity = goodsMapper.selectById(tbOrderItem.getGoodsId());
                 copyProperties(goodsEntity, orderItemDto);
                 orderItemDto.setGoodsAttrValueEntityList(goodsAttrValueEntities);
@@ -553,7 +551,7 @@ public class ITbOrderServiceImpl extends ServiceImpl<TbOrderMapper, TbOrder> imp
                 OrderItemDto orderItemDto = new OrderItemDto();
                 List<GoodsAttrValueEntity> goodsAttrValueEntities = goodsAttrValueMapper.selectList(
                         new QueryWrapper<GoodsAttrValueEntity>().eq("goodsId", tbOrderItem.getGoodsId())
-                                .orderByAsc("sort"));
+                                .orderByAsc("length(sort)","sort"));
                 GoodsEntity goodsEntity = goodsMapper.selectById(tbOrderItem.getGoodsId());
                 copyProperties(goodsEntity, orderItemDto);
                 orderItemDto.setGoodsAttrValueEntityList(goodsAttrValueEntities);

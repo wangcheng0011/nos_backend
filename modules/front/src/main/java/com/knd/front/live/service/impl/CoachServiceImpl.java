@@ -106,15 +106,15 @@ public class CoachServiceImpl implements CoachService {
         wrapper.ne("a.userId",UserUtils.getUserId());
         if ("0".equals(request.getSort())) {
             //服务学员人数高到低
-            wrapper.orderByDesc("a.traineeNum");
+            wrapper.orderByDesc("length(a.traineeNum)","a.traineeNum");
         } else if ("1".equals(request.getSort())) {
             //服务学员人数低到高
-            wrapper.orderByAsc("a.traineeNum");
+            wrapper.orderByAsc("length(a.traineeNum)","a.traineeNum");
             //价格低到高
             //wrapper.orderByAsc("coursePrice");
        } else {
             //默认根据课程数量排序
-            wrapper.orderByDesc("num");
+            wrapper.orderByDesc("length(a.num)","num");
         }
         wrapper.groupBy("a.userId");
         Page<CoachListEntityDto> page = new Page<>(Integer.parseInt(request.getCurrent()), PageInfo.pageSize);

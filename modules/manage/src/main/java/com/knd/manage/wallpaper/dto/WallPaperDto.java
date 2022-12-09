@@ -15,7 +15,7 @@ public class WallPaperDto {
     private String selected;
     @ApiModelProperty(value = "壁纸名称")
     private String wallpaperName;
-    @ApiModelProperty(value = "类型 1系统壁纸 2自定义壁纸")
+    @ApiModelProperty(value = "类型 1系统壁纸 2自定义壁纸 3运动数据壁纸")
     private String type;
     @ApiModelProperty(value = "图片")
     private ImgDto imageUrl;

@@ -189,9 +189,9 @@ public class ActionArrayServiceImpl extends ServiceImpl<ActionArrayMapper, Actio
         queryWrapper.eq("a.deleted","0");
         queryWrapper.or(e->e.eq("a.shareStatus","1").eq("a.deleted","0"));
         if("ASC".equals(getActionArrayRequest.getSort())) {
-            queryWrapper.orderByAsc("a."+getActionArrayRequest.getSortField());
+            queryWrapper.orderByAsc("length(a."+ getActionArrayRequest.getSortField()+")","a."+getActionArrayRequest.getSortField());
         }else{
-            queryWrapper.orderByDesc("a."+getActionArrayRequest.getSortField());
+            queryWrapper.orderByDesc("length(a."+ getActionArrayRequest.getSortField()+")","a."+getActionArrayRequest.getSortField());
         }
         //List<ActionArray> records = baseMapper.selectPage(tPage, queryWrapper).getRecords();
         List<ActionArrayDto> userActionArrayList = baseMapper.getUserActionArrayList(tPage, queryWrapper);
@@ -222,7 +222,7 @@ public class ActionArrayServiceImpl extends ServiceImpl<ActionArrayMapper, Actio
     public Result getUserActionArrayInfo(String userId,String actionArrayId) {
         QueryWrapper<ActionArrayDetail> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("actionArrayId",actionArrayId);
-        queryWrapper.orderByAsc("sort");
+        queryWrapper.orderByAsc("length(sort)","sort");
         List<ActionArrayDetail> actionArrayDetails = actionArrayDetailMapper.selectList(queryWrapper);
        List<FreeTrainDetailDto> freeTrainDetailDtoList = new ArrayList<>();
         actionArrayDetails.forEach(e->{

@@ -20,8 +20,10 @@ import com.knd.front.help.mapper.HelpMapper;
 import com.knd.front.help.request.HelpRequest;
 import com.knd.front.help.service.IHelpService;
 import com.knd.front.pay.dto.ImgDto;
+import com.knd.front.train.mapper.AttachMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,9 +38,19 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
 
     @Resource
     private AttachService attachService;
-
     @Resource
     private HelpAttachMapper helpAttachMapper;
+    @Resource
+    private AttachMapper attachMapper;
+
+    @Value("${upload.FileImagesPath}")
+    private String fileImagesPath;
+    //视频文件夹路径
+    @Value("${OBS.videoFoldername}")
+    private String videoFoldername;
+    //視頻路徑
+    @Value("${upload.FileVideoPath}")
+    private String fileVideoPath;
 
     //新增
     @Override
@@ -48,7 +60,11 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         BeanUtils.copyProperties(helpRequest, helpEntity);
         helpEntity.setId(UUIDUtil.getShortUUID());
         List<VoUrlSort> imageUrls = helpRequest.getImageUrls();
+        log.info("add imageUrls:{{}}", helpRequest.getImageUrls());
         imageUrls.stream().sorted(Comparator.comparing(VoUrlSort::getSort)).forEach(url -> {
+            log.info("add sort:{{}}", url.getSort());
+            log.info("add picAttachName:{{}}", url.getPicAttachName());
+            log.info("add picAttachNewName:{{}}", url.getPicAttachNewName());
             if (StringUtils.isNotEmpty(url.getPicAttachName())
                     && StringUtils.isNotEmpty(url.getPicAttachNewName())
                     && StringUtils.isNotEmpty(url.getPicAttachSize())) {
@@ -65,6 +81,9 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
                 helpAttachMapper.insert(helpAttachEntity);
             }
         });
+        Attach attach = attachService.saveVedioAttach(UserUtils.getUserId(), helpRequest.getVoVideoUrl().getVideoAttachName(), helpRequest.getVoVideoUrl().getVideoAttachNewName(), helpRequest.getVoVideoUrl().getVideoAttachSize());
+        helpEntity.setVideoAttachId(attach.getId());
+        helpEntity.setVideoAttachName(helpRequest.getVoVideoUrl().getVideoAttachName());
         helpEntity.setCreateBy(UserUtils.getUserId());
         helpEntity.setCreateDate(LocalDateTime.now());
         helpEntity.setDeleted("0");
@@ -82,7 +101,11 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         helpAttachEntityQueryWrapper.eq("deleted", "0");
         helpAttachMapper.delete(helpAttachEntityQueryWrapper);
         List<VoUrlSort> imageUrls = helpRequest.getImageUrls();
+        log.info("add imageUrls:{{}}", helpRequest.getImageUrls());
         imageUrls.stream().sorted(Comparator.comparing(VoUrlSort::getSort)).forEach(url -> {
+            log.info("add sort:{{}}", url.getSort());
+            log.info("add picAttachName:{{}}", url.getPicAttachName());
+            log.info("add picAttachNewName:{{}}", url.getPicAttachNewName());
             if (StringUtils.isNotEmpty(url.getPicAttachName())
                     && StringUtils.isNotEmpty(url.getPicAttachNewName())
                     && StringUtils.isNotEmpty(url.getPicAttachSize())) {
@@ -99,20 +122,52 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
                 helpAttachMapper.insert(helpAttachEntity);
             }
         });
+        if (StringUtils.isNotEmpty(helpRequest.getVoVideoUrl().getVideoAttachNewName())) {
+            //检查视频文件是否有更新
+            Attach aVi = attachService.getInfoById(helpRequest.getVideoAttachId());
+            //视频是否需要更新
+            boolean vFlag = false;
+            if (aVi != null) {
+                String[] strs1 = aVi.getFilePath().split("\\?");
+                if (!strs1[0].equals(helpRequest.getVoVideoUrl().getVideoAttachNewName())) {
+                    //更新
+                    vFlag = true;
+                }
+                //不需要更新
+            } else {
+                //更新
+                vFlag = true;
+            }
+            if (vFlag) {
+                //更新视频
+                //将原文件标识设为删除
+                attachService.deleteFile(helpRequest.getVideoAttachId(),UserUtils.getUserId());
+                Attach attach = attachService.saveVedioAttach(UserUtils.getUserId(), helpRequest.getVoVideoUrl().getVideoAttachName(), helpRequest.getVoVideoUrl().getVideoAttachNewName(), helpRequest.getVoVideoUrl().getVideoAttachSize());
+                //
+                helpEntity.setVideoAttachId(attach.getId());
+                helpEntity.setVideoAttachName(helpRequest.getVoVideoUrl().getVideoAttachName());
+            }
+        }else {
+            //视频已经被清除
+            //清除数据库信息
+            helpEntity.setVideoAttachId("");
+        }
         helpEntity.setLastModifiedBy(UserUtils.getUserId());
         helpEntity.setLastModifiedDate(LocalDateTime.now());
         baseMapper.updateById(helpEntity);
         return ResultUtil.success(helpEntity);
     }
 
-    //删除
+    //删除a
     @Override
     public Result delete(HelpRequest helpRequest) {
         log.info("delete id:{{}}", helpRequest.getId());
-        HelpEntity helpEntity = new HelpEntity();
+        HelpEntity helpEntity = baseMapper.selectById(helpRequest.getId());
         helpEntity.setId(helpRequest.getId());
         helpEntity.setDeleted("1");
         baseMapper.updateById(helpEntity);
+        //将原文件标识设为删除
+        attachService.deleteFile(helpEntity.getVideoAttachId(),UserUtils.getUserId());
         //成功
         return ResultUtil.success();
     }
@@ -130,13 +185,24 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
         QueryWrapper<HelpAttachEntity> helpEntityQueryWrapper = new QueryWrapper<>();
         helpEntityQueryWrapper.eq("helpId", id);
         helpEntityQueryWrapper.eq("deleted", "0");
-        helpEntityQueryWrapper.orderByAsc("sort");
+        helpEntityQueryWrapper.orderByAsc("length(sort)","sort");
         List<HelpAttachEntity> helpAttachEntities = helpAttachMapper.selectList(helpEntityQueryWrapper);
         ArrayList<ImgDto> imgDtos = new ArrayList<>();
-        helpAttachEntities.stream().sorted(Comparator.comparing(HelpAttachEntity::getSort)).forEach(helpAttach -> {
+        helpAttachEntities.stream().forEach(helpAttach -> {
             imgDtos.add(attachService.getImgDto(helpAttach.getAttachUrlId()));
         });
         helpDto.setImageUrl(imgDtos);
+        //根据id获取视频信息
+        if(StringUtils.isNotEmpty(helpEntity.getVideoAttachId())) {
+            Attach aVi = attachService.getInfoById(helpEntity.getVideoAttachId());
+            if (aVi != null) {
+                helpDto.setVideoAttachUrl(fileVideoPath + aVi.getFilePath());
+                helpDto.setVideoAttachSize(aVi.getFileSize());
+                helpDto.setVideoAttachName(aVi.getFileName());
+                String[] strs = (aVi.getFilePath()).split("\\?");
+                helpDto.setVideoAttachNewName(videoFoldername + strs[0]);
+            }
+        }
         return ResultUtil.success(helpDto);
     }
 
@@ -164,14 +230,27 @@ public class IHelpServiceImp extends ServiceImpl<HelpMapper, HelpEntity> impleme
             QueryWrapper<HelpAttachEntity> helpEntityQueryWrapper = new QueryWrapper<>();
             helpEntityQueryWrapper.eq("helpId", helpEntity.getId());
             helpEntityQueryWrapper.eq("deleted", "0");
-            helpEntityQueryWrapper.orderByAsc("sort");
+            helpEntityQueryWrapper.orderByAsc("length(sort)","sort");
             List<HelpAttachEntity> helpAttachEntities = helpAttachMapper.selectList(helpEntityQueryWrapper);
             ArrayList<ImgDto> imgDtos = new ArrayList<>();
-            helpAttachEntities.stream().sorted(Comparator.comparing(HelpAttachEntity::getSort)).forEach(helpAttach -> {
+            helpAttachEntities.stream().forEach(helpAttach -> {
                 imgDtos.add(attachService.getImgDto(helpAttach.getAttachUrlId()));
             });
             helpDto.setImageUrl(imgDtos);
             helpDtoList.add(helpDto);
+            //根据id获取视频信息
+            if(StringUtils.isNotEmpty(helpEntity.getVideoAttachId())) {
+                if (StringUtils.isNotEmpty(helpEntity.getVideoAttachId())) {
+                    Attach aVi = attachService.getInfoById(helpEntity.getVideoAttachId());
+                    if (aVi != null) {
+                        helpDto.setVideoAttachUrl(fileVideoPath + aVi.getFilePath());
+                        helpDto.setVideoAttachSize(aVi.getFileSize());
+                        helpDto.setVideoAttachName(aVi.getFileName());
+                        String[] strs = (aVi.getFilePath()).split("\\?");
+                        helpDto.setVideoAttachNewName(videoFoldername + strs[0]);
+                    }
+                }
+            }
         });
         helpDtoPage.setRecords(helpDtoList);
         helpDtoPage.setTotal(partPage.getTotal());

@@ -124,7 +124,7 @@ public class BaseFrequencyServiceImpl implements BaseFrequencyService {
         if (StringUtils.isNotEmpty(frequency)){
             wrapper.eq("frequency",frequency);
         }
-        wrapper.orderByDesc("frequency");
+        wrapper.orderByDesc("length(frequency)","frequency");
         List<BaseFrequencyEntity> list;
         long total;
         if (StringUtils.isNotEmpty(currentPage)){

@@ -1,8 +1,8 @@
 package com.knd.manage.equip.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knd.common.basic.StringUtils;
 import com.knd.common.page.PageInfo;
 import com.knd.common.response.Result;
@@ -12,14 +12,11 @@ import com.knd.manage.equip.dto.ReportInfoListDto;
 import com.knd.manage.equip.entity.EquipmentReportInfo;
 import com.knd.manage.equip.mapper.EquipmentReportInfoMapper;
 import com.knd.manage.equip.service.IEquipmentReportInfoService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>

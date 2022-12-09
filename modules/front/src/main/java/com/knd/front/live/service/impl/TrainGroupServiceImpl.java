@@ -433,7 +433,7 @@ public class TrainGroupServiceImpl extends ServiceImpl<TrainGroupMapper, TrainGr
             wrapper.eq("gp.trainGroupId", groupId);
             wrapper.eq("gp.joinStatus", 1);
             wrapper.groupBy("u.id");
-            wrapper.orderByDesc("trainNum", "praiseNum");
+            wrapper.orderByDesc("length(trainNum)","trainNum","length(praiseNum)", "praiseNum");
             userTrainList = trainGroupRankMapper.getGroupTrainByParam(userId, groupId, type.getParamType(), type.getPraiseType(), date, wrapper);
             for (UserTrainDto dto : userTrainList) {
                 if (StringUtils.isEmpty(dto.getTrainNum())) {

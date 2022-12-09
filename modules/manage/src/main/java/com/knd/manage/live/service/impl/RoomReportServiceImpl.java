@@ -99,14 +99,16 @@ public class RoomReportServiceImpl implements RoomReportService {
                 if (roomEntity != null) {
                     BeanUtils.copyProperties(entity, dto);
                     User roomUser = userMapper.selectById(roomEntity.getUserId());
+                    if(StringUtils.isNotEmpty(roomUser)){
+                        dto.setRoomMobile(roomUser.getMobile());
+                        dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
+                        dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
+                    }
                     log.info("getRoomReportList User：{{}}", roomUser);
                     dto.setRoomId(roomEntity.getId());
                     dto.setUserId(roomEntity.getUserId());
                     dto.setRoom(roomEntity.getRoomName());
                     // dto.setType(entity.getType());
-                    dto.setRoomMobile(roomUser.getMobile());
-                    dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
-                    dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
                     dto.setIsClose(roomEntity.getRoomStatus());
                     int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
                     dto.setIsKickOut(count + "");
@@ -123,14 +125,16 @@ public class RoomReportServiceImpl implements RoomReportService {
                 if (userCoachTimeEntity != null) {
                     BeanUtils.copyProperties(entity, dto);
                     User roomUser = userMapper.selectById(userCoachTimeEntity.getCoachUserId());
+                    if(StringUtils.isNotEmpty(roomUser)){
+                        dto.setRoomMobile(roomUser.getMobile());
+                        dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
+                        dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
+                    }
                     log.info("getRoomReportList User：{{}}", roomUser);
                     dto.setRoomId(userCoachTimeEntity.getId());
                     dto.setUserId(userCoachTimeEntity.getCoachUserId());
                     // dto.setRoom(roomUser.getNickName());
                     // dto.setType(entity.getType());
-                    dto.setRoomMobile(roomUser.getMobile());
-                    dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
-                    dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
                     dto.setIsClose(userCoachTimeEntity.getLiveStatus() == "1" ? "0" : "1");
                     // int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));
                     //  dto.setIsKickOut(count + "");
@@ -147,14 +151,16 @@ public class RoomReportServiceImpl implements RoomReportService {
                 if (userCoachTimeEntity != null) {
                     BeanUtils.copyProperties(entity, dto);
                     User roomUser = userMapper.selectById(userCoachTimeEntity.getCoachUserId());
+                    if(StringUtils.isNotEmpty(roomUser)){
+                        dto.setRoomMobile(roomUser.getMobile());
+                        dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
+                        dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
+                    }
                     log.info("getRoomReportList User：{{}}", roomUser);
                     dto.setRoomId(userCoachTimeEntity.getCoachCourseId());
                     dto.setUserId(userCoachTimeEntity.getCoachUserId());
                     // dto.setRoom(roomEntity.getRoomName());
                     // dto.setType(entity.getType());
-                    dto.setRoomMobile(roomUser.getMobile());
-                    dto.setRoomUserName(roomUser != null ? roomUser.getNickName() : "");
-                    dto.setIsFrozen(roomUser != null ? roomUser.getFrozenFlag() : "1");
                     dto.setIsClose(userCoachTimeEntity.getLiveStatus() == "1" ? "0" : "1");
 
                     //   int count = trainGroupUserMapper.selectCount(new QueryWrapper<TrainGroupUserEntity>().eq("userId", roomEntity.getUserId()).eq("trainGroupId", roomEntity.getTrainGroupId()));

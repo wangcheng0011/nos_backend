@@ -52,6 +52,8 @@ public class AttachServiceImpl implements AttachService {
     @Autowired
     private UserDetailMapper userDetailMapper;
 
+    long expireSeconds =  365 * 24 * 3600L;
+
     @Override
     public Attach saveAttach(String userId, String picAttachName, String picAttachNewName, String picAttachSize) {
         log.info("---------------保存附件开始----------------");
@@ -100,6 +102,39 @@ public class AttachServiceImpl implements AttachService {
         log.info("---------------保存附件结束----------------");
         return aPi;
     }
+
+    @Override
+    public Attach saveVedioAttach(String userId, String videoAttachName, String videoAttachNewName, String videoAttachSize) {
+        Attach aVi2 = new Attach();
+        if (StringUtils.isNotEmpty(videoAttachName) && StringUtils.isNotEmpty(videoAttachNewName) && StringUtils.isNotEmpty(videoAttachSize)) {
+            //存储文件信息
+            ObsConfiguration config = new ObsConfiguration();
+            config.setSocketTimeout(30000);
+            config.setConnectionTimeout(10000);
+            config.setEndPoint(endPoint);
+            // 创建ObsClient实例
+            ObsClient obsClient = new ObsClient(ak, sk, config);
+            //获取视频访问的路径
+            String videoUrl = ObsObjectUtil.getUrl(obsClient, videoAttachNewName, bucketname, expireSeconds);
+            String[] strs11 = videoUrl.split("\\/");
+            videoUrl = strs11[strs11.length - 1];
+            //存储到数据库
+            aVi2.setId(UUIDUtil.getShortUUID());
+            aVi2.setFileName(videoAttachName);
+            aVi2.setFilePath(videoUrl);
+            aVi2.setFileSize(videoAttachSize);
+            aVi2.setFileType(videoAttachName.substring(videoAttachName.lastIndexOf(".") + 1));
+            aVi2.setCreateDate(LocalDateTime.now());
+            aVi2.setCreateBy(userId);
+            aVi2.setLastModifiedDate(LocalDateTime.now());
+            aVi2.setLastModifiedBy(userId);
+            aVi2.setDeleted("0");
+            attachMapper.insert(aVi2);
+        }
+        return aVi2;
+    }
+
+
 
     //根据文件id获取文件信息
     @Override
